@@ -19,7 +19,7 @@ import { MealToneBadge } from "@/components/MealToneBadge";
 import { History, Radio, Image, ScanBarcode, HelpCircle } from "lucide-react";
 import { preprocessImage, getBase64SizeKB } from "@/lib/imageProcessor";
 import { toast } from "sonner";
-import { safeNumber, getCalorieValue, hasValidCalories } from "@/lib/nutritionUtils";
+import { safeNumber, getCalorieValue, hasValidCalories, ensureMacros } from "@/lib/nutritionUtils";
 import {
   startScanMetrics,
   markUIResponse,
@@ -773,10 +773,10 @@ export default function Index() {
                 </div>
               )}
 
-              {/* Macros if available */}
-              {result.macros && (
+              {/* Macros - always show if we have calories, infer if needed */}
+              {hasValidCalories(result.totalCalories) && (
                 <div className="mb-6">
-                  <MacrosBadge macros={result.macros} />
+                  <MacrosBadge macros={ensureMacros(result.macros, result.totalCalories)} />
                 </div>
               )}
 

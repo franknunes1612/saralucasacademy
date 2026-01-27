@@ -12,7 +12,7 @@ import { FoodItemsList } from "@/components/FoodItemsList";
 import { MacrosBadge } from "@/components/MacrosBadge";
 import { MealToneBadge } from "@/components/MealToneBadge";
 import { ArrowLeft, Trash2, Camera, Bell, BellOff, HelpCircle } from "lucide-react";
-import { safeNumber, getCalorieValue } from "@/lib/nutritionUtils";
+import { safeNumber, getCalorieValue, ensureMacros } from "@/lib/nutritionUtils";
 
 function calculateTotalCalories(meals: SavedMeal[]): number {
   let total = 0;
@@ -111,9 +111,9 @@ export default function MyMeals() {
             <CalorieMeter calories={selectedMeal.totalCalories} size="md" animated={false} />
           </div>
 
-          {/* Macros if available */}
-          {selectedMeal.macros && (
-            <MacrosBadge macros={selectedMeal.macros} />
+          {/* Macros - always show if calories exist, infer if needed */}
+          {getCalorieValue(selectedMeal.totalCalories) > 0 && (
+            <MacrosBadge macros={ensureMacros(selectedMeal.macros, selectedMeal.totalCalories)} />
           )}
 
           {/* Food items list */}
