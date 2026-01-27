@@ -16,6 +16,7 @@ import { BarcodeScannerView } from "@/components/BarcodeScannerView";
 import { BarcodeResultCard } from "@/components/BarcodeResultCard";
 import { PortionFeedback, PortionAdjustment } from "@/components/PortionFeedback";
 import { MealToneBadge } from "@/components/MealToneBadge";
+import { ZeroCalorieBadge, ZeroMacrosBadge } from "@/components/ZeroCalorieBadge";
 import { Onboarding } from "@/components/Onboarding";
 
 import { RecipeSuggestions } from "@/components/RecipeSuggestions";
@@ -934,26 +935,36 @@ export default function Index() {
                 </div>
               )}
 
-              {/* Calorie meter - Hero */}
-              <div className="flex justify-center mb-6">
-                <CalorieMeter calories={getDisplayCalories()} size="lg" />
-              </div>
-
-              {/* Portion feedback - hide for zero-calorie items */}
-              {result.totalCalories !== null && !isZeroCalorieResult(result.totalCalories) && (
-                <div className="mb-5">
-                  <PortionFeedback
-                    originalCalories={getOriginalCalorieValue()}
-                    onAdjust={handlePortionAdjust}
-                  />
+              {/* Zero-calorie badge OR Calorie meter */}
+              {isZeroCalorieResult(result.totalCalories) ? (
+                <div className="flex flex-col items-center gap-4 mb-6">
+                  <ZeroCalorieBadge showSubtitle />
+                  <ZeroMacrosBadge />
                 </div>
-              )}
+              ) : (
+                <>
+                  {/* Calorie meter - Hero */}
+                  <div className="flex justify-center mb-6">
+                    <CalorieMeter calories={getDisplayCalories()} size="lg" />
+                  </div>
 
-              {/* Macros - show for caloric items only, hide for zero-calorie */}
-              {hasValidCalories(result.totalCalories) && !isZeroCalorieResult(result.totalCalories) && (
-                <div className="mb-6">
-                  <MacrosBadge macros={ensureMacros(result.macros, result.totalCalories)} />
-                </div>
+                  {/* Portion feedback */}
+                  {result.totalCalories !== null && (
+                    <div className="mb-5">
+                      <PortionFeedback
+                        originalCalories={getOriginalCalorieValue()}
+                        onAdjust={handlePortionAdjust}
+                      />
+                    </div>
+                  )}
+
+                  {/* Macros */}
+                  {hasValidCalories(result.totalCalories) && (
+                    <div className="mb-6">
+                      <MacrosBadge macros={ensureMacros(result.macros, result.totalCalories)} />
+                    </div>
+                  )}
+                </>
               )}
 
               {/* Confidence badge */}
