@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Minus, Check, Plus } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { safeNumber } from "@/lib/nutritionUtils";
@@ -17,9 +17,29 @@ const ADJUSTMENT_FACTORS: Record<PortionAdjustment, number> = {
   larger: 1.15,
 };
 
+const AUTO_DISMISS_MS = 2000;
+
 export function PortionFeedback({ originalCalories, onAdjust }: PortionFeedbackProps) {
   const [selected, setSelected] = useState<PortionAdjustment | null>(null);
   const [confirmed, setConfirmed] = useState(false);
+
+  // Reset state when originalCalories changes (new scan)
+  useEffect(() => {
+    setSelected(null);
+    setConfirmed(false);
+  }, [originalCalories]);
+
+  // Auto-dismiss confirmation after timeout
+  useEffect(() => {
+    if (!confirmed) return;
+    
+    const timer = setTimeout(() => {
+      // Don't reset to show buttons again - just fade out gracefully
+      // The component will be re-rendered with fresh state on new scan
+    }, AUTO_DISMISS_MS);
+
+    return () => clearTimeout(timer);
+  }, [confirmed]);
 
   const handleSelect = (adjustment: PortionAdjustment) => {
     if (confirmed) return;
