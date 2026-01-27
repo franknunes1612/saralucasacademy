@@ -21,7 +21,7 @@ const corsHeaders = {
 
 type PortionSize = "small" | "medium" | "large";
 type PlateType = "single_item" | "half_plate" | "full_plate" | "mixed_dish" | "bowl" | "snack";
-type FoodCategory = "fruit" | "vegetable" | "grain" | "protein_lean" | "protein_fatty" | "dairy" | "fried" | "sauce" | "drink" | "dessert" | "unknown";
+type FoodCategory = "fruit" | "vegetable" | "grain" | "protein_lean" | "protein_fatty" | "dairy" | "fried" | "sauce" | "drink" | "drink_zero" | "dessert" | "unknown";
 
 interface FoodItem {
   name: string;
@@ -110,6 +110,7 @@ const CATEGORY_MACRO_RATIOS: Record<FoodCategory, { protein: number; carbs: numb
   fried: { protein: 0.15, carbs: 0.40, fat: 0.45 },       // High fat
   sauce: { protein: 0.05, carbs: 0.50, fat: 0.45 },       // Fat + carbs
   drink: { protein: 0.02, carbs: 0.95, fat: 0.03 },       // Almost all carbs
+  drink_zero: { protein: 0, carbs: 0, fat: 0 },           // Zero-calorie beverages
   dessert: { protein: 0.05, carbs: 0.55, fat: 0.40 },     // Carbs + fat
   unknown: { protein: 0.20, carbs: 0.50, fat: 0.30 },     // Conservative balance
 };
@@ -127,6 +128,7 @@ const CATEGORY_CALORIE_DEFAULTS: Record<FoodCategory, number> = {
   fried: 250,
   sauce: 80,
   drink: 120,
+  drink_zero: 0,  // Zero-calorie beverages
   dessert: 200,
   unknown: 80,
 };
@@ -155,10 +157,54 @@ function inferMacrosFromCalories(
 }
 
 /**
+ * Zero-calorie beverage patterns
+ * These items should ALWAYS return 0 calories regardless of portion
+ */
+const ZERO_CALORIE_PATTERNS = [
+  // Water variants
+  /\b(water|água|wasser)\b/i,
+  /\b(sparkling water|carbonated water|mineral water|soda water|seltzer)\b/i,
+  /\b(pedras|perrier|san pellegrino|pellegrino|evian|fiji|voss)\b/i,
+  /\b(água com gás|água mineral|água gaseificada)\b/i,
+  // Unsweetened tea/coffee
+  /\b(black coffee|espresso|americano|plain coffee)\b/i,
+  /\b(unsweetened tea|plain tea|green tea|herbal tea|chá sem açúcar)\b/i,
+  // Zero/diet drinks
+  /\b(zero|diet|sugar[- ]?free|light|sem açúcar|sin azúcar)\b/i,
+  /\b(coke zero|pepsi zero|sprite zero|fanta zero)\b/i,
+];
+
+/**
+ * Check if an item is a zero-calorie beverage
+ */
+function isZeroCalorieBeverage(name: string): boolean {
+  const lower = name.toLowerCase();
+  
+  // Check against zero-calorie patterns
+  for (const pattern of ZERO_CALORIE_PATTERNS) {
+    if (pattern.test(lower)) {
+      // Make sure it's not a sweetened variant that mentions "water" or similar
+      const sweetenedPatterns = /\b(sugar|sweetened|flavored|syrup|honey|açúcar|adoçado)\b/i;
+      if (!sweetenedPatterns.test(lower)) {
+        console.log(`[identify-food] Zero-calorie beverage detected: "${name}"`);
+        return true;
+      }
+    }
+  }
+  
+  return false;
+}
+
+/**
  * Detect food category from name (simple heuristic)
  */
 function detectFoodCategory(name: string): FoodCategory {
   const lower = name.toLowerCase();
+  
+  // FIRST: Check for zero-calorie beverages
+  if (isZeroCalorieBeverage(name)) {
+    return "drink_zero";
+  }
   
   // Fruits
   if (/\b(apple|banana|orange|mandarin|tangerine|mango|grape|berry|berries|melon|pear|peach|plum|kiwi|pineapple|strawberry|blueberry|raspberry|watermelon|fruit)\b/.test(lower)) {
@@ -200,8 +246,8 @@ function detectFoodCategory(name: string): FoodCategory {
     return "sauce";
   }
   
-  // Drinks
-  if (/\b(juice|soda|smoothie|shake|coffee|latte|tea|drink|beverage)\b/.test(lower)) {
+  // Regular drinks (caloric)
+  if (/\b(juice|soda|smoothie|shake|latte|cappuccino|mocha|frappuccino|milkshake)\b/.test(lower)) {
     return "drink";
   }
   
@@ -281,13 +327,42 @@ function sanitizeTotalCalories(calories: number | { min: number; max: number } |
 }
 
 /**
+ * Apply zero-calorie guardrail to detected items
+ * MUST run BEFORE any other calorie processing
+ */
+function applyZeroCalorieGuardrail(items: FoodItem[]): FoodItem[] {
+  return items.map(item => {
+    const category = detectFoodCategory(item.name);
+    
+    // If it's a zero-calorie beverage, force 0 calories
+    if (category === "drink_zero") {
+      console.log(`[identify-food] Zero-calorie guardrail applied: "${item.name}" → 0 kcal`);
+      return {
+        ...item,
+        estimatedCalories: 0,
+        category: "drink_zero",
+      };
+    }
+    
+    return { ...item, category: item.category || category };
+  });
+}
+
+/**
  * Apply fallback calorie estimates for items with missing data
  * Uses category-specific defaults with portion multipliers
+ * IMPORTANT: Zero-calorie items are handled separately and skipped here
  */
 function applyFallbackEstimates(items: FoodItem[]): FoodItem[] {
   return items.map(item => {
+    // Zero-calorie items should never get fallback calories
+    if (item.category === "drink_zero") {
+      return { ...item, estimatedCalories: 0 };
+    }
+    
     // If item already has valid calories, keep it
-    if (item.estimatedCalories && Number.isFinite(item.estimatedCalories) && item.estimatedCalories > 0) {
+    if (item.estimatedCalories !== null && item.estimatedCalories !== undefined && 
+        Number.isFinite(item.estimatedCalories) && item.estimatedCalories >= 0) {
       // Ensure category is set
       const category = item.category || detectFoodCategory(item.name);
       return { ...item, category };
@@ -707,37 +782,53 @@ serve(async (req: Request) => {
       );
     }
 
-    // Apply fallback estimates for items missing calories
-    const sanitizedItems = applyFallbackEstimates(items);
+    // FIRST: Apply zero-calorie guardrail (must run before any other processing)
+    const guardedItems = applyZeroCalorieGuardrail(items);
+    
+    // Apply fallback estimates for items missing calories (skips zero-calorie items)
+    const sanitizedItems = applyFallbackEstimates(guardedItems);
 
     // Sanitize confidence score first (used in multiple places)
     const finalConfidence = safeNumber(confidenceScore, 50);
+    
+    // Check if ALL items are zero-calorie beverages
+    const allZeroCalorie = sanitizedItems.every(item => item.category === "drink_zero");
 
     // Calculate total calories from items if missing
     let finalTotalCalories = sanitizeTotalCalories(totalCalories);
-    if (finalTotalCalories === null && sanitizedItems.length > 0) {
+    
+    // For zero-calorie items, force total to 0
+    if (allZeroCalorie && sanitizedItems.length > 0) {
+      finalTotalCalories = 0;
+      console.log(`[identify-food] All items are zero-calorie beverages, total = 0`);
+    } else if (finalTotalCalories === null && sanitizedItems.length > 0) {
       const sum = sanitizedItems.reduce((acc, item) => acc + safeNumber(item.estimatedCalories, 0), 0);
-      if (sum > 0) {
+      if (sum >= 0) {
         finalTotalCalories = Math.round(sum);
         console.log(`[identify-food] Calculated total calories from items: ${finalTotalCalories}`);
       }
     }
 
     // Calculate calorie range based on confidence (±10-20% variance)
+    // For zero-calorie items, range is always 0-0
     const baseCalories = typeof finalTotalCalories === "number" 
       ? finalTotalCalories 
       : finalTotalCalories 
         ? Math.round((finalTotalCalories.min + finalTotalCalories.max) / 2)
         : 0;
     
-    // Higher confidence = smaller range, lower confidence = wider range
-    const variancePercent = finalConfidence >= 80 ? 0.10 : finalConfidence >= 60 ? 0.15 : 0.20;
-    const calorieRange = baseCalories > 0 
-      ? { 
-          min: Math.round(baseCalories * (1 - variancePercent)), 
-          max: Math.round(baseCalories * (1 + variancePercent)) 
-        }
-      : null;
+    // Zero-calorie items get no range uncertainty
+    let calorieRange: { min: number; max: number } | null = null;
+    if (allZeroCalorie) {
+      calorieRange = null; // No range for zero-calorie items
+    } else if (baseCalories > 0) {
+      // Higher confidence = smaller range, lower confidence = wider range
+      const variancePercent = finalConfidence >= 80 ? 0.10 : finalConfidence >= 60 ? 0.15 : 0.20;
+      calorieRange = { 
+        min: Math.round(baseCalories * (1 - variancePercent)), 
+        max: Math.round(baseCalories * (1 + variancePercent)) 
+      };
+    }
 
     // Determine plate type based on items
     const plateType: PlateType = sanitizedItems.length === 1 
@@ -746,10 +837,16 @@ serve(async (req: Request) => {
         ? "mixed_dish" 
         : "half_plate";
 
-    // ALWAYS include macros - infer from calories if not provided by vision
-    // This ensures macros are NEVER null when we have calories
-    const dominantCategory = getDominantCategory(sanitizedItems);
-    const finalMacros = sanitizeMacros(macros, baseCalories, dominantCategory);
+    // For zero-calorie items, macros are always 0
+    // Otherwise, infer from calories if not provided
+    let finalMacros: { protein: number; carbs: number; fat: number };
+    if (allZeroCalorie) {
+      finalMacros = { protein: 0, carbs: 0, fat: 0 };
+      console.log(`[identify-food] Zero-calorie item(s), macros = 0`);
+    } else {
+      const dominantCategory = getDominantCategory(sanitizedItems);
+      finalMacros = sanitizeMacros(macros, baseCalories, dominantCategory);
+    }
 
     // Final sanity check - ensure all values are valid
     const response: FoodIdentificationResponse = {
