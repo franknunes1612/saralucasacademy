@@ -22,8 +22,8 @@ export function useRecommendedProducts(includeInactive = false) {
   return useQuery({
     queryKey: ["recommended-products", includeInactive],
     queryFn: async () => {
-      let query = supabase
-        .from("recommended_products")
+      // Using type assertion since recommended_products table was just created
+      let query = (supabase.from as any)("recommended_products")
         .select("*")
         .order("display_order", { ascending: true });
 
@@ -48,8 +48,7 @@ export function useRecommendedProductMutations() {
 
   const createProduct = useMutation({
     mutationFn: async (product: Omit<RecommendedProduct, "id" | "created_at" | "updated_at">) => {
-      const { data, error } = await supabase
-        .from("recommended_products")
+      const { data, error } = await (supabase.from as any)("recommended_products")
         .insert(product)
         .select()
         .single();
@@ -64,8 +63,7 @@ export function useRecommendedProductMutations() {
 
   const updateProduct = useMutation({
     mutationFn: async ({ id, ...updates }: Partial<RecommendedProduct> & { id: string }) => {
-      const { data, error } = await supabase
-        .from("recommended_products")
+      const { data, error } = await (supabase.from as any)("recommended_products")
         .update(updates)
         .eq("id", id)
         .select()
@@ -81,8 +79,7 @@ export function useRecommendedProductMutations() {
 
   const deleteProduct = useMutation({
     mutationFn: async (id: string) => {
-      const { error } = await supabase
-        .from("recommended_products")
+      const { error } = await (supabase.from as any)("recommended_products")
         .delete()
         .eq("id", id);
 
