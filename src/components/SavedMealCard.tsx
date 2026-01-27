@@ -1,7 +1,7 @@
 import { SavedMeal } from "@/hooks/useSavedMeals";
 import { MacrosBadge } from "./MacrosBadge";
 import { MealToneBadge } from "./MealToneBadge";
-import { safeNumber, getCalorieValue, hasValidCalories } from "@/lib/nutritionUtils";
+import { safeNumber, getCalorieValue, hasValidCalories, ensureMacros } from "@/lib/nutritionUtils";
 
 interface SavedMealCardProps {
   meal: SavedMeal;
@@ -78,10 +78,10 @@ export function SavedMealCard({ meal, onTap }: SavedMealCardProps) {
         </div>
       )}
 
-      {/* Compact macro breakdown */}
-      {meal.macros && (
+      {/* Compact macro breakdown - always show if calories exist, infer if needed */}
+      {hasValidCalories(meal.totalCalories) && (
         <div className="mt-2 pt-2 border-t border-border/50">
-          <MacrosBadge macros={meal.macros} compact showInfoIcon={false} showDescription={false} />
+          <MacrosBadge macros={ensureMacros(meal.macros, meal.totalCalories)} compact showInfoIcon={false} showDescription={false} />
         </div>
       )}
     </div>

@@ -97,6 +97,123 @@ function safeNumber(value: unknown, fallback: number = 0): number {
 }
 
 /**
+ * Food category to macro ratio mapping
+ * Used to infer macros when only calories are known
+ */
+const CATEGORY_MACRO_RATIOS: Record<FoodCategory, { protein: number; carbs: number; fat: number }> = {
+  fruit: { protein: 0.04, carbs: 0.92, fat: 0.04 },       // ~85-90% carbs
+  vegetable: { protein: 0.15, carbs: 0.75, fat: 0.10 },   // Carb dominant, some protein
+  grain: { protein: 0.12, carbs: 0.78, fat: 0.10 },       // High carb
+  protein_lean: { protein: 0.70, carbs: 0.05, fat: 0.25 },// High protein
+  protein_fatty: { protein: 0.45, carbs: 0.05, fat: 0.50 },// Protein + fat
+  dairy: { protein: 0.25, carbs: 0.35, fat: 0.40 },       // Balanced
+  fried: { protein: 0.15, carbs: 0.40, fat: 0.45 },       // High fat
+  sauce: { protein: 0.05, carbs: 0.50, fat: 0.45 },       // Fat + carbs
+  drink: { protein: 0.02, carbs: 0.95, fat: 0.03 },       // Almost all carbs
+  dessert: { protein: 0.05, carbs: 0.55, fat: 0.40 },     // Carbs + fat
+  unknown: { protein: 0.20, carbs: 0.50, fat: 0.30 },     // Conservative balance
+};
+
+/**
+ * Default calorie estimates by food category (per medium portion)
+ */
+const CATEGORY_CALORIE_DEFAULTS: Record<FoodCategory, number> = {
+  fruit: 60,
+  vegetable: 35,
+  grain: 150,
+  protein_lean: 120,
+  protein_fatty: 200,
+  dairy: 100,
+  fried: 250,
+  sauce: 80,
+  drink: 120,
+  dessert: 200,
+  unknown: 80,
+};
+
+/**
+ * Infer macros from calories using food category ratios
+ * This ensures macros are ALWAYS present when calories exist
+ */
+function inferMacrosFromCalories(
+  calories: number, 
+  category: FoodCategory = "unknown"
+): { protein: number; carbs: number; fat: number } {
+  const safeCalories = safeNumber(calories, 0);
+  if (safeCalories <= 0) {
+    return { protein: 0, carbs: 0, fat: 0 };
+  }
+  
+  const ratios = CATEGORY_MACRO_RATIOS[category] || CATEGORY_MACRO_RATIOS.unknown;
+  
+  // Calculate grams: protein=4kcal/g, carbs=4kcal/g, fat=9kcal/g
+  const protein = Math.round((safeCalories * ratios.protein) / 4);
+  const carbs = Math.round((safeCalories * ratios.carbs) / 4);
+  const fat = Math.round((safeCalories * ratios.fat) / 9);
+  
+  return { protein, carbs, fat };
+}
+
+/**
+ * Detect food category from name (simple heuristic)
+ */
+function detectFoodCategory(name: string): FoodCategory {
+  const lower = name.toLowerCase();
+  
+  // Fruits
+  if (/\b(apple|banana|orange|mandarin|tangerine|mango|grape|berry|berries|melon|pear|peach|plum|kiwi|pineapple|strawberry|blueberry|raspberry|watermelon|fruit)\b/.test(lower)) {
+    return "fruit";
+  }
+  
+  // Vegetables
+  if (/\b(salad|lettuce|tomato|cucumber|carrot|broccoli|spinach|kale|vegetable|veggie|greens|pepper|onion|celery|cabbage|zucchini)\b/.test(lower)) {
+    return "vegetable";
+  }
+  
+  // Grains
+  if (/\b(rice|pasta|bread|noodle|cereal|oat|quinoa|couscous|bagel|toast|roll|bun|grain|wheat|corn)\b/.test(lower)) {
+    return "grain";
+  }
+  
+  // Lean proteins
+  if (/\b(chicken breast|turkey breast|fish|cod|tilapia|shrimp|egg white|tofu|white meat)\b/.test(lower)) {
+    return "protein_lean";
+  }
+  
+  // Fatty proteins
+  if (/\b(beef|steak|pork|lamb|salmon|bacon|sausage|chicken thigh|dark meat|ribs)\b/.test(lower)) {
+    return "protein_fatty";
+  }
+  
+  // Dairy
+  if (/\b(milk|cheese|yogurt|cream|butter|dairy)\b/.test(lower)) {
+    return "dairy";
+  }
+  
+  // Fried foods
+  if (/\b(fried|fries|chips|nugget|wing|crispy|battered|deep-fried)\b/.test(lower)) {
+    return "fried";
+  }
+  
+  // Sauces
+  if (/\b(sauce|dressing|gravy|mayo|mayonnaise|ketchup|mustard|oil|butter)\b/.test(lower)) {
+    return "sauce";
+  }
+  
+  // Drinks
+  if (/\b(juice|soda|smoothie|shake|coffee|latte|tea|drink|beverage)\b/.test(lower)) {
+    return "drink";
+  }
+  
+  // Desserts
+  if (/\b(cake|cookie|ice cream|chocolate|candy|dessert|pie|brownie|donut|pastry|sweet)\b/.test(lower)) {
+    return "dessert";
+  }
+  
+  return "unknown";
+}
+
+/**
  * Sanitize food item to ensure all values are valid
  */
 function sanitizeFoodItem(item: Partial<FoodItem>): FoodItem {
@@ -105,27 +222,45 @@ function sanitizeFoodItem(item: Partial<FoodItem>): FoodItem {
     ? item.portion as "small" | "medium" | "large"
     : "medium"; // Default to medium if missing or invalid
   
+  const category = item.category || detectFoodCategory(item.name || "");
+  
   return {
     name: item.name || "Unknown item",
     portion,
     estimatedCalories: safeNumber(item.estimatedCalories, null as unknown as number) || null,
+    category,
   };
 }
 
 /**
  * Sanitize macros to ensure all values are valid numbers
+ * NEVER returns null if we have valid calories - always infer macros
  */
-function sanitizeMacros(macros: { protein?: number; carbs?: number; fat?: number } | null | undefined): { protein: number; carbs: number; fat: number } | null {
-  if (!macros) return null;
+function sanitizeMacros(
+  macros: { protein?: number; carbs?: number; fat?: number } | null | undefined,
+  totalCalories: number = 0,
+  dominantCategory: FoodCategory = "unknown"
+): { protein: number; carbs: number; fat: number } {
+  // Try to use provided macros first
+  if (macros) {
+    const protein = safeNumber(macros.protein, 0);
+    const carbs = safeNumber(macros.carbs, 0);
+    const fat = safeNumber(macros.fat, 0);
+    
+    // If we have valid macros, use them
+    if (protein > 0 || carbs > 0 || fat > 0) {
+      return { protein, carbs, fat };
+    }
+  }
   
-  const protein = safeNumber(macros.protein, 0);
-  const carbs = safeNumber(macros.carbs, 0);
-  const fat = safeNumber(macros.fat, 0);
+  // Always infer macros from calories if we have them
+  if (totalCalories > 0) {
+    console.log(`[identify-food] Inferring macros from ${totalCalories} kcal (category: ${dominantCategory})`);
+    return inferMacrosFromCalories(totalCalories, dominantCategory);
+  }
   
-  // If all macros are 0, return null instead
-  if (protein === 0 && carbs === 0 && fat === 0) return null;
-  
-  return { protein, carbs, fat };
+  // Last resort: return zeros
+  return { protein: 0, carbs: 0, fat: 0 };
 }
 
 /**
@@ -147,26 +282,57 @@ function sanitizeTotalCalories(calories: number | { min: number; max: number } |
 
 /**
  * Apply fallback calorie estimates for items with missing data
+ * Uses category-specific defaults with portion multipliers
  */
 function applyFallbackEstimates(items: FoodItem[]): FoodItem[] {
   return items.map(item => {
     // If item already has valid calories, keep it
     if (item.estimatedCalories && Number.isFinite(item.estimatedCalories) && item.estimatedCalories > 0) {
-      return item;
+      // Ensure category is set
+      const category = item.category || detectFoodCategory(item.name);
+      return { ...item, category };
     }
     
-    // Apply conservative fallback based on portion size
-    const portionMultiplier = item.portion === "small" ? 0.7 : item.portion === "large" ? 1.4 : 1.0;
-    const baseFallback = 80; // Conservative base estimate
-    const fallbackCalories = Math.round(baseFallback * portionMultiplier);
+    // Detect category if not set
+    const category = item.category || detectFoodCategory(item.name);
     
-    console.log(`[identify-food] Applied fallback calories for "${item.name}": ${fallbackCalories} kcal`);
+    // Get category-specific base calories
+    const baseCalories = CATEGORY_CALORIE_DEFAULTS[category] || CATEGORY_CALORIE_DEFAULTS.unknown;
+    
+    // Apply portion multiplier consistently
+    const portionMultiplier = item.portion === "small" ? 0.7 : item.portion === "large" ? 1.4 : 1.0;
+    const fallbackCalories = Math.round(baseCalories * portionMultiplier);
+    
+    console.log(`[identify-food] Applied fallback for "${item.name}" (${category}): ${fallbackCalories} kcal (${item.portion})`);
     
     return {
       ...item,
       estimatedCalories: fallbackCalories,
+      category,
     };
   });
+}
+
+/**
+ * Determine dominant food category from items for macro inference
+ */
+function getDominantCategory(items: FoodItem[]): FoodCategory {
+  if (items.length === 0) return "unknown";
+  if (items.length === 1) return items[0].category || "unknown";
+  
+  // For mixed dishes, find highest calorie item's category
+  let maxCal = 0;
+  let dominant: FoodCategory = "unknown";
+  
+  for (const item of items) {
+    const cal = safeNumber(item.estimatedCalories, 0);
+    if (cal > maxCal) {
+      maxCal = cal;
+      dominant = item.category || "unknown";
+    }
+  }
+  
+  return dominant;
 }
 
 function validateRequest(body: unknown): { valid: true; data: FoodIdentificationRequest } | { valid: false; error: ErrorResponse } {
@@ -580,8 +746,10 @@ serve(async (req: Request) => {
         ? "mixed_dish" 
         : "half_plate";
 
-    // Only include macros if confidence >= 70 and macros are valid
-    const finalMacros = finalConfidence >= 70 ? sanitizeMacros(macros) : null;
+    // ALWAYS include macros - infer from calories if not provided by vision
+    // This ensures macros are NEVER null when we have calories
+    const dominantCategory = getDominantCategory(sanitizedItems);
+    const finalMacros = sanitizeMacros(macros, baseCalories, dominantCategory);
 
     // Final sanity check - ensure all values are valid
     const response: FoodIdentificationResponse = {

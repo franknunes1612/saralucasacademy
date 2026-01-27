@@ -92,3 +92,58 @@ export function hasValidCalories(
   const value = getCalorieValue(calories);
   return value > 0;
 }
+
+/**
+ * Check if macros have any valid values
+ */
+export function hasValidMacros(
+  macros: { protein?: number; carbs?: number; fat?: number } | null | undefined
+): boolean {
+  if (!macros) return false;
+  const p = safeNumber(macros.protein, 0);
+  const c = safeNumber(macros.carbs, 0);
+  const f = safeNumber(macros.fat, 0);
+  return p > 0 || c > 0 || f > 0;
+}
+
+/**
+ * Infer macros from calories when not available
+ * Uses a conservative balanced ratio for unknown foods
+ */
+export function inferMacrosFromCalories(
+  calories: number | { min: number; max: number } | null | undefined
+): { protein: number; carbs: number; fat: number } {
+  const cal = getCalorieValue(calories);
+  if (cal <= 0) {
+    return { protein: 0, carbs: 0, fat: 0 };
+  }
+  
+  // Conservative balanced ratios: 20% protein, 50% carbs, 30% fat
+  const protein = Math.round((cal * 0.20) / 4); // 4 kcal/g
+  const carbs = Math.round((cal * 0.50) / 4);   // 4 kcal/g
+  const fat = Math.round((cal * 0.30) / 9);     // 9 kcal/g
+  
+  return { protein, carbs, fat };
+}
+
+/**
+ * Ensure macros are never null when calories exist
+ * Either uses provided macros or infers from calories
+ */
+export function ensureMacros(
+  macros: { protein?: number; carbs?: number; fat?: number } | null | undefined,
+  calories: number | { min: number; max: number } | null | undefined
+): { protein: number; carbs: number; fat: number } | null {
+  // If we have valid macros, sanitize and return them
+  if (hasValidMacros(macros)) {
+    return sanitizeMacros(macros);
+  }
+  
+  // If we have calories but no macros, infer them
+  if (hasValidCalories(calories)) {
+    return inferMacrosFromCalories(calories);
+  }
+  
+  // No calories, no macros
+  return null;
+}
