@@ -36,6 +36,9 @@ import {
 // Session-based onboarding key - resets on app close, persists during navigation
 const ONBOARDING_SESSION_KEY = "caloriespot_onboarding_session";
 
+// Stabilization delay for iOS/Safari camera initialization (ms)
+const CAMERA_STABILIZATION_DELAY = 300;
+
 type PlateType = "single_item" | "half_plate" | "full_plate" | "mixed_dish" | "bowl" | "snack";
 
 interface FoodResult {
@@ -52,9 +55,10 @@ interface FoodResult {
   identifiedAt: string;
 }
 
-type AppState = "splash" | "onboarding" | "permissionDenied" | "cameraInitializing" | "camera" | "liveScan" | "barcodeScan" | "barcodeResult" | "processing" | "result" | "error";
+// Camera view is now shown during initialization to ensure DOM is ready
+type AppState = "splash" | "onboarding" | "permissionDenied" | "camera" | "liveScan" | "barcodeScan" | "barcodeResult" | "processing" | "result" | "error";
 
-type CameraLifecycle = "idle" | "checking_permissions" | "requesting_stream" | "ready" | "error";
+type CameraLifecycle = "idle" | "checking_permissions" | "waiting_for_dom" | "requesting_stream" | "ready" | "error";
 
 interface BarcodeProduct {
   name: string;
@@ -71,7 +75,7 @@ const getInitialAppState = (): AppState => {
   try {
     // Use sessionStorage: persists during page navigation, clears on app close/reopen
     if (sessionStorage.getItem(ONBOARDING_SESSION_KEY) === "true") {
-      return "cameraInitializing";
+      return "camera"; // Go directly to camera view (lifecycle handles initialization)
     }
   } catch {
     // sessionStorage not available
@@ -80,12 +84,24 @@ const getInitialAppState = (): AppState => {
   return "splash";
 };
 
+// Get initial camera lifecycle based on app state
+const getInitialCameraLifecycle = (): CameraLifecycle => {
+  try {
+    if (sessionStorage.getItem(ONBOARDING_SESSION_KEY) === "true") {
+      return "checking_permissions"; // Start permission check immediately
+    }
+  } catch {
+    // sessionStorage not available
+  }
+  return "idle";
+};
+
 export default function Index() {
   const navigate = useNavigate();
   const { saveMeal, storageError } = useSavedMeals();
   
   const [appState, setAppState] = useState<AppState>(getInitialAppState);
-  const [cameraLifecycle, setCameraLifecycle] = useState<CameraLifecycle>("idle");
+  const [cameraLifecycle, setCameraLifecycle] = useState<CameraLifecycle>(getInitialCameraLifecycle);
   const [result, setResult] = useState<FoodResult | null>(null);
   const [capturedImage, setCapturedImage] = useState<string | null>(null);
   const [scanId, setScanId] = useState<string>("");
@@ -125,7 +141,7 @@ export default function Index() {
     setAppState("onboarding");
   }, []);
 
-  // Handle onboarding complete - persist in sessionStorage and go to camera initialization
+  // Handle onboarding complete - persist in sessionStorage and go to camera
   const handleOnboardingComplete = useCallback(() => {
     try {
       // Use sessionStorage so it persists during navigation but resets on app close
@@ -133,7 +149,9 @@ export default function Index() {
     } catch {
       // Ignore storage errors
     }
-    setAppState("cameraInitializing");
+    // Go to camera view, lifecycle will handle initialization
+    setAppState("camera");
+    setCameraLifecycle("checking_permissions");
   }, []);
 
   // Attach stream to video element safely
@@ -277,17 +295,36 @@ export default function Index() {
     }
   }, [attachStreamToVideo, maxRetries]);
 
-  // Effect to start camera initialization when in initializing state
+  // Effect to start camera initialization when lifecycle is checking_permissions and DOM is ready
+  // This ensures the video element is mounted before we try to attach the stream
   useEffect(() => {
-    if (appState === "cameraInitializing") {
-      checkPermissionsAndInitialize();
+    if (appState !== "camera" || cameraLifecycle !== "checking_permissions") {
+      return;
     }
-  }, [appState, checkPermissionsAndInitialize]);
+    
+    // Wait for DOM to be ready with stabilization delay (critical for iOS/Safari)
+    const initializeCamera = async () => {
+      setCameraLifecycle("waiting_for_dom");
+      
+      // Use requestAnimationFrame + delay to ensure DOM is fully painted
+      await new Promise<void>((resolve) => {
+        requestAnimationFrame(() => {
+          setTimeout(resolve, CAMERA_STABILIZATION_DELAY);
+        });
+      });
+      
+      // Now the video element should be mounted, proceed with permission check
+      await checkPermissionsAndInitialize();
+    };
+    
+    initializeCamera();
+  }, [appState, cameraLifecycle, checkPermissionsAndInitialize]);
 
   // Retry camera permission
   const handleRetryPermission = useCallback(async () => {
     initRetryCount.current = 0;
-    setAppState("cameraInitializing");
+    setCameraError(null);
+    setCameraLifecycle("checking_permissions");
   }, []);
 
   // Cleanup on unmount
@@ -704,29 +741,30 @@ export default function Index() {
     return <PermissionDenied onRetry={handleRetryPermission} />;
   }
 
-  // Camera initializing - show loading state
-  if (appState === "cameraInitializing") {
-    return (
-      <div className="min-h-screen bg-background flex flex-col items-center justify-center">
-        <div className="text-center">
-          <div className="w-16 h-16 mx-auto mb-6 rounded-full bg-primary/20 flex items-center justify-center">
-            <div className="w-8 h-8 border-3 border-primary border-t-transparent rounded-full animate-spin" />
-          </div>
-          <h2 className="text-lg font-semibold text-white mb-2">Setting up camera...</h2>
-          <p className="text-sm text-white/60">Please allow camera access when prompted</p>
-        </div>
-      </div>
-    );
-  }
-
-  // Camera view (includes barcode scanning)
+  // Camera view (includes barcode scanning and initialization states)
   if (appState === "camera" || appState === "liveScan" || appState === "barcodeScan") {
+    // Show loading overlay when camera is initializing (but keep video element mounted!)
+    const isInitializing = cameraLifecycle === "checking_permissions" || 
+                           cameraLifecycle === "waiting_for_dom" || 
+                           cameraLifecycle === "requesting_stream";
+    
     return (
       <div className="min-h-screen bg-background flex flex-col">
         {/* Camera viewport with scan frame */}
         <div className="flex-1 relative scan-frame scan-frame-bottom">
-          {cameraError ? (
-            <div className="absolute inset-0 flex items-center justify-center p-4">
+          {/* Always render video element to ensure DOM is ready */}
+          <video
+            ref={videoRef}
+            autoPlay
+            playsInline
+            muted
+            className="absolute inset-0 w-full h-full object-cover"
+          />
+          <canvas ref={canvasRef} className="hidden" />
+          
+          {/* Show error overlay only for actual camera errors */}
+          {cameraError && cameraLifecycle === "error" && (
+            <div className="absolute inset-0 flex items-center justify-center p-4 bg-background/90">
               <div className="text-center">
                 <p className="text-destructive mb-4">{cameraError}</p>
                 <button onClick={restartCamera} className="btn-primary px-6 py-3 rounded-xl">
@@ -734,19 +772,23 @@ export default function Index() {
                 </button>
               </div>
             </div>
-          ) : (
-            <video
-              ref={videoRef}
-              autoPlay
-              playsInline
-              muted
-              className="absolute inset-0 w-full h-full object-cover"
-            />
           )}
-          <canvas ref={canvasRef} className="hidden" />
+          
+          {/* Show loading overlay during initialization (video stays mounted underneath) */}
+          {isInitializing && !cameraError && (
+            <div className="absolute inset-0 flex items-center justify-center bg-background/95">
+              <div className="text-center">
+                <div className="w-16 h-16 mx-auto mb-6 rounded-full bg-primary/20 flex items-center justify-center">
+                  <div className="w-8 h-8 border-3 border-primary border-t-transparent rounded-full animate-spin" />
+                </div>
+                <h2 className="text-lg font-semibold text-white mb-2">Setting up camera...</h2>
+                <p className="text-sm text-white/60">Please allow camera access when prompted</p>
+              </div>
+            </div>
+          )}
 
           {/* Header - app title and My Meals button */}
-          {appState === "camera" && (
+          {appState === "camera" && !isInitializing && (
             <div className="absolute top-5 left-5 right-5 z-10 flex items-center justify-between">
               <h1 className="text-lg font-semibold text-white drop-shadow-lg tracking-tight">
                 CalorieSpot
@@ -772,7 +814,7 @@ export default function Index() {
         />
 
         {/* Bottom controls - camera mode */}
-        {appState === "camera" && (
+        {appState === "camera" && !isInitializing && (
           <div className="p-6 bg-card/90 backdrop-blur-lg border-t border-white/10">
 
             {/* Secondary actions */}
@@ -810,11 +852,7 @@ export default function Index() {
                 className="scan-button w-20 h-20 disabled:opacity-40 flex items-center justify-center"
                 aria-label="Scan"
               >
-                {cameraLifecycle === "requesting_stream" || cameraLifecycle === "checking_permissions" ? (
-                  <div className="w-6 h-6 border-2 border-primary border-t-transparent rounded-full animate-spin" />
-                ) : (
-                  <div className="w-6 h-6 rounded-full bg-primary" />
-                )}
+                <div className="w-6 h-6 rounded-full bg-primary" />
               </button>
             </div>
           </div>
