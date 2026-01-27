@@ -52,7 +52,7 @@ interface FoodResult {
 
 type AppState = "splash" | "onboarding" | "permissionDenied" | "cameraInitializing" | "camera" | "liveScan" | "barcodeScan" | "barcodeResult" | "processing" | "result" | "error";
 
-type CameraLifecycle = "idle" | "requesting_permission" | "ready" | "error";
+type CameraLifecycle = "idle" | "checking_permissions" | "requesting_stream" | "ready" | "error";
 
 interface BarcodeProduct {
   name: string;
@@ -166,13 +166,37 @@ export default function Index() {
     }
   }, []);
 
-  // Initialize camera with proper lifecycle
-  const initializeCamera = useCallback(async () => {
-    setCameraLifecycle("requesting_permission");
+  // Check camera permissions first, then initialize
+  const checkPermissionsAndInitialize = useCallback(async () => {
+    setCameraLifecycle("checking_permissions");
     setCameraError(null);
     
     try {
-      // Build constraints defensively
+      // Check if permissions API is available
+      if (navigator.permissions && navigator.permissions.query) {
+        try {
+          const permissionStatus = await navigator.permissions.query({ name: 'camera' as PermissionName });
+          console.log("[Camera] Permission status:", permissionStatus.state);
+          
+          if (permissionStatus.state === "denied") {
+            setCameraLifecycle("error");
+            setAppState("permissionDenied");
+            return;
+          }
+          
+          // If prompt or granted, proceed to request stream
+        } catch (permErr) {
+          // Some browsers don't support camera permission query, continue anyway
+          console.log("[Camera] Permission query not supported, proceeding to request");
+        }
+      }
+      
+      // Now request the actual stream
+      setCameraLifecycle("requesting_stream");
+      
+      // Small delay to ensure UI has rendered the video element
+      await new Promise(resolve => setTimeout(resolve, 100));
+      
       const constraints: MediaStreamConstraints = {
         video: {
           facingMode: { ideal: "environment" },
@@ -191,20 +215,22 @@ export default function Index() {
       
       streamRef.current = stream;
       
+      // Wait a bit more for video element to be ready
+      await new Promise(resolve => setTimeout(resolve, 150));
+      
       // Attach stream to video with retry logic
-      const attached = await attachStreamToVideo(stream);
+      let attached = await attachStreamToVideo(stream);
       
       if (!attached) {
         // Auto-retry if first attempt failed (timing issue)
-        if (initRetryCount.current < maxRetries) {
-          initRetryCount.current++;
+        for (let i = 0; i < maxRetries && !attached; i++) {
+          initRetryCount.current = i + 1;
           console.log(`[Camera] Retrying attachment (${initRetryCount.current}/${maxRetries})`);
           await new Promise(resolve => setTimeout(resolve, 200));
-          const retryAttached = await attachStreamToVideo(stream);
-          if (!retryAttached) {
-            throw new Error("Could not initialize camera display");
-          }
-        } else {
+          attached = await attachStreamToVideo(stream);
+        }
+        
+        if (!attached) {
           throw new Error("Could not initialize camera display");
         }
       }
@@ -213,20 +239,26 @@ export default function Index() {
       setCameraLifecycle("ready");
       setAppState("camera");
     } catch (err) {
-      console.log("[Camera] Permission denied or error:", err);
-      setCameraLifecycle("error");
+      console.log("[Camera] Error:", err);
+      
+      const errorMsg = err instanceof Error ? err.message : String(err);
+      const errorName = err instanceof Error && 'name' in err ? (err as any).name : "";
       
       // Check if it's a permission error
-      const errorMessage = err instanceof Error ? err.message : "";
-      if (
-        errorMessage.includes("Permission") || 
-        errorMessage.includes("NotAllowedError") ||
-        errorMessage.includes("denied")
-      ) {
+      const isPermissionError = 
+        errorName === "NotAllowedError" ||
+        errorName === "PermissionDeniedError" ||
+        errorMsg.includes("Permission") || 
+        errorMsg.includes("denied") ||
+        errorMsg.includes("not allowed");
+      
+      if (isPermissionError) {
+        setCameraLifecycle("error");
         setAppState("permissionDenied");
       } else {
-        // For other errors, show friendly message and allow retry
-        setCameraError("We couldn't access the camera. Please allow camera access.");
+        // For other errors (device busy, no camera, etc.), show retry option
+        setCameraLifecycle("error");
+        setCameraError("Camera unavailable. Please try again.");
         setAppState("camera");
       }
     }
@@ -235,9 +267,9 @@ export default function Index() {
   // Effect to start camera initialization when in initializing state
   useEffect(() => {
     if (appState === "cameraInitializing") {
-      initializeCamera();
+      checkPermissionsAndInitialize();
     }
-  }, [appState, initializeCamera]);
+  }, [appState, checkPermissionsAndInitialize]);
 
   // Retry camera permission
   const handleRetryPermission = useCallback(async () => {
@@ -254,7 +286,7 @@ export default function Index() {
 
   // Restart camera with safe attachment
   const restartCamera = useCallback(async () => {
-    setCameraLifecycle("requesting_permission");
+    setCameraLifecycle("requesting_stream");
     setCameraError(null);
     
     try {
@@ -264,6 +296,8 @@ export default function Index() {
       });
       streamRef.current = stream;
       
+      await new Promise(resolve => setTimeout(resolve, 100));
+      
       const attached = await attachStreamToVideo(stream);
       if (!attached) {
         throw new Error("Could not initialize camera display");
@@ -271,7 +305,7 @@ export default function Index() {
       
       setCameraLifecycle("ready");
     } catch (err) {
-      setCameraError("We couldn't access the camera. Please allow camera access.");
+      setCameraError("Camera unavailable. Please try again.");
       setCameraLifecycle("error");
     }
   }, [attachStreamToVideo]);
@@ -763,7 +797,7 @@ export default function Index() {
                 className="scan-button w-20 h-20 disabled:opacity-40 flex items-center justify-center"
                 aria-label="Scan"
               >
-                {cameraLifecycle === "requesting_permission" ? (
+                {cameraLifecycle === "requesting_stream" || cameraLifecycle === "checking_permissions" ? (
                   <div className="w-6 h-6 border-2 border-primary border-t-transparent rounded-full animate-spin" />
                 ) : (
                   <div className="w-6 h-6 rounded-full bg-primary" />
