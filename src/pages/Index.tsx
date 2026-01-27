@@ -42,6 +42,9 @@ const ONBOARDING_SESSION_KEY = "caloriespot_onboarding_session";
 // Stabilization delay for iOS/Safari camera initialization (ms)
 const CAMERA_STABILIZATION_DELAY = 300;
 
+// Hard timeout for camera initialization (ms) - failsafe to prevent infinite loading
+const CAMERA_INIT_TIMEOUT = 5000;
+
 type PlateType = "single_item" | "half_plate" | "full_plate" | "mixed_dish" | "bowl" | "snack";
 
 interface FoodResult {
@@ -130,8 +133,9 @@ export default function Index() {
   const streamRef = useRef<MediaStream | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [scanSource, setScanSource] = useState<"camera" | "gallery" | "barcode">("camera");
-  const initRetryCount = useRef(0);
-  const maxRetries = 3;
+  const initializingRef = useRef(false); // Prevent duplicate initialization
+  const initTimeoutRef = useRef<NodeJS.Timeout | null>(null); // Hard timeout failsafe
+  const abortControllerRef = useRef<AbortController | null>(null); // Cancel stale requests
 
   // Live scan hook
   const {
@@ -193,7 +197,7 @@ export default function Index() {
     }
 
     try {
-      // Defensive: ensure stream is valid
+      // Defensive: ensure stream is valid and not aborted
       if (!stream || !stream.active) {
         console.warn("[Camera] Stream is not active");
         return false;
@@ -203,41 +207,95 @@ export default function Index() {
       await video.play();
       return true;
     } catch (err) {
+      // Ignore AbortError - user navigated away or cancelled
+      if (err instanceof Error && err.name === "AbortError") {
+        console.log("[Camera] Stream attachment aborted (user action)");
+        return false;
+      }
       console.error("[Camera] Error attaching stream:", err);
       return false;
     }
   }, []);
 
-  // Check camera permissions first, then initialize
-  const checkPermissionsAndInitialize = useCallback(async () => {
+  // Clean up any pending initialization
+  const cleanupInitialization = useCallback(() => {
+    if (initTimeoutRef.current) {
+      clearTimeout(initTimeoutRef.current);
+      initTimeoutRef.current = null;
+    }
+    if (abortControllerRef.current) {
+      abortControllerRef.current.abort();
+      abortControllerRef.current = null;
+    }
+    initializingRef.current = false;
+  }, []);
+
+  // Main camera initialization function
+  const initializeCamera = useCallback(async () => {
+    // Prevent duplicate initialization
+    if (initializingRef.current) {
+      console.log("[Camera] Already initializing, skipping");
+      return;
+    }
+    
+    initializingRef.current = true;
+    cleanupInitialization();
+    
+    // Create new abort controller for this initialization attempt
+    abortControllerRef.current = new AbortController();
+    const signal = abortControllerRef.current.signal;
+    
+    // Set up hard timeout failsafe
+    initTimeoutRef.current = setTimeout(() => {
+      if (initializingRef.current) {
+        console.log("[Camera] Initialization timed out");
+        initializingRef.current = false;
+        setCameraLifecycle("error");
+        setCameraError("Camera took too long to start. Please tap Retry.");
+      }
+    }, CAMERA_INIT_TIMEOUT);
+    
     setCameraLifecycle("checking_permissions");
     setCameraError(null);
     
     try {
-      // Check if permissions API is available
+      // Check if aborted before proceeding
+      if (signal.aborted) return;
+      
+      // Step 1: Check permission status if API is available
       if (navigator.permissions && navigator.permissions.query) {
         try {
           const permissionStatus = await navigator.permissions.query({ name: 'camera' as PermissionName });
           console.log("[Camera] Permission status:", permissionStatus.state);
           
+          if (signal.aborted) return;
+          
           if (permissionStatus.state === "denied") {
+            cleanupInitialization();
             setCameraLifecycle("error");
             setAppState("permissionDenied");
             return;
           }
-          
-          // If prompt or granted, proceed to request stream
         } catch (permErr) {
           // Some browsers don't support camera permission query, continue anyway
-          console.log("[Camera] Permission query not supported, proceeding to request");
+          console.log("[Camera] Permission query not supported, proceeding");
         }
       }
       
-      // Now request the actual stream
-      setCameraLifecycle("requesting_stream");
+      if (signal.aborted) return;
       
-      // Small delay to ensure UI has rendered the video element
-      await new Promise(resolve => setTimeout(resolve, 100));
+      // Step 2: Wait for DOM stabilization (critical for iOS/Safari)
+      setCameraLifecycle("waiting_for_dom");
+      await new Promise<void>((resolve) => {
+        requestAnimationFrame(() => {
+          setTimeout(resolve, CAMERA_STABILIZATION_DELAY);
+        });
+      });
+      
+      if (signal.aborted) return;
+      
+      // Step 3: Request camera stream
+      setCameraLifecycle("requesting_stream");
       
       const constraints: MediaStreamConstraints = {
         video: {
@@ -250,38 +308,48 @@ export default function Index() {
 
       const stream = await navigator.mediaDevices.getUserMedia(constraints);
       
-      // Validate stream before proceeding
+      if (signal.aborted) {
+        // Clean up stream if we were aborted
+        stream.getTracks().forEach(t => t.stop());
+        return;
+      }
+      
+      // Validate stream
       if (!stream || stream.getTracks().length === 0) {
         throw new Error("No camera stream available");
       }
       
       streamRef.current = stream;
       
-      // Wait a bit more for video element to be ready
-      await new Promise(resolve => setTimeout(resolve, 150));
+      // Small delay before attaching to video
+      await new Promise(resolve => setTimeout(resolve, 100));
       
-      // Attach stream to video with retry logic
-      let attached = await attachStreamToVideo(stream);
-      
-      if (!attached) {
-        // Auto-retry if first attempt failed (timing issue)
-        for (let i = 0; i < maxRetries && !attached; i++) {
-          initRetryCount.current = i + 1;
-          console.log(`[Camera] Retrying attachment (${initRetryCount.current}/${maxRetries})`);
-          await new Promise(resolve => setTimeout(resolve, 200));
-          attached = await attachStreamToVideo(stream);
-        }
-        
-        if (!attached) {
-          throw new Error("Could not initialize camera display");
-        }
+      if (signal.aborted) {
+        stream.getTracks().forEach(t => t.stop());
+        return;
       }
       
-      initRetryCount.current = 0;
+      // Step 4: Attach stream to video element
+      const attached = await attachStreamToVideo(stream);
+      
+      if (signal.aborted) return;
+      
+      if (!attached) {
+        throw new Error("Could not display camera feed");
+      }
+      
+      // Success!
+      cleanupInitialization();
+      initializingRef.current = false;
       setCameraLifecycle("ready");
-      setAppState("camera");
+      console.log("[Camera] Ready");
+      
     } catch (err) {
+      if (signal.aborted) return;
+      
       console.log("[Camera] Error:", err);
+      cleanupInitialization();
+      initializingRef.current = false;
       
       const errorMsg = err instanceof Error ? err.message : String(err);
       const errorName = err instanceof Error && 'name' in err ? (err as any).name : "";
@@ -298,78 +366,42 @@ export default function Index() {
         setCameraLifecycle("error");
         setAppState("permissionDenied");
       } else {
-        // For other errors (device busy, no camera, etc.), show retry option
+        // For other errors, show retry option
         setCameraLifecycle("error");
-        setCameraError("Camera unavailable. Please try again.");
-        setAppState("camera");
+        setCameraError("Camera unavailable. Tap Retry or use Upload.");
       }
     }
-  }, [attachStreamToVideo, maxRetries]);
+  }, [attachStreamToVideo, cleanupInitialization]);
 
-  // Effect to start camera initialization when lifecycle is checking_permissions and DOM is ready
-  // This ensures the video element is mounted before we try to attach the stream
+  // Effect to start camera initialization when entering camera state
   useEffect(() => {
-    if (appState !== "camera" || cameraLifecycle !== "checking_permissions") {
-      return;
+    if (appState === "camera" && cameraLifecycle === "checking_permissions" && !initializingRef.current) {
+      initializeCamera();
     }
-    
-    // Wait for DOM to be ready with stabilization delay (critical for iOS/Safari)
-    const initializeCamera = async () => {
-      setCameraLifecycle("waiting_for_dom");
-      
-      // Use requestAnimationFrame + delay to ensure DOM is fully painted
-      await new Promise<void>((resolve) => {
-        requestAnimationFrame(() => {
-          setTimeout(resolve, CAMERA_STABILIZATION_DELAY);
-        });
-      });
-      
-      // Now the video element should be mounted, proceed with permission check
-      await checkPermissionsAndInitialize();
-    };
-    
-    initializeCamera();
-  }, [appState, cameraLifecycle, checkPermissionsAndInitialize]);
+  }, [appState, cameraLifecycle, initializeCamera]);
 
-  // Retry camera permission
-  const handleRetryPermission = useCallback(async () => {
-    initRetryCount.current = 0;
+  // Retry camera permission/initialization
+  const handleRetryPermission = useCallback(() => {
+    cleanupInitialization();
+    streamRef.current?.getTracks().forEach(t => t.stop());
+    streamRef.current = null;
     setCameraError(null);
     setCameraLifecycle("checking_permissions");
-  }, []);
+    // initializeCamera will be triggered by the effect
+  }, [cleanupInitialization]);
 
   // Cleanup on unmount
   useEffect(() => {
     return () => {
+      cleanupInitialization();
       streamRef.current?.getTracks().forEach(t => t.stop());
     };
-  }, []);
+  }, [cleanupInitialization]);
 
-  // Restart camera with safe attachment
-  const restartCamera = useCallback(async () => {
-    setCameraLifecycle("requesting_stream");
-    setCameraError(null);
-    
-    try {
-      const stream = await navigator.mediaDevices.getUserMedia({
-        video: { facingMode: { ideal: "environment" }, width: { ideal: 1280 }, height: { ideal: 720 } },
-        audio: false,
-      });
-      streamRef.current = stream;
-      
-      await new Promise(resolve => setTimeout(resolve, 100));
-      
-      const attached = await attachStreamToVideo(stream);
-      if (!attached) {
-        throw new Error("Could not initialize camera display");
-      }
-      
-      setCameraLifecycle("ready");
-    } catch (err) {
-      setCameraError("Camera unavailable. Please try again.");
-      setCameraLifecycle("error");
-    }
-  }, [attachStreamToVideo]);
+  // Restart camera - uses the same unified initialization flow
+  const restartCamera = useCallback(() => {
+    handleRetryPermission();
+  }, [handleRetryPermission]);
 
   const stopCamera = useCallback(() => {
     streamRef.current?.getTracks().forEach((t) => t.stop());
@@ -808,14 +840,26 @@ export default function Index() {
           />
           <canvas ref={canvasRef} className="hidden" />
           
-          {/* Show error overlay only for actual camera errors */}
+          {/* Show error overlay with retry + upload options */}
           {cameraError && cameraLifecycle === "error" && (
-            <div className="absolute inset-0 flex items-center justify-center p-4 bg-background/90">
-              <div className="text-center">
-                <p className="text-destructive mb-4">{cameraError}</p>
-                <button onClick={restartCamera} className="btn-primary px-6 py-3 rounded-xl">
-                  Retry
-                </button>
+            <div className="absolute inset-0 flex items-center justify-center p-4 bg-background/95">
+              <div className="text-center max-w-xs">
+                <p className="text-destructive mb-6">{cameraError}</p>
+                <div className="flex flex-col gap-3">
+                  <button 
+                    onClick={restartCamera} 
+                    className="w-full btn-primary px-6 py-3 rounded-xl font-medium"
+                  >
+                    Retry Camera
+                  </button>
+                  <button 
+                    onClick={openGalleryPicker} 
+                    className="w-full px-6 py-3 rounded-xl font-medium bg-secondary text-secondary-foreground flex items-center justify-center gap-2"
+                  >
+                    <Image className="h-4 w-4" />
+                    Upload Photo Instead
+                  </button>
+                </div>
               </div>
             </div>
           )}
@@ -827,8 +871,8 @@ export default function Index() {
                 <div className="w-16 h-16 mx-auto mb-6 rounded-full bg-primary/20 flex items-center justify-center">
                   <div className="w-8 h-8 border-3 border-primary border-t-transparent rounded-full animate-spin" />
                 </div>
-                <h2 className="text-lg font-semibold text-white mb-2">Setting up camera...</h2>
-                <p className="text-sm text-white/60">Please allow camera access when prompted</p>
+                <h2 className="text-lg font-semibold text-foreground mb-2">Setting up camera...</h2>
+                <p className="text-sm text-muted-foreground">Please allow camera access when prompted</p>
               </div>
             </div>
           )}
