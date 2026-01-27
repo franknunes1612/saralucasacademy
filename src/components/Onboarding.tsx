@@ -152,13 +152,13 @@ const STEPS: OnboardingStep[] = [
   },
   {
     title: "See Your Nutrients",
-    description: "Get instant calorie estimates with protein, carbs, and fat breakdown. All from a single image!",
+    description: "Get instant calorie estimates with protein, carbs, and fat. Looking for ideas? Explore our fit recipes for inspiration.",
     icon: <Sparkles className="h-6 w-6" />,
     illustration: <CaloriesIllustration />,
   },
   {
     title: "Track Your Journey",
-    description: "All your meals are saved automatically. Set daily goals and see your progress over time.",
+    description: "All your meals are saved automatically. Need support? You can reach a nutritionist directly from the app.",
     icon: <History className="h-6 w-6" />,
     illustration: <HistoryIllustration />,
   },
