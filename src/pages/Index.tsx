@@ -18,10 +18,12 @@ import { BarcodeResultCard } from "@/components/BarcodeResultCard";
 import { PortionFeedback, PortionAdjustment } from "@/components/PortionFeedback";
 import { MealToneBadge } from "@/components/MealToneBadge";
 import { ZeroCalorieBadge, ZeroMacrosBadge } from "@/components/ZeroCalorieBadge";
+import { EstimationLabel, EstimationType } from "@/components/EstimationLabel";
+import { PortionContext } from "@/components/PortionContext";
 import { Onboarding } from "@/components/Onboarding";
 
 import { RecipeSuggestions } from "@/components/RecipeSuggestions";
-import { History, Radio, Image, ScanBarcode, HelpCircle, Settings } from "lucide-react";
+import { History, Radio, Image, ScanBarcode, HelpCircle, Settings, Sparkles } from "lucide-react";
 import { preprocessImage, getBase64SizeKB } from "@/lib/imageProcessor";
 import { toast } from "sonner";
 import { safeNumber, getCalorieValue, hasValidCalories, isZeroCalorieResult, hasCalorieData, ensureMacros } from "@/lib/nutritionUtils";
@@ -949,20 +951,47 @@ export default function Index() {
       return getCalorieValue(result.totalCalories);
     };
 
+    // Determine estimation type for label
+    const getEstimationType = (): EstimationType => {
+      if (portionAdjustment && portionAdjustment !== "correct") {
+        return "user_adjusted";
+      }
+      return "visual";
+    };
+
+    // Get dominant portion from items
+    const getDominantPortion = (): string => {
+      if (result.items.length === 0) return "medium";
+      const portionCounts = result.items.reduce((acc, item) => {
+        acc[item.portion] = (acc[item.portion] || 0) + 1;
+        return acc;
+      }, {} as Record<string, number>);
+      return Object.entries(portionCounts).sort((a, b) => b[1] - a[1])[0]?.[0] || "medium";
+    };
+
     return (
       <div className="min-h-screen bg-background px-4 py-5 safe-top safe-bottom">
-        {/* Header with app title and info button */}
+        {/* Header with app title, premium, and info button */}
         <div className="flex items-center justify-between mb-4">
           <h1 className="text-xl font-semibold text-white tracking-tight">
             CalorieSpot
           </h1>
-          <button
-            onClick={() => navigate("/how-it-works")}
-            className="p-2 rounded-xl hover:bg-white/10 transition-colors"
-            aria-label="How it works"
-          >
-            <HelpCircle className="h-5 w-5 text-white/70" />
-          </button>
+          <div className="flex items-center gap-1">
+            <button
+              onClick={() => navigate("/premium")}
+              className="p-2 rounded-xl hover:bg-white/10 transition-colors"
+              aria-label="Premium features"
+            >
+              <Sparkles className="h-5 w-5 text-primary" />
+            </button>
+            <button
+              onClick={() => navigate("/how-it-works")}
+              className="p-2 rounded-xl hover:bg-white/10 transition-colors"
+              aria-label="How it works"
+            >
+              <HelpCircle className="h-5 w-5 text-white/70" />
+            </button>
+          </div>
         </div>
 
         {/* Captured image with rounded corners */}
@@ -1021,13 +1050,27 @@ export default function Index() {
                     </div>
                   )}
 
+                  {/* Portion context */}
+                  {hasValidCalories(result.totalCalories) && (
+                    <div className="mb-4">
+                      <PortionContext portionLabel={getDominantPortion()} compact />
+                    </div>
+                  )}
+
                   {/* Macros */}
                   {hasValidCalories(result.totalCalories) && (
-                    <div className="mb-6">
+                    <div className="mb-5">
                       <MacrosBadge macros={ensureMacros(result.macros, result.totalCalories)} />
                     </div>
                   )}
                 </>
+              )}
+
+              {/* Estimation type label */}
+              {!isZeroCalorieResult(result.totalCalories) && (
+                <div className="flex justify-center mb-4">
+                  <EstimationLabel type={getEstimationType()} />
+                </div>
               )}
 
               {/* Confidence badge */}
@@ -1095,8 +1138,23 @@ export default function Index() {
                 </div>
               )}
 
-              {/* Section divider */}
-              <div className="section-divider mt-6" />
+              {/* Premium promotion - subtle */}
+              <div className="mt-5">
+                <button
+                  onClick={() => navigate("/premium")}
+                  className="w-full p-4 rounded-xl bg-gradient-to-r from-primary/20 to-secondary/20 border border-white/10 text-left hover:from-primary/30 hover:to-secondary/30 transition-all"
+                >
+                  <div className="flex items-center gap-3">
+                    <div className="p-2 rounded-lg bg-primary/30">
+                      <Sparkles className="h-4 w-4 text-white" />
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <p className="text-sm font-medium text-white">Get a personalized plan</p>
+                      <p className="text-xs text-white/60">Tailored nutrition &amp; training goals</p>
+                    </div>
+                  </div>
+                </button>
+              </div>
 
               {/* Guidance hint */}
               <p className="text-xs text-white/50 text-center mt-5">
