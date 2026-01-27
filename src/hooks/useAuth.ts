@@ -6,6 +6,7 @@ interface AuthState {
   user: User | null;
   session: Session | null;
   isLoading: boolean;
+  isAdminLoading: boolean; // Separate loading state for admin check
   isAdmin: boolean;
 }
 
@@ -14,10 +15,11 @@ export function useAuth() {
     user: null,
     session: null,
     isLoading: true,
+    isAdminLoading: true,
     isAdmin: false,
   });
 
-  const checkAdminRole = useCallback(async (userId: string) => {
+  const checkAdminRole = useCallback(async (userId: string): Promise<boolean> => {
     try {
       const { data, error } = await supabase
         .from("user_roles")
@@ -26,15 +28,20 @@ export function useAuth() {
         .eq("role", "admin")
         .maybeSingle();
 
-      return !error && data !== null;
-    } catch {
+      if (error) {
+        console.error("[Auth] Check admin role error:", error);
+        return false;
+      }
+
+      return data !== null;
+    } catch (err) {
+      console.error("[Auth] Check admin role exception:", err);
       return false;
     }
   }, []);
 
-  const bootstrapAdminRole = useCallback(async (userId: string, email: string) => {
+  const bootstrapAdminRole = useCallback(async (userId: string, email: string): Promise<boolean> => {
     try {
-      // Call the database function to auto-assign admin role based on email whitelist
       const { data, error } = await supabase.rpc("bootstrap_admin_role", {
         _user_id: userId,
         _email: email,
@@ -58,9 +65,12 @@ export function useAuth() {
     // Helper to resolve admin status with timeout
     const resolveAdminStatus = async (userId: string, email: string): Promise<boolean> => {
       try {
-        // Add timeout to prevent hanging
+        // Add timeout to prevent hanging (3 seconds)
         const timeoutPromise = new Promise<boolean>((resolve) => {
-          setTimeout(() => resolve(false), 3000);
+          setTimeout(() => {
+            console.warn("[Auth] Admin check timed out");
+            resolve(false);
+          }, 3000);
         });
 
         const adminCheckPromise = (async () => {
@@ -82,21 +92,24 @@ export function useAuth() {
 
         const user = session?.user ?? null;
         
-        // Immediately update with user info, loading done
+        // Update user info immediately, but keep admin loading if user exists
         setState(prev => ({
           ...prev,
           user,
           session,
           isLoading: false,
+          isAdminLoading: !!user, // Only loading if there's a user to check
+          isAdmin: false, // Reset admin until verified
         }));
 
-        // Then check admin role in background
+        // Check admin role
         if (user && user.email) {
           const isAdmin = await resolveAdminStatus(user.id, user.email);
           if (isMounted) {
             setState(prev => ({
               ...prev,
               isAdmin,
+              isAdminLoading: false,
             }));
           }
         } else {
@@ -104,6 +117,7 @@ export function useAuth() {
             setState(prev => ({
               ...prev,
               isAdmin: false,
+              isAdminLoading: false,
             }));
           }
         }
@@ -116,21 +130,31 @@ export function useAuth() {
 
       const user = session?.user ?? null;
       
-      // Immediately update with user info
+      // Update user info immediately
       setState(prev => ({
         ...prev,
         user,
         session,
         isLoading: false,
+        isAdminLoading: !!user,
+        isAdmin: false,
       }));
 
-      // Then check admin role in background
+      // Check admin role
       if (user && user.email) {
         const isAdmin = await resolveAdminStatus(user.id, user.email);
         if (isMounted) {
           setState(prev => ({
             ...prev,
             isAdmin,
+            isAdminLoading: false,
+          }));
+        }
+      } else {
+        if (isMounted) {
+          setState(prev => ({
+            ...prev,
+            isAdminLoading: false,
           }));
         }
       }
@@ -168,6 +192,7 @@ export function useAuth() {
         user: null,
         session: null,
         isLoading: false,
+        isAdminLoading: false,
         isAdmin: false,
       });
     }
