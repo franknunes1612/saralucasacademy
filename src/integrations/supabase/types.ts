@@ -14,6 +14,42 @@ export type Database = {
   }
   public: {
     Tables: {
+      cms_content: {
+        Row: {
+          category: string
+          content_type: string
+          created_at: string
+          description: string | null
+          id: string
+          key: string
+          updated_at: string
+          value_en: string
+          value_pt: string
+        }
+        Insert: {
+          category?: string
+          content_type?: string
+          created_at?: string
+          description?: string | null
+          id?: string
+          key: string
+          updated_at?: string
+          value_en?: string
+          value_pt?: string
+        }
+        Update: {
+          category?: string
+          content_type?: string
+          created_at?: string
+          description?: string | null
+          id?: string
+          key?: string
+          updated_at?: string
+          value_en?: string
+          value_pt?: string
+        }
+        Relationships: []
+      }
       recipes: {
         Row: {
           calories: number

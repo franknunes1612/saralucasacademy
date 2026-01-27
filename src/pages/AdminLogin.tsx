@@ -47,7 +47,7 @@ export default function AdminLogin() {
           toast.error(error.message);
         } else {
           toast.success(t({ pt: "Login efetuado!", en: "Logged in!" }));
-          navigate("/admin/recipes");
+          navigate("/admin/dashboard");
         }
       }
     } catch (err) {

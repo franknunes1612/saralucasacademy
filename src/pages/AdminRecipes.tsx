@@ -105,7 +105,7 @@ export default function AdminRecipes() {
       <div className="flex items-center justify-between mb-6">
         <div className="flex items-center gap-3">
           <button
-            onClick={() => navigate("/")}
+            onClick={() => navigate("/admin/dashboard")}
             className="p-2 -ml-2 rounded-xl hover:bg-white/10 transition-colors"
           >
             <ArrowLeft className="h-5 w-5 text-white" />
