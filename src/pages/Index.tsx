@@ -33,7 +33,7 @@ import {
   resetMetrics,
 } from "@/lib/performanceLogger";
 
-const ONBOARDING_KEY = "caloriespot_onboarding_complete";
+// Onboarding now shows every time - no persistence key needed
 
 type PlateType = "single_item" | "half_plate" | "full_plate" | "mixed_dish" | "bowl" | "snack";
 
@@ -82,9 +82,7 @@ export default function Index() {
   const [scannedBarcode, setScannedBarcode] = useState<string>("");
   const [adjustedCalories, setAdjustedCalories] = useState<number | null>(null);
   const [portionAdjustment, setPortionAdjustment] = useState<PortionAdjustment | null>(null);
-  const [hasSeenOnboarding, setHasSeenOnboarding] = useState<boolean>(() => {
-    return localStorage.getItem(ONBOARDING_KEY) === "true";
-  });
+  // Onboarding always shows on app open - no localStorage check
 
   const videoRef = useRef<HTMLVideoElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -108,19 +106,13 @@ export default function Index() {
     setCanvasRef,
   } = useLiveFoodScan();
 
-  // Handle splash complete - show onboarding or go to camera
+  // Handle splash complete - always go to onboarding
   const handleSplashComplete = useCallback(() => {
-    if (!hasSeenOnboarding) {
-      setAppState("onboarding");
-    } else {
-      setAppState("cameraInitializing");
-    }
-  }, [hasSeenOnboarding]);
+    setAppState("onboarding");
+  }, []);
 
-  // Handle onboarding complete
+  // Handle onboarding complete - go to camera initialization
   const handleOnboardingComplete = useCallback(() => {
-    localStorage.setItem(ONBOARDING_KEY, "true");
-    setHasSeenOnboarding(true);
     setAppState("cameraInitializing");
   }, []);
 

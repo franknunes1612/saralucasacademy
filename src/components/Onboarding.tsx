@@ -107,22 +107,22 @@ const NutritionistIllustration = () => (
 const STEPS: OnboardingStep[] = [
   {
     title: "Scan Your Meals Instantly",
-    description: "Take a photo of your plate and get an instant calorie and macro estimate.",
+    description: "Point your camera at any plate and get instant calorie and macro estimates.",
     icon: <Camera className="h-6 w-6" />,
     illustration: <ScanIllustration />,
   },
   {
-    title: "Understand Your Eating Habits",
-    description: "Meals are saved automatically so you can track calories, macros, and meal balance over time.",
-    icon: <History className="h-6 w-6" />,
-    illustration: <TrackIllustration />,
-  },
-  {
     title: "Talk to a Real Nutritionist",
-    description: "Book a certified nutritionist directly from the app for personalized guidance, questions, or meal planning.",
-    note: "Available in Portuguese or English.",
+    description: "Message a certified nutritionist directly from the app — no appointments, no waiting.",
+    note: "Available in Portuguese or English, via WhatsApp.",
     icon: <MessageCircle className="h-6 w-6" />,
     illustration: <NutritionistIllustration />,
+  },
+  {
+    title: "Discover Fit Recipes",
+    description: "Browse curated recipes with calorie and macro info. Save your favorites to track later.",
+    icon: <History className="h-6 w-6" />,
+    illustration: <TrackIllustration />,
   },
 ];
 
