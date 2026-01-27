@@ -48,7 +48,9 @@ interface FoodResult {
   identifiedAt: string;
 }
 
-type AppState = "splash" | "onboarding" | "permissionDenied" | "camera" | "liveScan" | "barcodeScan" | "barcodeResult" | "processing" | "result" | "error";
+type AppState = "splash" | "onboarding" | "permissionDenied" | "cameraInitializing" | "camera" | "liveScan" | "barcodeScan" | "barcodeResult" | "processing" | "result" | "error";
+
+type CameraLifecycle = "idle" | "requesting_permission" | "ready" | "error";
 
 interface BarcodeProduct {
   name: string;
@@ -65,6 +67,7 @@ export default function Index() {
   const { saveMeal, storageError } = useSavedMeals();
   
   const [appState, setAppState] = useState<AppState>("splash");
+  const [cameraLifecycle, setCameraLifecycle] = useState<CameraLifecycle>("idle");
   const [result, setResult] = useState<FoodResult | null>(null);
   const [capturedImage, setCapturedImage] = useState<string | null>(null);
   const [scanId, setScanId] = useState<string>("");
@@ -85,7 +88,8 @@ export default function Index() {
   const streamRef = useRef<MediaStream | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [scanSource, setScanSource] = useState<"camera" | "gallery" | "barcode">("camera");
-  const cameraInitialized = useRef(false);
+  const initRetryCount = useRef(0);
+  const maxRetries = 3;
 
   // Live scan hook
   const {
@@ -106,7 +110,7 @@ export default function Index() {
     if (!hasSeenOnboarding) {
       setAppState("onboarding");
     } else {
-      initializeCamera();
+      setAppState("cameraInitializing");
     }
   }, [hasSeenOnboarding]);
 
@@ -114,56 +118,129 @@ export default function Index() {
   const handleOnboardingComplete = useCallback(() => {
     localStorage.setItem(ONBOARDING_KEY, "true");
     setHasSeenOnboarding(true);
-    initializeCamera();
+    setAppState("cameraInitializing");
   }, []);
 
-  // Initialize camera
+  // Attach stream to video element safely
+  const attachStreamToVideo = useCallback(async (stream: MediaStream): Promise<boolean> => {
+    // Wait for video element to be available
+    const waitForVideo = (): Promise<HTMLVideoElement | null> => {
+      return new Promise((resolve) => {
+        if (videoRef.current) {
+          resolve(videoRef.current);
+          return;
+        }
+        // Wait a frame for React to mount
+        requestAnimationFrame(() => {
+          if (videoRef.current) {
+            resolve(videoRef.current);
+          } else {
+            // One more attempt after a short delay
+            setTimeout(() => resolve(videoRef.current), 100);
+          }
+        });
+      });
+    };
+
+    const video = await waitForVideo();
+    if (!video) {
+      console.warn("[Camera] Video element not available");
+      return false;
+    }
+
+    try {
+      // Defensive: ensure stream is valid
+      if (!stream || !stream.active) {
+        console.warn("[Camera] Stream is not active");
+        return false;
+      }
+
+      video.srcObject = stream;
+      await video.play();
+      return true;
+    } catch (err) {
+      console.error("[Camera] Error attaching stream:", err);
+      return false;
+    }
+  }, []);
+
+  // Initialize camera with proper lifecycle
   const initializeCamera = useCallback(async () => {
-    if (cameraInitialized.current) return;
-    cameraInitialized.current = true;
+    setCameraLifecycle("requesting_permission");
+    setCameraError(null);
     
     try {
-      const stream = await navigator.mediaDevices.getUserMedia({
-        video: { facingMode: { ideal: "environment" }, width: { ideal: 1280 }, height: { ideal: 720 } },
+      // Build constraints defensively
+      const constraints: MediaStreamConstraints = {
+        video: {
+          facingMode: { ideal: "environment" },
+          width: { ideal: 1280 },
+          height: { ideal: 720 },
+        },
         audio: false,
-      });
+      };
+
+      const stream = await navigator.mediaDevices.getUserMedia(constraints);
+      
+      // Validate stream before proceeding
+      if (!stream || stream.getTracks().length === 0) {
+        throw new Error("No camera stream available");
+      }
+      
       streamRef.current = stream;
       
-      requestAnimationFrame(() => {
-        if (videoRef.current) {
-          videoRef.current.srcObject = stream;
-          videoRef.current.play().catch(console.error);
-        }
-      });
+      // Attach stream to video with retry logic
+      const attached = await attachStreamToVideo(stream);
       
-      setCameraError(null);
+      if (!attached) {
+        // Auto-retry if first attempt failed (timing issue)
+        if (initRetryCount.current < maxRetries) {
+          initRetryCount.current++;
+          console.log(`[Camera] Retrying attachment (${initRetryCount.current}/${maxRetries})`);
+          await new Promise(resolve => setTimeout(resolve, 200));
+          const retryAttached = await attachStreamToVideo(stream);
+          if (!retryAttached) {
+            throw new Error("Could not initialize camera display");
+          }
+        } else {
+          throw new Error("Could not initialize camera display");
+        }
+      }
+      
+      initRetryCount.current = 0;
+      setCameraLifecycle("ready");
       setAppState("camera");
     } catch (err) {
       console.log("[Camera] Permission denied or error:", err);
-      setAppState("permissionDenied");
+      setCameraLifecycle("error");
+      
+      // Check if it's a permission error
+      const errorMessage = err instanceof Error ? err.message : "";
+      if (
+        errorMessage.includes("Permission") || 
+        errorMessage.includes("NotAllowedError") ||
+        errorMessage.includes("denied")
+      ) {
+        setAppState("permissionDenied");
+      } else {
+        // For other errors, show friendly message and allow retry
+        setCameraError("We couldn't access the camera. Please allow camera access.");
+        setAppState("camera");
+      }
     }
-  }, []);
+  }, [attachStreamToVideo, maxRetries]);
+
+  // Effect to start camera initialization when in initializing state
+  useEffect(() => {
+    if (appState === "cameraInitializing") {
+      initializeCamera();
+    }
+  }, [appState, initializeCamera]);
 
   // Retry camera permission
   const handleRetryPermission = useCallback(async () => {
-    try {
-      const stream = await navigator.mediaDevices.getUserMedia({
-        video: { facingMode: { ideal: "environment" }, width: { ideal: 1280 }, height: { ideal: 720 } },
-        audio: false,
-      });
-      streamRef.current = stream;
-      
-      if (videoRef.current) {
-        videoRef.current.srcObject = stream;
-        await videoRef.current.play();
-      }
-      
-      setCameraError(null);
-      setAppState("camera");
-    } catch (err) {
-      console.log("[Camera] Retry failed:", err);
-      toast.error("Camera access needed to scan food");
-    }
+    initRetryCount.current = 0;
+    setAppState("cameraInitializing");
   }, []);
 
   // Cleanup on unmount
@@ -173,23 +250,29 @@ export default function Index() {
     };
   }, []);
 
-  // Restart camera
+  // Restart camera with safe attachment
   const restartCamera = useCallback(async () => {
+    setCameraLifecycle("requesting_permission");
+    setCameraError(null);
+    
     try {
-      setCameraError(null);
       const stream = await navigator.mediaDevices.getUserMedia({
         video: { facingMode: { ideal: "environment" }, width: { ideal: 1280 }, height: { ideal: 720 } },
         audio: false,
       });
       streamRef.current = stream;
-      if (videoRef.current) {
-        videoRef.current.srcObject = stream;
-        await videoRef.current.play();
+      
+      const attached = await attachStreamToVideo(stream);
+      if (!attached) {
+        throw new Error("Could not initialize camera display");
       }
+      
+      setCameraLifecycle("ready");
     } catch (err) {
-      setCameraError("Camera access needed");
+      setCameraError("We couldn't access the camera. Please allow camera access.");
+      setCameraLifecycle("error");
     }
-  }, []);
+  }, [attachStreamToVideo]);
 
   const stopCamera = useCallback(() => {
     streamRef.current?.getTracks().forEach((t) => t.stop());
@@ -572,6 +655,21 @@ export default function Index() {
     return <PermissionDenied onRetry={handleRetryPermission} />;
   }
 
+  // Camera initializing - show loading state
+  if (appState === "cameraInitializing") {
+    return (
+      <div className="min-h-screen bg-background flex flex-col items-center justify-center">
+        <div className="text-center">
+          <div className="w-16 h-16 mx-auto mb-6 rounded-full bg-primary/20 flex items-center justify-center">
+            <div className="w-8 h-8 border-3 border-primary border-t-transparent rounded-full animate-spin" />
+          </div>
+          <h2 className="text-lg font-semibold text-white mb-2">Setting up camera...</h2>
+          <p className="text-sm text-white/60">Please allow camera access when prompted</p>
+        </div>
+      </div>
+    );
+  }
+
   // Camera view (includes barcode scanning)
   if (appState === "camera" || appState === "liveScan" || appState === "barcodeScan") {
     return (
@@ -631,7 +729,7 @@ export default function Index() {
             <div className="flex justify-center gap-3 mb-5">
               <button
                 onClick={handleStartLiveScan}
-                disabled={!!cameraError}
+                disabled={cameraLifecycle !== "ready"}
                 className="flex items-center gap-2 px-4 py-2.5 bg-white/15 backdrop-blur rounded-xl text-sm font-medium text-white transition-colors hover:bg-white/25 disabled:opacity-50"
               >
                 <Radio className="h-4 w-4" />
@@ -639,7 +737,7 @@ export default function Index() {
               </button>
               <button
                 onClick={handleStartBarcodeScan}
-                disabled={!!cameraError}
+                disabled={cameraLifecycle !== "ready"}
                 className="flex items-center gap-2 px-4 py-2.5 bg-white/15 backdrop-blur rounded-xl text-sm font-medium text-white transition-colors hover:bg-white/25 disabled:opacity-50"
               >
                 <ScanBarcode className="h-4 w-4" />
@@ -658,11 +756,15 @@ export default function Index() {
             <div className="flex justify-center">
               <button
                 onClick={handleCapture}
-                disabled={!!cameraError}
+                disabled={cameraLifecycle !== "ready"}
                 className="scan-button w-20 h-20 disabled:opacity-40 flex items-center justify-center"
                 aria-label="Scan"
               >
-                <div className="w-6 h-6 rounded-full bg-primary" />
+                {cameraLifecycle === "requesting_permission" ? (
+                  <div className="w-6 h-6 border-2 border-primary border-t-transparent rounded-full animate-spin" />
+                ) : (
+                  <div className="w-6 h-6 rounded-full bg-primary" />
+                )}
               </button>
             </div>
           </div>
