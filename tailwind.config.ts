@@ -57,16 +57,20 @@ export default {
   				border: 'hsl(var(--sidebar-border))',
   				ring: 'hsl(var(--sidebar-ring))'
   			},
-  			macro: {
-  				protein: 'hsl(var(--macro-protein))',
-  				carbs: 'hsl(var(--macro-carbs))',
-  				fat: 'hsl(var(--macro-fat))'
-  			},
-  			calorie: {
-  				low: 'hsl(var(--calorie-low))',
-  				mid: 'hsl(var(--calorie-mid))',
-  				high: 'hsl(var(--calorie-high))'
-  			}
+			macro: {
+				protein: 'hsl(var(--macro-protein))',
+				carbs: 'hsl(var(--macro-carbs))',
+				fat: 'hsl(var(--macro-fat))'
+			},
+			calorie: {
+				low: 'hsl(var(--calorie-low))',
+				mid: 'hsl(var(--calorie-mid))',
+				high: 'hsl(var(--calorie-high))'
+			},
+			success: {
+				DEFAULT: 'hsl(var(--success))',
+				foreground: 'hsl(var(--success-foreground))'
+			}
   		},
   		borderRadius: {
   			lg: 'var(--radius)',

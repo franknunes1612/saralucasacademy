@@ -71,11 +71,11 @@ export function CalorieMeter({ calories, size = "lg", animated = true }: Calorie
   const circumference = 2 * Math.PI * radius;
   const strokeDashoffset = circumference * (1 - progress);
 
-  // Softer gradient colors
+  // Warm pink gradient colors
   const gradientColors = {
-    high: { start: "hsl(15 75% 55%)", end: "hsl(0 65% 52%)" },
-    mid: { start: "hsl(38 85% 52%)", end: "hsl(25 80% 50%)" },
-    low: { start: "hsl(152 55% 48%)", end: "hsl(172 50% 45%)" },
+    high: { start: "hsl(330 35% 55%)", end: "hsl(340 45% 45%)" },
+    mid: { start: "hsl(340 75% 65%)", end: "hsl(330 50% 55%)" },
+    low: { start: "hsl(145 45% 50%)", end: "hsl(155 40% 42%)" },
   };
 
   return (
@@ -98,7 +98,7 @@ export function CalorieMeter({ calories, size = "lg", animated = true }: Calorie
             cy={config.ring / 2}
             r={radius}
             fill="none"
-            stroke="hsl(220 15% 22%)"
+            stroke="hsl(30 20% 92%)"
             strokeWidth={config.stroke}
           />
           {/* Progress ring with gradient */}
