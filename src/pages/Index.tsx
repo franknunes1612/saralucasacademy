@@ -808,6 +808,13 @@ export default function Index() {
                   </button>
                 )}
                 <button
+                  onClick={() => navigate("/premium")}
+                  className="p-3 glass-card rounded-xl"
+                  aria-label="Premium features"
+                >
+                  <Sparkles className="h-5 w-5 text-amber-400" />
+                </button>
+                <button
                   onClick={() => navigate("/meals")}
                   className="p-3 glass-card rounded-xl"
                   aria-label="My Meals"
