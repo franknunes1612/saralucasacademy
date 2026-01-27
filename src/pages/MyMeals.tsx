@@ -10,6 +10,7 @@ import { CalorieGoalEditor } from "@/components/CalorieGoalEditor";
 import { MealRemindersSettings } from "@/components/MealRemindersSettings";
 import { FoodItemsList } from "@/components/FoodItemsList";
 import { MacrosBadge } from "@/components/MacrosBadge";
+import { MealToneBadge } from "@/components/MealToneBadge";
 import { ArrowLeft, Trash2, Camera, Bell, BellOff, HelpCircle } from "lucide-react";
 import { safeNumber, getCalorieValue } from "@/lib/nutritionUtils";
 
@@ -82,11 +83,28 @@ export default function MyMeals() {
         </div>
 
         <div className="result-card p-6 text-center space-y-6">
-          {/* Food icon */}
-          <div className="text-5xl">🍽️</div>
+          {/* Meal image or food icon */}
+          {selectedMeal.imageData ? (
+            <div className="mx-auto w-32 h-32 rounded-2xl overflow-hidden soft-border">
+              <img 
+                src={`data:image/jpeg;base64,${selectedMeal.imageData}`}
+                alt={displayName}
+                className="w-full h-full object-cover"
+              />
+            </div>
+          ) : (
+            <div className="text-5xl">🍽️</div>
+          )}
 
           {/* Meal name */}
           <h2 className="text-xl font-bold">{displayName}</h2>
+
+          {/* Meal tone badge */}
+          {getCalorieValue(selectedMeal.totalCalories) > 0 && (
+            <div className="flex justify-center">
+              <MealToneBadge calories={getCalorieValue(selectedMeal.totalCalories)} />
+            </div>
+          )}
 
           {/* Calorie meter */}
           <div className="flex justify-center">
@@ -112,8 +130,9 @@ export default function MyMeals() {
             })}
           </p>
 
-          <p className="text-xs text-muted-foreground/60">
-            Saved on your device
+          {/* Disclaimer */}
+          <p className="text-xs text-muted-foreground/60 pt-2 border-t border-border/30">
+            Visual estimate based on a single image. May vary depending on portion and preparation.
           </p>
         </div>
 
@@ -274,7 +293,7 @@ export default function MyMeals() {
       {/* Privacy footer */}
       {isSupported && meals.length > 0 && (
         <p className="text-xs text-muted-foreground/50 mt-6 text-center">
-          Saved on your device · Images are never stored
+          All data saved locally on your device
         </p>
       )}
 

@@ -49,10 +49,13 @@
 
     --radius: 1rem;
 
-    /* Macro colors - friendly & distinct */
+    /* Macro colors - fixed semantics per spec */
+    /* Blue = Protein (muscle/satiety) */
     --macro-protein: 210 70% 58%;
-    --macro-carbs: 32 85% 55%;
-    --macro-fat: 320 55% 62%;
+    /* Yellow = Carbs (energy) */
+    --macro-carbs: 45 90% 55%;
+    /* Purple = Fat (hormones/satiety) */
+    --macro-fat: 280 60% 60%;
 
     /* Calorie tiers - softer gradients */
     --calorie-low: 152 55% 48%;

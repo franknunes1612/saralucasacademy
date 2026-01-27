@@ -1,5 +1,6 @@
 import { SavedMeal } from "@/hooks/useSavedMeals";
 import { MacrosBadge } from "./MacrosBadge";
+import { MealToneBadge } from "./MealToneBadge";
 import { safeNumber, getCalorieValue, hasValidCalories } from "@/lib/nutritionUtils";
 
 interface SavedMealCardProps {
@@ -36,15 +37,25 @@ export function SavedMealCard({ meal, onTap }: SavedMealCardProps) {
     : "Unknown meal";
   
   const hasMore = meal.items.length > 2;
+  const calorieValue = getCalorieValue(meal.totalCalories);
 
   return (
     <div 
       className="glass-card p-4 cursor-pointer active:scale-[0.98] transition-transform"
       onClick={onTap}
     >
-      {/* Food icon placeholder */}
+      {/* Meal image or fallback */}
       <div className="aspect-square rounded-xl bg-secondary/60 mb-3 flex items-center justify-center overflow-hidden">
-        <div className="text-3xl">🍽️</div>
+        {meal.imageData ? (
+          <img 
+            src={`data:image/jpeg;base64,${meal.imageData}`}
+            alt={displayName}
+            className="w-full h-full object-cover"
+            loading="lazy"
+          />
+        ) : (
+          <div className="text-3xl">🍽️</div>
+        )}
       </div>
 
       {/* Meal name - truncated */}
@@ -52,6 +63,13 @@ export function SavedMealCard({ meal, onTap }: SavedMealCardProps) {
         {displayName}
         {hasMore && <span className="text-muted-foreground"> +{meal.items.length - 2}</span>}
       </p>
+
+      {/* Meal tone badge */}
+      {hasValidCalories(meal.totalCalories) && (
+        <div className="mb-1">
+          <MealToneBadge calories={calorieValue} compact />
+        </div>
+      )}
 
       {/* Calorie display */}
       {meal.totalCalories !== null && (
