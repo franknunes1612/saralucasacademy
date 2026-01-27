@@ -8,8 +8,14 @@ interface SplashScreenProps {
 
 export function SplashScreen({ onComplete, minDuration = 3000 }: SplashScreenProps) {
   const [isExiting, setIsExiting] = useState(false);
+  const [isEntered, setIsEntered] = useState(false);
 
   useEffect(() => {
+    // Trigger entrance animation after mount
+    requestAnimationFrame(() => {
+      setIsEntered(true);
+    });
+
     const timer = setTimeout(() => {
       setIsExiting(true);
       setTimeout(onComplete, 400); // Fade out duration
@@ -24,15 +30,17 @@ export function SplashScreen({ onComplete, minDuration = 3000 }: SplashScreenPro
         isExiting ? "opacity-0" : "opacity-100"
       }`}
     >
-      {/* Full-screen splash image - no overlays, loaders, or buttons */}
+      {/* Full-screen splash image with entrance animation */}
       <img
         src={splashImage}
         alt="CalorieSpot by Sara Lucas"
-        className="absolute inset-0 w-full h-full object-cover object-center"
+        className="absolute inset-0 w-full h-full object-cover object-center transition-all ease-out"
         style={{
-          // Ensure proper scaling for all devices
           minWidth: "100%",
           minHeight: "100%",
+          transitionDuration: "600ms",
+          transform: isEntered ? "scale(1)" : "scale(1.05)",
+          opacity: isEntered ? 1 : 0,
         }}
       />
     </div>
