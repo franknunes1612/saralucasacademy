@@ -1,4 +1,4 @@
-import { ArrowLeft, Camera, Sparkles, Shield, HelpCircle } from "lucide-react";
+import { ArrowLeft, Camera, Sparkles, Shield, HelpCircle, RotateCcw } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 
 export default function HowItWorks() {
@@ -135,6 +135,29 @@ export default function HowItWorks() {
             Images are processed only for analysis and are not stored permanently. 
             Your meal history stays on your device.
           </p>
+        </section>
+
+        {/* View Tutorial Again */}
+        <section className="result-card p-5 space-y-4">
+          <div className="flex items-center gap-3">
+            <div className="p-2 rounded-xl bg-primary/15">
+              <Sparkles className="h-5 w-5 text-primary" />
+            </div>
+            <h2 className="font-semibold">Need a refresher?</h2>
+          </div>
+          <p className="text-sm text-muted-foreground leading-relaxed">
+            View the welcome tutorial again to learn how CalorieSpot works.
+          </p>
+          <button
+            onClick={() => {
+              localStorage.removeItem("caloriespot_onboarding_complete");
+              navigate("/");
+            }}
+            className="w-full py-3 btn-primary rounded-xl font-medium flex items-center justify-center gap-2"
+          >
+            <RotateCcw className="h-4 w-4" />
+            View Tutorial Again
+          </button>
         </section>
       </div>
 
