@@ -1,7 +1,8 @@
 import { SavedMeal } from "@/hooks/useSavedMeals";
 import { MacrosBadge } from "./MacrosBadge";
 import { MealToneBadge } from "./MealToneBadge";
-import { safeNumber, getCalorieValue, hasValidCalories, ensureMacros } from "@/lib/nutritionUtils";
+import { ZeroCalorieBadge } from "./ZeroCalorieBadge";
+import { safeNumber, getCalorieValue, hasValidCalories, isZeroCalorieResult, ensureMacros } from "@/lib/nutritionUtils";
 
 interface SavedMealCardProps {
   meal: SavedMeal;
@@ -35,6 +36,7 @@ export function SavedMealCard({ meal, onTap }: SavedMealCardProps) {
   
   const hasMore = meal.items.length > 2;
   const calorieValue = getCalorieValue(meal.totalCalories);
+  const isZeroCal = isZeroCalorieResult(meal.totalCalories);
 
   return (
     <div 
@@ -61,25 +63,34 @@ export function SavedMealCard({ meal, onTap }: SavedMealCardProps) {
         {hasMore && <span className="text-white/60"> +{meal.items.length - 2}</span>}
       </p>
 
-      {/* Meal tone badge */}
-      {hasValidCalories(meal.totalCalories) && (
-        <div className="mb-1">
-          <MealToneBadge calories={calorieValue} compact />
+      {/* Zero-calorie badge OR regular calorie display */}
+      {isZeroCal ? (
+        <div className="mt-2">
+          <ZeroCalorieBadge compact />
         </div>
-      )}
+      ) : (
+        <>
+          {/* Meal tone badge */}
+          {hasValidCalories(meal.totalCalories) && (
+            <div className="mb-1">
+              <MealToneBadge calories={calorieValue} compact />
+            </div>
+          )}
 
-      {/* Calorie display */}
-      {meal.totalCalories !== null && (
-        <div className={`text-lg font-bold ${getCalorieClass(meal.totalCalories)}`}>
-          {formatCalories(meal.totalCalories)} <span className="text-xs font-normal text-white/60">kcal</span>
-        </div>
-      )}
+          {/* Calorie display */}
+          {meal.totalCalories !== null && (
+            <div className={`text-lg font-bold ${getCalorieClass(meal.totalCalories)}`}>
+              {formatCalories(meal.totalCalories)} <span className="text-xs font-normal text-white/60">kcal</span>
+            </div>
+          )}
 
-      {/* Compact macro breakdown - always show if calories exist, infer if needed */}
-      {hasValidCalories(meal.totalCalories) && (
-        <div className="mt-2 pt-2 border-t border-white/15">
-          <MacrosBadge macros={ensureMacros(meal.macros, meal.totalCalories)} compact showInfoIcon={false} showDescription={false} />
-        </div>
+          {/* Compact macro breakdown */}
+          {hasValidCalories(meal.totalCalories) && (
+            <div className="mt-2 pt-2 border-t border-white/15">
+              <MacrosBadge macros={ensureMacros(meal.macros, meal.totalCalories)} compact showInfoIcon={false} showDescription={false} />
+            </div>
+          )}
+        </>
       )}
     </div>
   );
