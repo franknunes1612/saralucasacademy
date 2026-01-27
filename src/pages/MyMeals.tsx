@@ -291,8 +291,8 @@ export default function MyMeals() {
         </div>
       ) : null}
 
-      {/* Recipes & Nutritionist buttons */}
-      {isSupported && meals.length > 0 && (
+      {/* Recipes & Nutritionist buttons - ALWAYS visible */}
+      {isSupported && (
         <div className="mt-6 space-y-3">
           <button
             onClick={() => navigate("/recipes")}

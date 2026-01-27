@@ -1,6 +1,7 @@
 import { MessageCircle } from "lucide-react";
 import { useLanguage } from "@/hooks/useLanguage";
 import { cn } from "@/lib/utils";
+import { useEffect } from "react";
 
 interface BookNutritionistButtonProps {
   variant?: "primary" | "secondary" | "subtle";
@@ -11,8 +12,8 @@ interface BookNutritionistButtonProps {
 const WHATSAPP_NUMBER = "351939535077";
 
 const MESSAGES = {
-  pt: "Olá! Sou cliente do CalorieSpot e tenho interesse em agendar uma consulta de nutrição.",
-  en: "Hi! I'm a CalorieSpot user and I'd like to book a nutrition consultation.",
+  pt: "Cliente CalorieSpot, tenho interesse em agendar consulta.",
+  en: "CalorieSpot user, I would like to book a consultation.",
 };
 
 const LABELS = {
@@ -27,7 +28,13 @@ export function BookNutritionistButton({
 }: BookNutritionistButtonProps) {
   const { language, t } = useLanguage();
 
+  // Debug: log when component mounts
+  useEffect(() => {
+    console.log("[BookNutritionistButton] MOUNTED - variant:", variant);
+  }, [variant]);
+
   const handleClick = () => {
+    console.log("[BookNutritionistButton] CLICKED");
     const message = encodeURIComponent(MESSAGES[language]);
     const whatsappUrl = `https://wa.me/${WHATSAPP_NUMBER}?text=${message}`;
     
@@ -54,6 +61,7 @@ export function BookNutritionistButton({
         fullWidth && "w-full",
         className
       )}
+      style={{ zIndex: 50 }} // Debug: ensure high z-index
     >
       <MessageCircle className="h-4 w-4" />
       <span>{label}</span>

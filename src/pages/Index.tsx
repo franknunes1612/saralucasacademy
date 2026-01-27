@@ -727,6 +727,11 @@ export default function Index() {
         {/* Bottom controls - camera mode */}
         {appState === "camera" && (
           <div className="p-6 bg-card/90 backdrop-blur-lg border-t border-white/10">
+            {/* Book Nutritionist - fixed at top of controls, always visible */}
+            <div className="mb-4">
+              <BookNutritionistButton variant="subtle" fullWidth />
+            </div>
+
             {/* Secondary actions */}
             <div className="flex justify-center gap-3 mb-5">
               <button
@@ -999,9 +1004,11 @@ export default function Index() {
             <div className="text-center py-8">
               <div className="text-5xl mb-4">🍽️</div>
               <h2 className="text-xl font-semibold text-white mb-2">No food detected</h2>
-              <p className="text-white/70 text-sm">
+              <p className="text-white/70 text-sm mb-6">
                 Try a clearer photo of your meal
               </p>
+              {/* Book Nutritionist - visible even when no food detected */}
+              <BookNutritionistButton variant="subtle" />
             </div>
           )}
         </div>
