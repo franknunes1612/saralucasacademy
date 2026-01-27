@@ -11,7 +11,7 @@ import { MealRemindersSettings } from "@/components/MealRemindersSettings";
 import { FoodItemsList } from "@/components/FoodItemsList";
 import { MacrosBadge } from "@/components/MacrosBadge";
 import { MealToneBadge } from "@/components/MealToneBadge";
-import { BookNutritionistButton } from "@/components/BookNutritionistButton";
+
 import { ArrowLeft, Trash2, Camera, Bell, BellOff, HelpCircle, ChefHat } from "lucide-react";
 import { safeNumber, getCalorieValue, ensureMacros } from "@/lib/nutritionUtils";
 
@@ -291,9 +291,9 @@ export default function MyMeals() {
         </div>
       ) : null}
 
-      {/* Recipes & Nutritionist buttons - ALWAYS visible */}
+      {/* Recipes button */}
       {isSupported && (
-        <div className="mt-6 space-y-3">
+        <div className="mt-6">
           <button
             onClick={() => navigate("/recipes")}
             className="w-full py-3 btn-secondary rounded-xl flex items-center justify-center gap-2 font-medium"
@@ -301,7 +301,6 @@ export default function MyMeals() {
             <ChefHat className="h-4 w-4" />
             Fit Recipes
           </button>
-          <BookNutritionistButton variant="subtle" fullWidth />
         </div>
       )}
 
