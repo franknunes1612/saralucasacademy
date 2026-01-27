@@ -709,15 +709,24 @@ export default function Index() {
 
   // Start barcode scanning
   const handleStartBarcodeScan = () => {
+    // Ensure camera is ready before starting barcode scan
+    if (cameraLifecycle !== "ready") {
+      // Try to restart camera first
+      restartCamera();
+    }
     setScanSource("barcode");
     setAppState("barcodeScan");
   };
 
-  // Stop barcode scanning
+  // Stop barcode scanning and return to camera
   const handleStopBarcodeScan = () => {
     setBarcodeProduct(null);
     setScannedBarcode("");
     setAppState("camera");
+    // Restart camera to ensure it's working for next scan
+    if (cameraLifecycle !== "ready" || !streamRef.current?.active) {
+      restartCamera();
+    }
   };
 
   // Handle barcode product found

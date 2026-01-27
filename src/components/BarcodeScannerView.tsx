@@ -29,27 +29,37 @@ export function BarcodeScannerView({
   const [lookupError, setLookupError] = useState<string | null>(null);
   const [notFound, setNotFound] = useState(false);
   const hasStartedRef = useRef(false);
+  const scanningActiveRef = useRef(false);
 
   // Start scanning when video is ready
   useEffect(() => {
-    if (videoRef.current && !hasStartedRef.current) {
-      hasStartedRef.current = true;
+    // Reset on mount
+    hasStartedRef.current = false;
+    scanningActiveRef.current = true;
+    
+    const checkAndStartScanning = () => {
+      if (!scanningActiveRef.current) return;
       
-      // Wait for video to be playing
-      const checkVideo = () => {
-        if (videoRef.current && videoRef.current.readyState >= 2) {
-          startScanning(videoRef.current);
-        } else {
-          setTimeout(checkVideo, 100);
-        }
-      };
-      checkVideo();
-    }
+      if (videoRef.current && videoRef.current.readyState >= 2 && !hasStartedRef.current) {
+        hasStartedRef.current = true;
+        console.log("[BarcodeScannerView] Starting barcode scan");
+        startScanning(videoRef.current);
+      } else if (!hasStartedRef.current) {
+        // Retry until video is ready
+        setTimeout(checkAndStartScanning, 100);
+      }
+    };
+    
+    checkAndStartScanning();
 
     return () => {
+      console.log("[BarcodeScannerView] Cleanup - stopping scan");
+      scanningActiveRef.current = false;
+      hasStartedRef.current = false;
       stopScanning();
+      clearResult();
     };
-  }, [videoRef, startScanning, stopScanning]);
+  }, [videoRef, startScanning, stopScanning, clearResult]);
 
   // Look up barcode when detected
   useEffect(() => {
