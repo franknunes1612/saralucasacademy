@@ -40,10 +40,10 @@ import {
 const ONBOARDING_SESSION_KEY = "caloriespot_onboarding_session";
 
 // Stabilization delay for iOS/Safari camera initialization (ms)
-const CAMERA_STABILIZATION_DELAY = 300;
+const CAMERA_STABILIZATION_DELAY = 200;
 
-// Hard timeout for camera initialization (ms) - failsafe to prevent infinite loading
-const CAMERA_INIT_TIMEOUT = 5000;
+// Hard timeout for camera initialization (ms) - shorter for better UX
+const CAMERA_INIT_TIMEOUT = 3000;
 
 type PlateType = "single_item" | "half_plate" | "full_plate" | "mixed_dish" | "bowl" | "snack";
 
@@ -867,12 +867,21 @@ export default function Index() {
           {/* Show loading overlay during initialization (video stays mounted underneath) */}
           {isInitializing && !cameraError && (
             <div className="absolute inset-0 flex items-center justify-center bg-background/95">
-              <div className="text-center">
+              <div className="text-center max-w-xs">
                 <div className="w-16 h-16 mx-auto mb-6 rounded-full bg-primary/20 flex items-center justify-center">
                   <div className="w-8 h-8 border-3 border-primary border-t-transparent rounded-full animate-spin" />
                 </div>
                 <h2 className="text-lg font-semibold text-foreground mb-2">Setting up camera...</h2>
-                <p className="text-sm text-muted-foreground">Please allow camera access when prompted</p>
+                <p className="text-sm text-muted-foreground mb-6">Please allow camera access when prompted</p>
+                
+                {/* Quick upload fallback - non-blocking */}
+                <button 
+                  onClick={openGalleryPicker} 
+                  className="text-sm text-primary hover:underline flex items-center justify-center gap-2 mx-auto"
+                >
+                  <Image className="h-4 w-4" />
+                  Or upload a photo instead
+                </button>
               </div>
             </div>
           )}
