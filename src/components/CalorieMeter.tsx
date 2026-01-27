@@ -7,10 +7,10 @@ interface CalorieMeterProps {
 }
 
 function getCalorieLabel(calories: number): string {
-  if (calories >= 800) return "Energy-dense";
-  if (calories >= 500) return "Balanced meal";
-  if (calories >= 300) return "Light meal";
-  if (calories >= 150) return "Small bite";
+  if (calories >= 800) return "Rich meal";
+  if (calories >= 600) return "Hearty meal";
+  if (calories >= 300) return "Balanced meal";
+  if (calories >= 150) return "Light meal";
   return "Light bite";
 }
 

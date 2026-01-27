@@ -141,65 +141,97 @@ function getMockedResponse(): FoodIdentificationResponse {
  * Call Vision API via Lovable AI Gateway for food identification
  */
 async function callVisionAPI(imageBase64: string, apiKey: string): Promise<VisionAnalysisResult> {
-  const systemPrompt = `You are a food and calorie estimation expert. Analyze food images and estimate calories.
+  const systemPrompt = `You are CalorieSpot, an expert nutritionist AI that analyzes food photos to estimate calories and macronutrients.
 
-Rules:
-- foodDetected: true if food is visible, false otherwise
-- Identify each visible food item on the plate
-- Estimate portion size: "small", "medium", or "large"
-- Estimate calories per item (use null if very uncertain)
-- confidenceScore: 0-100 integer based on image clarity and food visibility
-- If confidence < 70: provide calorie range instead of exact number, no macros
-- If confidence >= 70: can provide macros estimate
-- Prefer conservative calorie estimates
-- If image quality is poor or food unclear, lower confidence
-- totalCalories: sum of all items, or {min, max} range if uncertain
-- Return JSON only, no explanations.`;
+ANALYSIS APPROACH:
+1. Scan the entire plate/image for ALL visible food items
+2. Group similar items (e.g., multiple pieces of chicken = 1 entry with total)
+3. Estimate portion size visually: "small" (< 100g), "medium" (100-200g), "large" (> 200g)
+4. Calculate calories using standard nutritional databases
+5. Sum all items for total calories
+
+CALORIE ESTIMATION GUIDELINES:
+- Use conservative, realistic estimates
+- Base on typical preparation methods
+- Account for visible oils, sauces, cheese
+- Round to nearest 5 for items, 10 for totals
+
+MACRO ESTIMATION:
+- Protein: meat, fish, eggs, legumes, dairy
+- Carbs: grains, bread, pasta, rice, potatoes, fruits
+- Fat: oils, butter, cheese, fried foods, fatty meats
+
+CONFIDENCE SCORING (0-100):
+- 85-100: Clear photo, recognizable foods, confident estimate
+- 70-84: Good visibility, some uncertainty in portions
+- 50-69: Partial visibility or unfamiliar foods - provide calorie range
+- Below 50: Poor image or unclear - provide wide range
+
+OUTPUT RULES:
+- foodDetected: true only if food is clearly visible
+- Always identify individual items, not just "mixed plate"
+- If confidence < 70: use {min, max} calorie range instead of exact number
+- If confidence >= 70: provide macros estimate in grams
+- Reasoning: brief explanation of what you see and how you estimated
+- Return valid JSON only`;
 
   const tools = [
     {
       type: "function",
       function: {
         name: "identify_food",
-        description: "Return food identification and calorie estimate",
+        description: "Analyze food photo and return calorie/macro estimates",
         parameters: {
           type: "object",
           properties: {
-            foodDetected: { type: "boolean" },
+            foodDetected: { 
+              type: "boolean",
+              description: "True if food is visible in the image"
+            },
             items: {
               type: "array",
+              description: "List of identified food items on the plate",
               items: {
                 type: "object",
                 properties: {
-                  name: { type: "string" },
+                  name: { type: "string", description: "Food item name" },
                   portion: { type: "string", enum: ["small", "medium", "large"] },
-                  estimatedCalories: { type: ["integer", "null"] }
+                  estimatedCalories: { type: ["integer", "null"], description: "Calories for this item" }
                 },
                 required: ["name", "portion", "estimatedCalories"]
               }
             },
             totalCalories: {
               oneOf: [
-                { type: "integer" },
-                { type: "object", properties: { min: { type: "integer" }, max: { type: "integer" } }, required: ["min", "max"] },
+                { type: "integer", description: "Total calories if confident" },
+                { type: "object", properties: { min: { type: "integer" }, max: { type: "integer" } }, required: ["min", "max"], description: "Calorie range if uncertain" },
                 { type: "null" }
               ]
             },
-            confidenceScore: { type: "integer", minimum: 0, maximum: 100 },
-            reasoning: { type: "string" },
+            confidenceScore: { 
+              type: "integer", 
+              minimum: 0, 
+              maximum: 100,
+              description: "Confidence in the estimate (0-100)"
+            },
+            reasoning: { 
+              type: "string",
+              description: "Brief explanation of what was detected and how calories were estimated"
+            },
             macros: {
               oneOf: [
                 { 
                   type: "object", 
                   properties: { 
-                    protein: { type: "integer" }, 
-                    carbs: { type: "integer" }, 
-                    fat: { type: "integer" } 
+                    protein: { type: "integer", description: "Protein in grams" }, 
+                    carbs: { type: "integer", description: "Carbohydrates in grams" }, 
+                    fat: { type: "integer", description: "Fat in grams" } 
                   }, 
                   required: ["protein", "carbs", "fat"] 
                 },
                 { type: "null" }
-              ]
+              ],
+              description: "Macronutrients in grams (only if confidence >= 70)"
             }
           },
           required: ["foodDetected", "items", "totalCalories", "confidenceScore", "reasoning", "macros"],
