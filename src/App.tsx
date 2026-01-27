@@ -9,7 +9,9 @@ import HowItWorks from "./pages/HowItWorks";
 import FitRecipes from "./pages/FitRecipes";
 import RecipeDetail from "./pages/RecipeDetail";
 import AdminLogin from "./pages/AdminLogin";
+import AdminDashboard from "./pages/AdminDashboard";
 import AdminRecipes from "./pages/AdminRecipes";
+import AdminCms from "./pages/AdminCms";
 import Premium from "./pages/Premium";
 import PersonalizedPlan from "./pages/PersonalizedPlan";
 import TrainingClasses from "./pages/TrainingClasses";
@@ -52,7 +54,9 @@ const App = () => (
           <Route path="/premium/products" element={<Products />} />
           <Route path="/premium/gift" element={<GiftPlan />} />
           <Route path="/admin" element={<AdminLogin />} />
+          <Route path="/admin/dashboard" element={<AdminDashboard />} />
           <Route path="/admin/recipes" element={<AdminRecipes />} />
+          <Route path="/admin/cms" element={<AdminCms />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>
