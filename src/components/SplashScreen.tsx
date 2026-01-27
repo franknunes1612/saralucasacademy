@@ -1,18 +1,17 @@
 import { useEffect, useState } from "react";
-import splashHero from "@/assets/splash-hero-optimized.jpg";
 
 interface SplashScreenProps {
   onComplete: () => void;
   minDuration?: number;
 }
 
-export function SplashScreen({ onComplete, minDuration = 1200 }: SplashScreenProps) {
+export function SplashScreen({ onComplete, minDuration = 1000 }: SplashScreenProps) {
   const [isExiting, setIsExiting] = useState(false);
 
   useEffect(() => {
     const timer = setTimeout(() => {
       setIsExiting(true);
-      setTimeout(onComplete, 300);
+      setTimeout(onComplete, 400); // Fade out duration
     }, minDuration);
 
     return () => clearTimeout(timer);
@@ -20,51 +19,59 @@ export function SplashScreen({ onComplete, minDuration = 1200 }: SplashScreenPro
 
   return (
     <div
-      className={`fixed inset-0 z-50 flex flex-col items-center justify-center bg-background transition-opacity duration-300 ${
+      className={`fixed inset-0 z-50 flex flex-col items-center justify-center transition-opacity duration-400 ${
         isExiting ? "opacity-0" : "opacity-100"
       }`}
+      style={{
+        background: "linear-gradient(165deg, hsl(340 45% 75%) 0%, hsl(340 50% 82%) 50%, hsl(340 55% 88%) 100%)",
+      }}
     >
-      {/* Background hero image with subtle zoom animation */}
-      <div className="absolute inset-0 overflow-hidden">
-        <img
-          src={splashHero}
-          alt=""
-          className="w-full h-full object-cover animate-splash-zoom opacity-60"
+      {/* Subtle decorative circles */}
+      <div className="absolute inset-0 overflow-hidden pointer-events-none">
+        <div 
+          className="absolute -top-20 -right-20 w-64 h-64 rounded-full opacity-20"
+          style={{ background: "hsl(0 0% 100%)" }}
         />
-        {/* Gradient overlay */}
-        <div className="absolute inset-0 bg-gradient-to-t from-background via-background/60 to-transparent" />
+        <div 
+          className="absolute -bottom-32 -left-32 w-80 h-80 rounded-full opacity-15"
+          style={{ background: "hsl(0 0% 100%)" }}
+        />
       </div>
 
       {/* Content */}
-      <div className="relative z-10 flex flex-col items-center text-center px-8">
-        {/* Logo / App Name */}
-        <h1 className="text-5xl font-bold mb-3 tracking-tight">
-          <span className="bg-gradient-to-r from-primary via-accent to-[hsl(45,100%,50%)] bg-clip-text text-transparent">
-            CalorieSpot
-          </span>
+      <div className="relative z-10 flex flex-col items-center text-center px-8 animate-fade-in">
+        {/* App Name */}
+        <h1 
+          className="text-5xl font-bold tracking-tight mb-2"
+          style={{ color: "hsl(0 0% 100%)" }}
+        >
+          CalorieSpot
         </h1>
 
-        {/* Tagline */}
-        <p className="text-muted-foreground text-sm mb-10 animate-fade-in">
-          Scan your food, know your calories
-        </p>
-
-        {/* Loading ring */}
-        <div className="relative">
-          <div className="w-16 h-16 rounded-full border-4 border-muted flex items-center justify-center">
-            <div
-              className="absolute inset-0 rounded-full border-4 border-t-primary border-r-transparent border-b-transparent border-l-transparent animate-spin"
-              style={{ animationDuration: "1s" }}
-            />
-          </div>
-          {/* Glow pulse */}
-          <div className="absolute inset-0 rounded-full animate-glow-pulse opacity-50" />
+        {/* Simple loading indicator - soft pulsing dot */}
+        <div className="mt-10 flex items-center gap-2">
+          <div 
+            className="w-2 h-2 rounded-full animate-pulse"
+            style={{ 
+              background: "hsl(0 0% 100% / 0.8)",
+              animationDelay: "0ms"
+            }}
+          />
+          <div 
+            className="w-2 h-2 rounded-full animate-pulse"
+            style={{ 
+              background: "hsl(0 0% 100% / 0.8)",
+              animationDelay: "150ms"
+            }}
+          />
+          <div 
+            className="w-2 h-2 rounded-full animate-pulse"
+            style={{ 
+              background: "hsl(0 0% 100% / 0.8)",
+              animationDelay: "300ms"
+            }}
+          />
         </div>
-
-        {/* Loading text */}
-        <p className="text-xs text-muted-foreground mt-5 animate-pulse">
-          Initializing…
-        </p>
       </div>
     </div>
   );
