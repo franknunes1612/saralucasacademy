@@ -3,8 +3,8 @@
 @tailwind utilities;
 
 /* ========================================
-   SPOTRARE NEON DESIGN SYSTEM
-   Cyber / Night / Scan Aesthetic
+   CALORIESPOT DESIGN SYSTEM
+   Fresh / Clean / Food-Focused Aesthetic
    ======================================== */
 
 @layer base {
@@ -19,8 +19,8 @@
     --popover: 230 20% 12%;
     --popover-foreground: 0 0% 98%;
 
-    /* Neon accent - cyan primary */
-    --primary: 185 100% 50%;
+    /* Primary accent - fresh green/teal */
+    --primary: 165 80% 45%;
     --primary-foreground: 230 25% 7%;
 
     --secondary: 230 15% 18%;
@@ -29,8 +29,8 @@
     --muted: 230 15% 20%;
     --muted-foreground: 230 10% 55%;
 
-    --accent: 280 80% 65%;
-    --accent-foreground: 0 0% 98%;
+    --accent: 45 100% 50%;
+    --accent-foreground: 230 25% 7%;
 
     --destructive: 0 72% 55%;
     --destructive-foreground: 0 0% 98%;
@@ -43,38 +43,38 @@
 
     --border: 230 15% 22%;
     --input: 230 15% 22%;
-    --ring: 185 100% 50%;
+    --ring: 165 80% 45%;
 
     --radius: 0.75rem;
 
-    /* Neon Spot Score tiers */
-    --spot-low: 220 20% 50%;
-    --spot-mid: 185 100% 50%;
-    --spot-high: 280 80% 65%;
+    /* Calorie tiers */
+    --calorie-low: 150 60% 45%;
+    --calorie-mid: 45 100% 50%;
+    --calorie-high: 25 100% 50%;
 
-    /* Neon gradients */
-    --neon-cyan: 185 100% 50%;
-    --neon-blue: 220 100% 60%;
-    --neon-purple: 280 80% 65%;
-    --neon-pink: 320 100% 65%;
+    /* Accent gradients */
+    --neon-cyan: 165 80% 45%;
+    --neon-blue: 200 100% 50%;
+    --neon-amber: 45 100% 50%;
+    --neon-orange: 25 100% 50%;
 
     /* Glassmorphism */
     --glass-bg: 230 20% 12% / 0.8;
     --glass-border: 230 15% 30% / 0.5;
 
     /* Glow effects */
-    --glow-cyan: 0 0 20px hsl(185 100% 50% / 0.5);
-    --glow-purple: 0 0 20px hsl(280 80% 65% / 0.5);
-    --glow-pink: 0 0 20px hsl(320 100% 65% / 0.5);
+    --glow-green: 0 0 20px hsl(165 80% 45% / 0.5);
+    --glow-amber: 0 0 20px hsl(45 100% 50% / 0.5);
+    --glow-orange: 0 0 20px hsl(25 100% 50% / 0.5);
 
     --sidebar-background: 230 25% 7%;
     --sidebar-foreground: 0 0% 98%;
-    --sidebar-primary: 185 100% 50%;
+    --sidebar-primary: 165 80% 45%;
     --sidebar-primary-foreground: 230 25% 7%;
     --sidebar-accent: 230 15% 18%;
     --sidebar-accent-foreground: 0 0% 98%;
     --sidebar-border: 230 15% 22%;
-    --sidebar-ring: 185 100% 50%;
+    --sidebar-ring: 165 80% 45%;
   }
 }
 
@@ -120,12 +120,12 @@
   /* Neon border glow */
   .neon-border {
     border: 2px solid hsl(var(--neon-cyan));
-    box-shadow: var(--glow-cyan), inset 0 0 20px hsl(185 100% 50% / 0.1);
+    box-shadow: var(--glow-green), inset 0 0 20px hsl(165 80% 45% / 0.1);
   }
 
-  .neon-border-purple {
-    border: 2px solid hsl(var(--neon-purple));
-    box-shadow: var(--glow-purple), inset 0 0 20px hsl(280 80% 65% / 0.1);
+  .neon-border-amber {
+    border: 2px solid hsl(var(--neon-amber));
+    box-shadow: var(--glow-amber), inset 0 0 20px hsl(45 100% 50% / 0.1);
   }
 
   /* Scan frame corners */
@@ -196,28 +196,28 @@
     );
   }
 
-  /* Spot Score color tiers */
-  .spot-low {
-    color: hsl(var(--spot-low));
+  /* Calorie color tiers */
+  .calorie-low {
+    color: hsl(var(--calorie-low));
+    text-shadow: 0 0 10px hsl(var(--calorie-low) / 0.5);
   }
 
-  .spot-mid {
-    color: hsl(var(--spot-mid));
-    text-shadow: 0 0 10px hsl(var(--spot-mid) / 0.5);
+  .calorie-mid {
+    color: hsl(var(--calorie-mid));
+    text-shadow: 0 0 10px hsl(var(--calorie-mid) / 0.5);
   }
 
-  .spot-high {
-    color: hsl(var(--spot-high));
-    text-shadow: 0 0 15px hsl(var(--spot-high) / 0.6);
+  .calorie-high {
+    color: hsl(var(--calorie-high));
+    text-shadow: 0 0 15px hsl(var(--calorie-high) / 0.6);
   }
 
-  /* Legacy spot score classes - mapped to new tiers */
-  .spot-common { color: hsl(var(--spot-low)); }
-  .spot-uncommon { color: hsl(var(--spot-mid)); text-shadow: 0 0 10px hsl(var(--spot-mid) / 0.4); }
-  .spot-unusual { color: hsl(var(--spot-mid)); text-shadow: 0 0 10px hsl(var(--spot-mid) / 0.5); }
-  .spot-legendary { color: hsl(var(--spot-high)); text-shadow: 0 0 15px hsl(var(--spot-high) / 0.6); }
+  /* Legacy spot score classes - kept for compatibility */
+  .spot-low { color: hsl(var(--calorie-low)); }
+  .spot-mid { color: hsl(var(--calorie-mid)); text-shadow: 0 0 10px hsl(var(--calorie-mid) / 0.4); }
+  .spot-high { color: hsl(var(--calorie-high)); text-shadow: 0 0 15px hsl(var(--calorie-high) / 0.6); }
 
-  /* Confidence badges - simpler */
+  /* Confidence badges */
   .confidence-high {
     @apply bg-primary/20 text-primary border border-primary/30;
   }
@@ -234,7 +234,7 @@
     @apply bg-muted/50 text-muted-foreground/70 border border-border/30;
   }
 
-  /* Neon buttons */
+  /* Primary buttons */
   .btn-primary {
     @apply font-semibold rounded-xl transition-all duration-200;
     background: linear-gradient(135deg, hsl(var(--neon-cyan)) 0%, hsl(var(--neon-blue)) 100%);

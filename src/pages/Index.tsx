@@ -1,12 +1,14 @@
 import { useState, useEffect, useRef, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
-import { useSavedScans } from "@/hooks/useSavedScans";
-import { useLiveScan, LiveScanResult } from "@/hooks/useLiveScan";
+import { useSavedMeals, FoodItem } from "@/hooks/useSavedMeals";
+import { useLiveFoodScan, LiveFoodResult } from "@/hooks/useLiveFoodScan";
 import { ResultSkeleton } from "@/components/ResultSkeleton";
-import { LiveScanOverlay } from "@/components/LiveScanOverlay";
-import { ScanFeedback } from "@/components/ScanFeedback";
-import { SpotScoreMeter } from "@/components/SpotScoreMeter";
+import { LiveFoodOverlay } from "@/components/LiveFoodOverlay";
+import { MealFeedback } from "@/components/MealFeedback";
+import { CalorieMeter } from "@/components/CalorieMeter";
+import { FoodItemsList } from "@/components/FoodItemsList";
+import { MacrosBadge } from "@/components/MacrosBadge";
 import { ConfidenceBadge } from "@/components/ConfidenceBadge";
 import { SplashScreen } from "@/components/SplashScreen";
 import { PermissionDenied } from "@/components/PermissionDenied";
@@ -22,18 +24,14 @@ import {
   resetMetrics,
 } from "@/lib/performanceLogger";
 
-type VehicleType = "car" | "motorcycle" | "unknown";
-
-interface VehicleResult {
-  vehicleType: VehicleType;
-  make: string | null;
-  model: string | null;
-  year: number | null;
-  spotScore?: number | null;
-  similarModels?: string[] | null;
+interface FoodResult {
+  foodDetected: boolean;
+  items: FoodItem[];
+  totalCalories: number | { min: number; max: number } | null;
   confidenceScore: number | null;
   confidence: "high" | "medium" | "low" | null;
   reasoning: string | null;
+  macros: { protein: number; carbs: number; fat: number } | null;
   disclaimer: string;
   identifiedAt: string;
 }
@@ -42,10 +40,10 @@ type AppState = "splash" | "permissionDenied" | "camera" | "liveScan" | "process
 
 export default function Index() {
   const navigate = useNavigate();
-  const { saveScan, storageError } = useSavedScans();
+  const { saveMeal, storageError } = useSavedMeals();
   
   const [appState, setAppState] = useState<AppState>("splash");
-  const [result, setResult] = useState<VehicleResult | null>(null);
+  const [result, setResult] = useState<FoodResult | null>(null);
   const [capturedImage, setCapturedImage] = useState<string | null>(null);
   const [scanId, setScanId] = useState<string>("");
   const [errorMessage, setErrorMessage] = useState<string>("");
@@ -72,7 +70,7 @@ export default function Index() {
     rescan,
     setVideoRef,
     setCanvasRef,
-  } = useLiveScan();
+  } = useLiveFoodScan();
 
   // Handle splash complete - request camera permission
   const handleSplashComplete = useCallback(async () => {
@@ -86,7 +84,6 @@ export default function Index() {
       });
       streamRef.current = stream;
       
-      // Wait for video element to be available
       requestAnimationFrame(() => {
         if (videoRef.current) {
           videoRef.current.srcObject = stream;
@@ -120,7 +117,7 @@ export default function Index() {
       setAppState("camera");
     } catch (err) {
       console.log("[Camera] Retry failed:", err);
-      toast.error("Camera access needed to scan vehicles");
+      toast.error("Camera access needed to scan food");
     }
   }, []);
 
@@ -131,7 +128,7 @@ export default function Index() {
     };
   }, []);
 
-  // Restart camera (used when returning from result screen)
+  // Restart camera
   const restartCamera = useCallback(async () => {
     try {
       setCameraError(null);
@@ -166,21 +163,17 @@ export default function Index() {
     return canvas.toDataURL("image/jpeg", 0.8).replace(/^data:image\/jpeg;base64,/, "");
   }, []);
 
-
-  // Shared scan pipeline - used by both camera and gallery
+  // Shared scan pipeline
   const runScanPipeline = async (rawImage: string, source: "camera" | "gallery") => {
     const scanStart = performance.now();
     console.log(`[Scan] START - source: ${source}`);
     
-    // Generate unique scan ID for feedback tracking
     const newScanId = `${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
     setScanId(newScanId);
     
-    // Start performance tracking
     startScanMetrics();
     setScanSource(source);
 
-    // IMMEDIATE UI transition - must happen within 100ms
     setCapturedImage(rawImage);
     setLoadingText("Optimizing image…");
     setAppState("processing");
@@ -190,31 +183,25 @@ export default function Index() {
     markUIResponse();
     console.log(`[Scan] UI ready: ${Math.round(performance.now() - scanStart)}ms`);
 
-    // Progressive loading text updates
-    const timer2s = setTimeout(() => setLoadingText("Still working…"), 3000);
+    const timer2s = setTimeout(() => setLoadingText("Analyzing food…"), 3000);
     const timer5s = setTimeout(() => setLoadingText("Almost there…"), 6000);
 
     try {
-      // ASYNC: Preprocess image - resize to 1280px, compress to 75%, strip EXIF
       const processedImage = await preprocessImage(rawImage);
       markPreprocessComplete();
       
-      // Update UI to show scanning phase
       setLoadingText("Scanning…");
       
-      // Log size
       const processedKB = getBase64SizeKB(processedImage);
       console.log(`[Scan] Image optimized: ${processedKB}KB, ${Math.round(performance.now() - scanStart)}ms`);
 
-      // SINGLE AI CALL - no retries
       console.log(`[Scan] Vision request sent: ${Math.round(performance.now() - scanStart)}ms`);
-      const { data, error } = await supabase.functions.invoke("identify-car", {
+      const { data, error } = await supabase.functions.invoke("identify-food", {
         body: { image: processedImage },
       });
       markAIResponse();
       console.log(`[Scan] Vision response: ${Math.round(performance.now() - scanStart)}ms`);
 
-      // Clear timers
       clearTimeout(timer2s);
       clearTimeout(timer5s);
 
@@ -232,7 +219,6 @@ export default function Index() {
       }
 
       if (data?.error) {
-        // Check for timeout
         if (data.error.includes("timed out")) {
           throw new Error("Scan timed out, try again");
         }
@@ -247,38 +233,33 @@ export default function Index() {
       
       console.log(`[Scan] COMPLETE: ${Math.round(performance.now() - scanStart)}ms total`);
 
-      const vehicleResult = data as VehicleResult;
+      const foodResult = data as FoodResult;
       
-      // BATCHED state update - set result and state together
-      setResult(vehicleResult);
+      setResult(foodResult);
       setAppState("result");
       markFinalRender();
 
-      // NON-BLOCKING save - fire and forget, don't block UI
-      // Use queueMicrotask to ensure this runs after render
+      // Non-blocking save
       queueMicrotask(() => {
-        saveScan({
-          vehicleType: vehicleResult.vehicleType,
-          make: vehicleResult.make,
-          model: vehicleResult.model,
-          confidenceScore: vehicleResult.confidenceScore,
-          spotScore: vehicleResult.spotScore ?? null,
-          similarModels: vehicleResult.similarModels ?? null,
+        saveMeal({
+          items: foodResult.items,
+          totalCalories: foodResult.totalCalories,
+          confidenceScore: foodResult.confidenceScore,
+          macros: foodResult.macros,
           source,
         }).then((saved) => {
           if (!saved) {
-            setSaveError("Could not save scan to device.");
+            setSaveError("Could not save meal to device.");
           }
         }).catch(() => {
-          setSaveError("Could not save scan to device.");
+          setSaveError("Could not save meal to device.");
         });
       });
     } catch (err) {
-      // Clear timers on error
       clearTimeout(timer2s);
       clearTimeout(timer5s);
       resetMetrics();
-      setErrorMessage(err instanceof Error ? err.message : "Failed to identify vehicle");
+      setErrorMessage(err instanceof Error ? err.message : "Failed to identify food");
       setAppState("error");
     }
   };
@@ -294,15 +275,13 @@ export default function Index() {
     await runScanPipeline(rawImage, "camera");
   };
 
-  // Gallery photo handler - compress BEFORE any upload
+  // Gallery photo handler
   const handleGallerySelect = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (!file) return;
 
-    // Reset input so the same file can be selected again
     event.target.value = "";
 
-    // Validate file type only - NO size rejection
     if (!file.type.startsWith("image/")) {
       toast.error("Please select an image file");
       return;
@@ -311,14 +290,11 @@ export default function Index() {
     console.log(`[Gallery] Selected: ${file.name}, ${(file.size / 1024 / 1024).toFixed(2)}MB, type: ${file.type}`);
 
     try {
-      // Show immediate UI feedback
       setLoadingText("Optimizing image…");
       setAppState("processing");
       
-      // Compress FIRST - pass File directly (handles any size)
       const compressedBase64 = await preprocessImage(file);
       
-      // Now run scan with compressed image
       await runScanPipelineWithCompressed(compressedBase64, "gallery");
     } catch (err) {
       console.error("[Gallery] Failed to process image:", err);
@@ -327,19 +303,18 @@ export default function Index() {
     }
   };
 
-  // Separate pipeline for already-compressed images (gallery)
+  // Pipeline for already-compressed images
   const runScanPipelineWithCompressed = async (compressedImage: string, source: "camera" | "gallery") => {
     const scanStart = performance.now();
     console.log(`[Scan] START with pre-compressed image - source: ${source}`);
     
-    // Generate unique scan ID for feedback tracking
     const newScanId = `${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
     setScanId(newScanId);
     
     startScanMetrics();
     setScanSource(source);
     setCapturedImage(compressedImage);
-    setLoadingText("Scanning…");
+    setLoadingText("Analyzing food…");
     markPreprocessComplete();
     
     const timer3s = setTimeout(() => setLoadingText("Still working…"), 3000);
@@ -350,7 +325,7 @@ export default function Index() {
       console.log(`[Scan] Image size: ${processedKB}KB`);
 
       console.log(`[Scan] Vision request sent: ${Math.round(performance.now() - scanStart)}ms`);
-      const { data, error } = await supabase.functions.invoke("identify-car", {
+      const { data, error } = await supabase.functions.invoke("identify-food", {
         body: { image: compressedImage },
       });
       markAIResponse();
@@ -375,28 +350,26 @@ export default function Index() {
       
       console.log(`[Scan] COMPLETE: ${Math.round(performance.now() - scanStart)}ms total`);
 
-      const vehicleResult = data as VehicleResult;
-      setResult(vehicleResult);
+      const foodResult = data as FoodResult;
+      setResult(foodResult);
       setAppState("result");
       markFinalRender();
 
       // Non-blocking save
       queueMicrotask(() => {
-        saveScan({
-          vehicleType: vehicleResult.vehicleType,
-          make: vehicleResult.make,
-          model: vehicleResult.model,
-          confidenceScore: vehicleResult.confidenceScore,
-          spotScore: vehicleResult.spotScore ?? null,
-          similarModels: vehicleResult.similarModels ?? null,
+        saveMeal({
+          items: foodResult.items,
+          totalCalories: foodResult.totalCalories,
+          confidenceScore: foodResult.confidenceScore,
+          macros: foodResult.macros,
           source,
-        }).catch(() => setSaveError("Could not save scan to device."));
+        }).catch(() => setSaveError("Could not save meal to device."));
       });
     } catch (err) {
       clearTimeout(timer3s);
       clearTimeout(timer6s);
       resetMetrics();
-      setErrorMessage(err instanceof Error ? err.message : "Failed to identify vehicle");
+      setErrorMessage(err instanceof Error ? err.message : "Failed to identify food");
       setAppState("error");
     }
   };
@@ -426,7 +399,7 @@ export default function Index() {
     startLiveScan();
   };
 
-  // Stop live scanning and return to camera
+  // Stop live scanning
   const handleStopLiveScan = () => {
     stopLiveScan();
     setAppState("camera");
@@ -436,52 +409,45 @@ export default function Index() {
   const handleLockResult = () => {
     const lockedResult = lockResult();
     if (lockedResult) {
-      // Generate unique scan ID for feedback tracking
       const newScanId = `${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
       setScanId(newScanId);
       
-      // Capture current frame for the result
       const frame = captureImage();
       if (frame) {
         setCapturedImage(frame);
       }
       
-      // Convert LiveScanResult to VehicleResult
-      const vehicleResult: VehicleResult = {
-        vehicleType: lockedResult.vehicleType,
-        make: lockedResult.make,
-        model: lockedResult.model,
-        year: lockedResult.year,
-        spotScore: lockedResult.spotScore,
-        similarModels: lockedResult.similarModels,
+      const foodResult: FoodResult = {
+        foodDetected: lockedResult.foodDetected,
+        items: lockedResult.items,
+        totalCalories: lockedResult.totalCalories,
         confidenceScore: lockedResult.confidenceScore,
         confidence: lockedResult.confidence,
         reasoning: lockedResult.reasoning,
+        macros: lockedResult.macros,
         disclaimer: lockedResult.disclaimer,
         identifiedAt: lockedResult.identifiedAt,
       };
       
-      setResult(vehicleResult);
+      setResult(foodResult);
       stopLiveScan();
       stopCamera();
       setAppState("result");
       
-      // Save scan asynchronously
+      // Save meal asynchronously
       queueMicrotask(() => {
-        saveScan({
-          vehicleType: lockedResult.vehicleType,
-          make: lockedResult.make,
-          model: lockedResult.model,
+        saveMeal({
+          items: lockedResult.items,
+          totalCalories: lockedResult.totalCalories,
           confidenceScore: lockedResult.confidenceScore,
-          spotScore: lockedResult.spotScore ?? null,
-          similarModels: lockedResult.similarModels ?? null,
+          macros: lockedResult.macros,
           source: "camera",
         }).then((saved) => {
           if (!saved) {
-            setSaveError("Could not save scan to device.");
+            setSaveError("Could not save meal to device.");
           }
         }).catch(() => {
-          setSaveError("Could not save scan to device.");
+          setSaveError("Could not save meal to device.");
         });
       });
     }
@@ -497,7 +463,7 @@ export default function Index() {
     return <PermissionDenied onRetry={handleRetryPermission} />;
   }
 
-  // Camera view - neon aesthetic
+  // Camera view
   if (appState === "camera" || appState === "liveScan") {
     return (
       <div className="min-h-screen bg-background flex flex-col">
@@ -523,12 +489,12 @@ export default function Index() {
           )}
           <canvas ref={canvasRef} className="hidden" />
 
-          {/* Collection button - top right */}
+          {/* My Meals button - top right */}
           {appState === "camera" && (
             <button
-              onClick={() => navigate("/saved")}
+              onClick={() => navigate("/meals")}
               className="absolute top-5 right-5 z-10 p-3 glass-card rounded-xl"
-              aria-label="Collection"
+              aria-label="My Meals"
             >
               <History className="h-5 w-5 text-primary" />
             </button>
@@ -566,7 +532,7 @@ export default function Index() {
               </button>
             </div>
             
-            {/* Main scan button - big, glowing */}
+            {/* Main scan button */}
             <div className="flex justify-center">
               <button
                 onClick={handleCapture}
@@ -580,7 +546,7 @@ export default function Index() {
 
         {/* Live scan overlay */}
         {appState === "liveScan" && (
-          <LiveScanOverlay
+          <LiveFoodOverlay
             liveResult={liveResult}
             scanStatus={scanStatus}
             isMotionDetected={isMotionDetected}
@@ -593,7 +559,7 @@ export default function Index() {
     );
   }
 
-  // Processing state with skeleton result card
+  // Processing state with skeleton
   if (appState === "processing") {
     return <ResultSkeleton capturedImage={capturedImage} loadingText={loadingText} />;
   }
@@ -612,20 +578,13 @@ export default function Index() {
     );
   }
 
-  // Result view - neon aesthetic with SpotScoreMeter hero
+  // Result view
   if (appState === "result" && result) {
-    const vehicleTypeLabel = 
-      result.vehicleType === "car" 
-        ? "Car" 
-        : result.vehicleType === "motorcycle" 
-        ? "Motorcycle" 
-        : null;
-
-    const showVehicleType = result.vehicleType !== "unknown" && vehicleTypeLabel !== null;
+    const hasFood = result.foodDetected && result.items.length > 0;
     
-    const vehicleName = result.make 
-      ? `${result.make}${result.model ? ` ${result.model}` : ""}`
-      : "Unknown Vehicle";
+    const mealSummary = hasFood
+      ? result.items.map(i => i.name).slice(0, 3).join(", ")
+      : "No food detected";
 
     return (
       <div className="min-h-screen bg-background px-4 py-5 safe-top safe-bottom">
@@ -642,79 +601,100 @@ export default function Index() {
 
         {/* Result card */}
         <div className="result-card p-6 mb-5 animate-fade-in">
-          {/* 1. Vehicle Name */}
-          <div className="text-center mb-6">
-            {showVehicleType && (
-              <span className="inline-block text-xs text-primary mb-2 uppercase tracking-widest font-medium">
-                {vehicleTypeLabel}
-              </span>
-            )}
-            <h1 className="text-2xl font-bold tracking-tight">
-              {vehicleName}
-            </h1>
-          </div>
-
-          {/* 2. Spot Score - Hero circular meter */}
-          <div className="flex justify-center mb-6">
-            <SpotScoreMeter score={result.spotScore ?? null} size="lg" />
-          </div>
-
-          {/* 3. Confidence badge - simple */}
-          <div className="flex justify-center mb-5">
-            <ConfidenceBadge score={result.confidenceScore} />
-          </div>
-
-          {/* Section divider */}
-          <div className="section-divider" />
-
-          {/* Feedback - minimal */}
-          <div className="mt-4">
-            <ScanFeedback
-              scanId={scanId}
-              detectedMake={result.make}
-              detectedModel={result.model}
-              detectedYear={result.year?.toString() ?? null}
-              detectedVehicleType={result.vehicleType}
-              confidenceScore={result.confidenceScore}
-              spotScore={result.spotScore ?? null}
-            />
-          </div>
-
-          {/* Save error */}
-          {(saveError || storageError) && (
-            <div className="mt-4 p-3 glass-card rounded-lg">
-              <p className="text-xs text-warning text-center">{saveError || storageError}</p>
-            </div>
-          )}
-
-          {/* Why? - collapsible */}
-          {(result.reasoning || (result.model === null && result.similarModels && result.similarModels.length > 0)) && (
-            <details className="mt-5">
-              <summary className="text-xs cursor-pointer text-muted-foreground hover:text-primary transition-colors text-center">
-                Why?
-              </summary>
-              <div className="mt-3 p-3 glass-card rounded-xl text-sm space-y-2">
-                {result.model === null && result.similarModels && result.similarModels.length > 0 && (
-                  <p className="text-muted-foreground">
-                    Could be: {result.similarModels.join(", ")}
-                  </p>
-                )}
-                {result.reasoning && (
-                  <p className="text-muted-foreground">{result.reasoning}</p>
-                )}
+          {hasFood ? (
+            <>
+              {/* Meal summary */}
+              <div className="text-center mb-6">
+                <span className="inline-block text-xs text-primary mb-2 uppercase tracking-widest font-medium">
+                  {result.items.length} item{result.items.length > 1 ? "s" : ""} detected
+                </span>
+                <h1 className="text-xl font-bold tracking-tight">
+                  {mealSummary}
+                  {result.items.length > 3 && ` +${result.items.length - 3}`}
+                </h1>
               </div>
-            </details>
+
+              {/* Calorie meter - Hero */}
+              <div className="flex justify-center mb-6">
+                <CalorieMeter calories={result.totalCalories} size="lg" />
+              </div>
+
+              {/* Macros if available */}
+              {result.macros && (
+                <div className="mb-6">
+                  <MacrosBadge macros={result.macros} />
+                </div>
+              )}
+
+              {/* Confidence badge */}
+              <div className="flex justify-center mb-5">
+                <ConfidenceBadge score={result.confidenceScore} />
+              </div>
+
+              {/* Section divider */}
+              <div className="section-divider" />
+
+              {/* Food items list */}
+              <div className="my-5">
+                <FoodItemsList items={result.items} />
+              </div>
+
+              {/* Section divider */}
+              <div className="section-divider" />
+
+              {/* Feedback */}
+              <div className="mt-4">
+                <MealFeedback
+                  scanId={scanId}
+                  items={result.items}
+                  totalCalories={result.totalCalories}
+                  confidenceScore={result.confidenceScore}
+                />
+              </div>
+
+              {/* Save error */}
+              {(saveError || storageError) && (
+                <div className="mt-4 p-3 glass-card rounded-lg">
+                  <p className="text-xs text-warning text-center">{saveError || storageError}</p>
+                </div>
+              )}
+
+              {/* Disclaimer */}
+              <p className="text-xs text-muted-foreground/60 text-center mt-5">
+                {result.disclaimer}
+              </p>
+
+              {/* Reasoning - collapsible */}
+              {result.reasoning && (
+                <details className="mt-4">
+                  <summary className="text-xs cursor-pointer text-muted-foreground hover:text-primary transition-colors text-center">
+                    How did we calculate this?
+                  </summary>
+                  <div className="mt-3 p-3 glass-card rounded-xl text-sm">
+                    <p className="text-muted-foreground">{result.reasoning}</p>
+                  </div>
+                </details>
+              )}
+            </>
+          ) : (
+            <div className="text-center py-8">
+              <div className="text-5xl mb-4">🍽️</div>
+              <h2 className="text-xl font-semibold mb-2">No Food Detected</h2>
+              <p className="text-muted-foreground text-sm">
+                Try capturing a clearer image of your food
+              </p>
+            </div>
           )}
         </div>
 
-        {/* Two actions only */}
+        {/* Action buttons */}
         <div className="flex gap-3">
           <button
-            onClick={() => navigate("/saved")}
+            onClick={() => navigate("/meals")}
             className="flex-1 py-4 btn-secondary rounded-xl flex items-center justify-center gap-2 font-medium"
           >
             <History className="h-4 w-4" />
-            Collection
+            My Meals
           </button>
           <button
             onClick={handleReset}

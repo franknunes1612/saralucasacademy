@@ -1,8 +1,8 @@
 import { X, Lock, RotateCcw, Camera } from "lucide-react";
-import { LiveScanResult } from "@/hooks/useLiveScan";
+import { LiveFoodResult } from "@/hooks/useLiveFoodScan";
 
-interface LiveScanOverlayProps {
-  liveResult: LiveScanResult | null;
+interface LiveFoodOverlayProps {
+  liveResult: LiveFoodResult | null;
   scanStatus: "waiting" | "scanning" | "locked";
   isMotionDetected: boolean;
   onLock: () => void;
@@ -10,19 +10,14 @@ interface LiveScanOverlayProps {
   onRescan: () => void;
 }
 
-/**
- * Overlay-only component for Live Scan mode.
- * Does NOT contain video element - that stays in parent.
- */
-export function LiveScanOverlay({
+export function LiveFoodOverlay({
   liveResult,
   scanStatus,
   isMotionDetected,
   onLock,
   onStop,
   onRescan,
-}: LiveScanOverlayProps) {
-  // Get confidence color class
+}: LiveFoodOverlayProps) {
   const getConfidenceClass = (score: number | null): string => {
     if (score === null) return "text-muted-foreground";
     if (score >= 85) return "text-green-500";
@@ -31,7 +26,6 @@ export function LiveScanOverlay({
     return "text-muted-foreground";
   };
 
-  // Get status display
   const getStatusDisplay = () => {
     switch (scanStatus) {
       case "waiting":
@@ -53,25 +47,30 @@ export function LiveScanOverlay({
         return (
           <div className="flex items-center gap-2 text-blue-400">
             <div className="w-4 h-4 border-2 border-blue-400 border-t-transparent rounded-full animate-spin" />
-            <span>Scanning…</span>
+            <span>Analyzing food…</span>
           </div>
         );
       case "locked":
         return (
           <div className="flex items-center gap-2 text-green-400">
             <Lock className="h-4 w-4" />
-            <span>Result locked</span>
+            <span>Result ready</span>
           </div>
         );
     }
   };
 
-  // Render result
+  const formatCalories = (cal: number | { min: number; max: number } | null): string => {
+    if (cal === null) return "—";
+    if (typeof cal === "object") return `${cal.min}-${cal.max}`;
+    return String(cal);
+  };
+
   const renderResult = () => {
     if (scanStatus === "waiting" && !liveResult) {
       return (
         <div className="text-center py-4">
-          <p className="text-white/60 text-sm">Point at a vehicle and hold steady</p>
+          <p className="text-white/60 text-sm">Point at your food and hold steady</p>
         </div>
       );
     }
@@ -79,38 +78,49 @@ export function LiveScanOverlay({
     if (scanStatus === "scanning" && !liveResult) {
       return (
         <div className="text-center py-4">
-          <p className="text-white/60 text-sm">Identifying…</p>
+          <p className="text-white/60 text-sm">Identifying food…</p>
         </div>
       );
     }
 
     if (!liveResult) return null;
 
-    const { vehicleType, make, model, confidenceScore } = liveResult;
+    const { foodDetected, items, totalCalories, confidenceScore } = liveResult;
 
     return (
       <div className="space-y-2">
-        {vehicleType !== "unknown" && (
-          <p className="text-xs text-white/60 uppercase tracking-wide">
-            {vehicleType === "car" ? "Car" : "Motorcycle"}
-          </p>
-        )}
-        
-        {make && (
-          <p className="text-2xl font-bold text-white">
-            {make}
-            {model && <span className="text-lg text-white/80 ml-2">{model}</span>}
-          </p>
-        )}
+        {foodDetected && items.length > 0 ? (
+          <>
+            <p className="text-xs text-white/60 uppercase tracking-wide">
+              {items.length} item{items.length > 1 ? "s" : ""} detected
+            </p>
+            
+            <p className="text-2xl font-bold text-white">
+              {formatCalories(totalCalories)}
+              <span className="text-lg text-white/80 ml-2">cal</span>
+            </p>
 
-        {!make && vehicleType === "unknown" && (
-          <p className="text-lg text-white/60">No vehicle detected</p>
-        )}
+            <div className="flex flex-wrap gap-1">
+              {items.slice(0, 3).map((item, i) => (
+                <span key={i} className="text-xs bg-white/10 px-2 py-1 rounded">
+                  {item.name}
+                </span>
+              ))}
+              {items.length > 3 && (
+                <span className="text-xs bg-white/10 px-2 py-1 rounded">
+                  +{items.length - 3} more
+                </span>
+              )}
+            </div>
 
-        {confidenceScore !== null && make && (
-          <p className={`text-xs ${getConfidenceClass(confidenceScore)}`}>
-            {confidenceScore}% confidence
-          </p>
+            {confidenceScore !== null && (
+              <p className={`text-xs ${getConfidenceClass(confidenceScore)}`}>
+                {confidenceScore}% confidence
+              </p>
+            )}
+          </>
+        ) : (
+          <p className="text-lg text-white/60">No food detected</p>
         )}
       </div>
     );
@@ -152,15 +162,12 @@ export function LiveScanOverlay({
 
       {/* Bottom result panel */}
       <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black via-black/90 to-transparent p-4 pt-8 space-y-4 z-20">
-        {/* Status indicator */}
         <div className="text-sm">
           {getStatusDisplay()}
         </div>
 
-        {/* Result display */}
         {renderResult()}
 
-        {/* Action buttons */}
         <div className="flex gap-3 pt-2 pb-safe">
           {scanStatus === "locked" ? (
             <>

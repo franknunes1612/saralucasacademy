@@ -1,43 +1,45 @@
 import { useState, useEffect, useCallback, useRef } from "react";
 
-const DB_NAME = "spotter_db";
-const STORE_NAME = "saved_scans";
-const DB_VERSION = 2; // Bumped for schema change
-const MAX_SCANS = 100;
+const DB_NAME = "caloriespot_db";
+const STORE_NAME = "saved_meals";
+const DB_VERSION = 1;
+const MAX_MEALS = 100;
 
-export interface SavedScan {
+export interface FoodItem {
+  name: string;
+  portion: "small" | "medium" | "large";
+  estimatedCalories: number | null;
+}
+
+export interface SavedMeal {
   id: string;
   timestamp: string;
-  vehicleType: "car" | "motorcycle" | "unknown";
-  make: string | null;
-  model: string | null;
+  items: FoodItem[];
+  totalCalories: number | { min: number; max: number } | null;
   confidenceScore: number | null;
-  spotScore: number | null;
-  similarModels: string[] | null;
+  macros: { protein: number; carbs: number; fat: number } | null;
   source?: "camera" | "gallery";
 }
 
-interface UseSavedScansReturn {
-  scans: SavedScan[];
-  saveScan: (scan: Omit<SavedScan, "id" | "timestamp">) => Promise<boolean>;
-  deleteScan: (id: string) => Promise<void>;
-  clearAllScans: () => Promise<void>;
-  getScanById: (id: string) => SavedScan | null;
+interface UseSavedMealsReturn {
+  meals: SavedMeal[];
+  saveMeal: (meal: Omit<SavedMeal, "id" | "timestamp">) => Promise<boolean>;
+  deleteMeal: (id: string) => Promise<void>;
+  clearAllMeals: () => Promise<void>;
+  getMealById: (id: string) => SavedMeal | null;
   storageError: string | null;
   isLoading: boolean;
   isSupported: boolean;
-  reloadScans: () => Promise<void>;
+  reloadMeals: () => Promise<void>;
 }
 
 function generateId(): string {
   return `${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
 }
 
-// Check if IndexedDB is available
 function isIndexedDBAvailable(): boolean {
   try {
     if (typeof indexedDB === "undefined") return false;
-    // Test if we can actually open a database (some iOS modes block this)
     const testRequest = indexedDB.open("__test_db__");
     testRequest.onerror = () => {};
     testRequest.onsuccess = () => {
@@ -50,7 +52,6 @@ function isIndexedDBAvailable(): boolean {
   }
 }
 
-// Open or create the IndexedDB database
 function openDatabase(): Promise<IDBDatabase> {
   return new Promise((resolve, reject) => {
     const request = indexedDB.open(DB_NAME, DB_VERSION);
@@ -66,7 +67,6 @@ function openDatabase(): Promise<IDBDatabase> {
     request.onupgradeneeded = (event) => {
       const db = (event.target as IDBOpenDBRequest).result;
       
-      // Create object store if it doesn't exist
       if (!db.objectStoreNames.contains(STORE_NAME)) {
         const store = db.createObjectStore(STORE_NAME, { keyPath: "id" });
         store.createIndex("timestamp", "timestamp", { unique: false });
@@ -75,8 +75,7 @@ function openDatabase(): Promise<IDBDatabase> {
   });
 }
 
-// Load all scans from IndexedDB
-async function loadScansFromDB(): Promise<SavedScan[]> {
+async function loadMealsFromDB(): Promise<SavedMeal[]> {
   const db = await openDatabase();
   
   return new Promise((resolve, reject) => {
@@ -86,31 +85,29 @@ async function loadScansFromDB(): Promise<SavedScan[]> {
 
     request.onerror = () => {
       db.close();
-      reject(new Error("Failed to load scans"));
+      reject(new Error("Failed to load meals"));
     };
 
     request.onsuccess = () => {
       db.close();
-      const scans = request.result as SavedScan[];
-      // Sort by timestamp descending (newest first)
-      scans.sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime());
-      resolve(scans);
+      const meals = request.result as SavedMeal[];
+      meals.sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime());
+      resolve(meals);
     };
   });
 }
 
-// Save a scan to IndexedDB
-async function saveScanToDB(scan: SavedScan): Promise<void> {
+async function saveMealToDB(meal: SavedMeal): Promise<void> {
   const db = await openDatabase();
   
   return new Promise((resolve, reject) => {
     const transaction = db.transaction(STORE_NAME, "readwrite");
     const store = transaction.objectStore(STORE_NAME);
-    const request = store.add(scan);
+    const request = store.add(meal);
 
     request.onerror = () => {
       db.close();
-      reject(new Error("Failed to save scan"));
+      reject(new Error("Failed to save meal"));
     };
 
     request.onsuccess = () => {
@@ -120,8 +117,7 @@ async function saveScanToDB(scan: SavedScan): Promise<void> {
   });
 }
 
-// Delete a scan from IndexedDB
-async function deleteScanFromDB(id: string): Promise<void> {
+async function deleteMealFromDB(id: string): Promise<void> {
   const db = await openDatabase();
   
   return new Promise((resolve, reject) => {
@@ -131,7 +127,7 @@ async function deleteScanFromDB(id: string): Promise<void> {
 
     request.onerror = () => {
       db.close();
-      reject(new Error("Failed to delete scan"));
+      reject(new Error("Failed to delete meal"));
     };
 
     request.onsuccess = () => {
@@ -141,8 +137,7 @@ async function deleteScanFromDB(id: string): Promise<void> {
   });
 }
 
-// Clear all scans from IndexedDB
-async function clearAllScansFromDB(): Promise<void> {
+async function clearAllMealsFromDB(): Promise<void> {
   const db = await openDatabase();
   
   return new Promise((resolve, reject) => {
@@ -152,7 +147,7 @@ async function clearAllScansFromDB(): Promise<void> {
 
     request.onerror = () => {
       db.close();
-      reject(new Error("Failed to clear scans"));
+      reject(new Error("Failed to clear meals"));
     };
 
     request.onsuccess = () => {
@@ -162,68 +157,63 @@ async function clearAllScansFromDB(): Promise<void> {
   });
 }
 
-// Trim scans to max limit
-async function trimScansInDB(maxScans: number): Promise<void> {
-  const scans = await loadScansFromDB();
+async function trimMealsInDB(maxMeals: number): Promise<void> {
+  const meals = await loadMealsFromDB();
   
-  if (scans.length <= maxScans) return;
+  if (meals.length <= maxMeals) return;
 
-  const scansToDelete = scans.slice(maxScans);
+  const mealsToDelete = meals.slice(maxMeals);
   
-  for (const scan of scansToDelete) {
-    await deleteScanFromDB(scan.id);
+  for (const meal of mealsToDelete) {
+    await deleteMealFromDB(meal.id);
   }
 }
 
-export function useSavedScans(): UseSavedScansReturn {
-  const [scans, setScans] = useState<SavedScan[]>([]);
+export function useSavedMeals(): UseSavedMealsReturn {
+  const [meals, setMeals] = useState<SavedMeal[]>([]);
   const [storageError, setStorageError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isSupported, setIsSupported] = useState(true);
   const loadedRef = useRef(false);
 
-  // Load scans function - can be called on demand
-  const loadScans = useCallback(async () => {
+  const loadMeals = useCallback(async () => {
     if (!isIndexedDBAvailable()) {
       setIsSupported(false);
-      setStorageError("Saved scans not supported on this device");
+      setStorageError("Saved meals not supported on this device");
       setIsLoading(false);
       return;
     }
 
     try {
       setIsLoading(true);
-      const loaded = await loadScansFromDB();
-      setScans(loaded);
+      const loaded = await loadMealsFromDB();
+      setMeals(loaded);
       setStorageError(null);
     } catch (err) {
-      console.error("[useSavedScans] Failed to load scans:", err);
-      setStorageError("Could not load saved scans");
+      console.error("[useSavedMeals] Failed to load meals:", err);
+      setStorageError("Could not load saved meals");
     } finally {
       setIsLoading(false);
     }
   }, []);
 
-  // Load scans on mount
   useEffect(() => {
     if (!loadedRef.current) {
       loadedRef.current = true;
-      loadScans();
+      loadMeals();
     }
-  }, [loadScans]);
+  }, [loadMeals]);
 
-  // Reload on visibility change (app resume from background)
   useEffect(() => {
     const handleVisibilityChange = () => {
       if (document.visibilityState === "visible") {
-        loadScans();
+        loadMeals();
       }
     };
 
-    // Also handle pageshow for iOS Safari back-forward cache
     const handlePageShow = (event: PageTransitionEvent) => {
       if (event.persisted) {
-        loadScans();
+        loadMeals();
       }
     };
 
@@ -234,72 +224,71 @@ export function useSavedScans(): UseSavedScansReturn {
       document.removeEventListener("visibilitychange", handleVisibilityChange);
       window.removeEventListener("pageshow", handlePageShow);
     };
-  }, [loadScans]);
+  }, [loadMeals]);
 
-  const saveScan = useCallback(async (scanData: Omit<SavedScan, "id" | "timestamp">): Promise<boolean> => {
+  const saveMeal = useCallback(async (mealData: Omit<SavedMeal, "id" | "timestamp">): Promise<boolean> => {
     if (!isSupported) {
       return false;
     }
 
     setStorageError(null);
     
-    const newScan: SavedScan = {
+    const newMeal: SavedMeal = {
       id: generateId(),
       timestamp: new Date().toISOString(),
-      ...scanData,
+      ...mealData,
     };
 
     try {
-      await saveScanToDB(newScan);
-      await trimScansInDB(MAX_SCANS);
+      await saveMealToDB(newMeal);
+      await trimMealsInDB(MAX_MEALS);
       
-      // Update local state
-      setScans((prev) => [newScan, ...prev].slice(0, MAX_SCANS));
+      setMeals((prev) => [newMeal, ...prev].slice(0, MAX_MEALS));
       return true;
     } catch (err) {
-      console.error("[useSavedScans] Failed to save scan:", err);
-      setStorageError("Could not save scan. Storage may be full.");
+      console.error("[useSavedMeals] Failed to save meal:", err);
+      setStorageError("Could not save meal. Storage may be full.");
       return false;
     }
   }, [isSupported]);
 
-  const deleteScan = useCallback(async (id: string) => {
+  const deleteMeal = useCallback(async (id: string) => {
     if (!isSupported) return;
 
     try {
-      await deleteScanFromDB(id);
-      setScans((prev) => prev.filter((scan) => scan.id !== id));
+      await deleteMealFromDB(id);
+      setMeals((prev) => prev.filter((meal) => meal.id !== id));
     } catch (err) {
-      console.error("[useSavedScans] Failed to delete scan:", err);
-      setStorageError("Could not delete scan");
+      console.error("[useSavedMeals] Failed to delete meal:", err);
+      setStorageError("Could not delete meal");
     }
   }, [isSupported]);
 
-  const clearAllScans = useCallback(async () => {
+  const clearAllMeals = useCallback(async () => {
     if (!isSupported) return;
 
     try {
-      await clearAllScansFromDB();
-      setScans([]);
+      await clearAllMealsFromDB();
+      setMeals([]);
     } catch (err) {
-      console.error("[useSavedScans] Failed to clear scans:", err);
-      setStorageError("Could not clear scans");
+      console.error("[useSavedMeals] Failed to clear meals:", err);
+      setStorageError("Could not clear meals");
     }
   }, [isSupported]);
 
-  const getScanById = useCallback((id: string): SavedScan | null => {
-    return scans.find((scan) => scan.id === id) ?? null;
-  }, [scans]);
+  const getMealById = useCallback((id: string): SavedMeal | null => {
+    return meals.find((meal) => meal.id === id) ?? null;
+  }, [meals]);
 
   return {
-    scans,
-    saveScan,
-    deleteScan,
-    clearAllScans,
-    getScanById,
+    meals,
+    saveMeal,
+    deleteMeal,
+    clearAllMeals,
+    getMealById,
     storageError,
     isLoading,
     isSupported,
-    reloadScans: loadScans,
+    reloadMeals: loadMeals,
   };
 }

@@ -1,65 +1,60 @@
 import { useState, useMemo, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { useSavedScans, SavedScan } from "@/hooks/useSavedScans";
-import { SavedScanCard } from "@/components/SavedScanCard";
-import { SpotScoreMeter } from "@/components/SpotScoreMeter";
+import { useSavedMeals, SavedMeal, FoodItem } from "@/hooks/useSavedMeals";
+import { SavedMealCard } from "@/components/SavedMealCard";
+import { CalorieMeter } from "@/components/CalorieMeter";
+import { FoodItemsList } from "@/components/FoodItemsList";
+import { MacrosBadge } from "@/components/MacrosBadge";
 import { ArrowLeft, Trash2, Camera } from "lucide-react";
 
-// Calculate total Spot Score with deduplication
-function calculateTotalSpotScore(scans: SavedScan[]): number {
-  const vehicleScores = new Map<string, number>();
-  
-  for (const scan of scans) {
-    if (scan.spotScore === null) continue;
-    const key = `${(scan.make ?? "").toLowerCase()}|${(scan.model ?? "").toLowerCase()}`;
-    const existing = vehicleScores.get(key) ?? 0;
-    if (scan.spotScore > existing) {
-      vehicleScores.set(key, scan.spotScore);
-    }
-  }
-  
+function calculateTotalCalories(meals: SavedMeal[]): number {
   let total = 0;
-  for (const score of vehicleScores.values()) total += score;
+  for (const meal of meals) {
+    if (meal.totalCalories === null) continue;
+    const cal = typeof meal.totalCalories === "object" 
+      ? Math.round((meal.totalCalories.min + meal.totalCalories.max) / 2)
+      : meal.totalCalories;
+    total += cal;
+  }
   return total;
 }
 
-function getSpotScoreClass(score: number | null): string {
-  if (score === null) return "";
-  if (score >= 70) return "spot-high";
-  if (score >= 30) return "spot-mid";
-  return "spot-low";
-}
-
-export default function SavedScans() {
+export default function MyMeals() {
   const navigate = useNavigate();
-  const { scans, deleteScan, clearAllScans, storageError, isLoading, isSupported, reloadScans } = useSavedScans();
-  const [selectedScan, setSelectedScan] = useState<SavedScan | null>(null);
+  const { meals, deleteMeal, clearAllMeals, storageError, isLoading, isSupported, reloadMeals } = useSavedMeals();
+  const [selectedMeal, setSelectedMeal] = useState<SavedMeal | null>(null);
   const [showClearConfirm, setShowClearConfirm] = useState(false);
 
   useEffect(() => {
-    reloadScans();
-  }, [reloadScans]);
+    reloadMeals();
+  }, [reloadMeals]);
 
-  const totalSpotScore = useMemo(() => calculateTotalSpotScore(scans), [scans]);
+  const totalCalories = useMemo(() => calculateTotalCalories(meals), [meals]);
 
   const handleBack = () => {
-    if (selectedScan) {
-      setSelectedScan(null);
+    if (selectedMeal) {
+      setSelectedMeal(null);
     } else {
       navigate("/");
     }
   };
 
   const handleClearAll = async () => {
-    await clearAllScans();
+    await clearAllMeals();
     setShowClearConfirm(false);
   };
 
+  const formatCalories = (cal: number | { min: number; max: number } | null): string => {
+    if (cal === null) return "—";
+    if (typeof cal === "object") return `${cal.min}-${cal.max}`;
+    return String(cal);
+  };
+
   // Detail view
-  if (selectedScan) {
-    const displayName = selectedScan.make 
-      ? `${selectedScan.make}${selectedScan.model ? ` ${selectedScan.model}` : ""}`
-      : "Unknown";
+  if (selectedMeal) {
+    const displayName = selectedMeal.items.length > 0 
+      ? selectedMeal.items.map(i => i.name).join(", ")
+      : "Unknown meal";
     
     return (
       <div className="min-h-screen bg-background px-4 py-5 safe-top safe-bottom">
@@ -68,26 +63,32 @@ export default function SavedScans() {
           <button onClick={handleBack} className="p-2 -ml-2 rounded-xl hover:bg-muted transition-colors">
             <ArrowLeft className="h-5 w-5" />
           </button>
-          <h1 className="text-lg font-semibold">Details</h1>
+          <h1 className="text-lg font-semibold">Meal Details</h1>
         </div>
 
-        <div className="result-card p-6 text-center">
-          {/* Vehicle icon */}
-          <div className="text-5xl mb-4">
-            {selectedScan.vehicleType === "motorcycle" ? "🏍️" : "🚗"}
+        <div className="result-card p-6 text-center space-y-6">
+          {/* Food icon */}
+          <div className="text-5xl">🍽️</div>
+
+          {/* Meal name */}
+          <h2 className="text-xl font-bold">{displayName}</h2>
+
+          {/* Calorie meter */}
+          <div className="flex justify-center">
+            <CalorieMeter calories={selectedMeal.totalCalories} size="md" animated={false} />
           </div>
 
-          {/* Vehicle name */}
-          <h2 className="text-2xl font-bold mb-6">{displayName}</h2>
+          {/* Macros if available */}
+          {selectedMeal.macros && (
+            <MacrosBadge macros={selectedMeal.macros} />
+          )}
 
-          {/* Spot Score meter */}
-          <div className="flex justify-center mb-6">
-            <SpotScoreMeter score={selectedScan.spotScore} size="md" animated={false} />
-          </div>
+          {/* Food items list */}
+          <FoodItemsList items={selectedMeal.items} />
 
           {/* Timestamp */}
-          <p className="text-sm text-muted-foreground mb-6">
-            {new Date(selectedScan.timestamp).toLocaleDateString(undefined, {
+          <p className="text-sm text-muted-foreground">
+            {new Date(selectedMeal.timestamp).toLocaleDateString(undefined, {
               weekday: "short",
               month: "short",
               day: "numeric",
@@ -104,8 +105,8 @@ export default function SavedScans() {
         {/* Delete button */}
         <button
           onClick={async () => {
-            await deleteScan(selectedScan.id);
-            setSelectedScan(null);
+            await deleteMeal(selectedMeal.id);
+            setSelectedMeal(null);
           }}
           className="w-full mt-5 py-4 glass-card rounded-xl text-destructive flex items-center justify-center gap-2 font-medium transition-colors hover:bg-destructive/10"
         >
@@ -125,10 +126,10 @@ export default function SavedScans() {
           <button onClick={handleBack} className="p-2 -ml-2 rounded-xl hover:bg-muted transition-colors">
             <ArrowLeft className="h-5 w-5" />
           </button>
-          <h1 className="text-xl font-bold tracking-tight">Collection</h1>
+          <h1 className="text-xl font-bold tracking-tight">My Meals</h1>
         </div>
         
-        {scans.length > 0 && (
+        {meals.length > 0 && (
           <button
             onClick={() => setShowClearConfirm(true)}
             className="text-sm text-muted-foreground hover:text-destructive transition-colors"
@@ -138,13 +139,13 @@ export default function SavedScans() {
         )}
       </div>
 
-      {/* Total Spot Score - Hero */}
-      {scans.length > 0 && (
+      {/* Total Calories - Hero */}
+      {meals.length > 0 && (
         <div className="result-card p-6 mb-6 text-center">
-          <p className="text-xs text-primary uppercase tracking-widest font-medium mb-2">Total Score</p>
-          <div className="text-6xl font-bold spot-mid mb-2">{totalSpotScore}</div>
+          <p className="text-xs text-primary uppercase tracking-widest font-medium mb-2">Total Today</p>
+          <div className="text-5xl font-bold calorie-mid mb-2">{totalCalories}</div>
           <p className="text-sm text-muted-foreground">
-            {scans.length} vehicle{scans.length === 1 ? "" : "s"} spotted
+            calories from {meals.length} meal{meals.length === 1 ? "" : "s"}
           </p>
         </div>
       )}
@@ -174,7 +175,7 @@ export default function SavedScans() {
       {/* Clear confirmation */}
       {showClearConfirm && (
         <div className="glass-card p-5 rounded-xl mb-5 animate-fade-in">
-          <p className="text-sm mb-4 text-center">Delete all vehicles?</p>
+          <p className="text-sm mb-4 text-center">Delete all meals?</p>
           <div className="flex gap-3">
             <button
               onClick={() => setShowClearConfirm(false)}
@@ -193,36 +194,36 @@ export default function SavedScans() {
       )}
 
       {/* Empty state */}
-      {!isLoading && isSupported && scans.length === 0 ? (
+      {!isLoading && isSupported && meals.length === 0 ? (
         <div className="text-center py-16">
-          <div className="text-6xl mb-4">🎯</div>
-          <p className="text-lg font-medium mb-2">Start spotting!</p>
+          <div className="text-6xl mb-4">🍽️</div>
+          <p className="text-lg font-medium mb-2">No meals yet</p>
           <p className="text-sm text-muted-foreground mb-6">
-            Your finds appear here
+            Scan your food to track calories
           </p>
           <button
             onClick={() => navigate("/")}
             className="btn-primary px-6 py-3 rounded-xl inline-flex items-center gap-2"
           >
             <Camera className="h-4 w-4" />
-            Scan Now
+            Scan Food
           </button>
         </div>
       ) : !isLoading && isSupported ? (
-        /* Grid of vehicles */
+        /* Grid of meals */
         <div className="grid grid-cols-2 gap-3">
-          {scans.map((scan) => (
-            <SavedScanCard
-              key={scan.id}
-              scan={scan}
-              onTap={() => setSelectedScan(scan)}
+          {meals.map((meal) => (
+            <SavedMealCard
+              key={meal.id}
+              meal={meal}
+              onTap={() => setSelectedMeal(meal)}
             />
           ))}
         </div>
       ) : null}
 
       {/* Privacy footer */}
-      {isSupported && scans.length > 0 && (
+      {isSupported && meals.length > 0 && (
         <p className="text-xs text-muted-foreground/50 mt-6 text-center">
           Saved locally · Images never stored
         </p>

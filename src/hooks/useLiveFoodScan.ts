@@ -2,48 +2,49 @@ import { useState, useRef, useCallback, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 
 /**
- * Assisted live scanning - triggers AI only when camera is stable.
+ * Assisted live scanning for food - triggers AI only when camera is stable.
  * Motion detection prevents continuous API calls.
  */
 
-const MIN_SCAN_INTERVAL_MS = 1500;
-const MOTION_THRESHOLD = 15; // Pixel difference threshold (0-255 scale)
-const STABILITY_FRAMES = 3; // Frames of stability before scanning
-const MOTION_CHECK_INTERVAL = 200; // Check motion every 200ms
+const MIN_SCAN_INTERVAL_MS = 2000;
+const MOTION_THRESHOLD = 15;
+const STABILITY_FRAMES = 3;
+const MOTION_CHECK_INTERVAL = 200;
 const MAX_LIVE_FRAME_WIDTH = 768;
 const JPEG_QUALITY = 0.65;
 
-export interface LiveScanResult {
-  vehicleType: "car" | "motorcycle" | "unknown";
-  make: string | null;
-  model: string | null;
-  year: number | null;
-  spotScore: number | null;
+export interface FoodItem {
+  name: string;
+  portion: "small" | "medium" | "large";
+  estimatedCalories: number | null;
+}
+
+export interface LiveFoodResult {
+  foodDetected: boolean;
+  items: FoodItem[];
+  totalCalories: number | { min: number; max: number } | null;
   confidenceScore: number | null;
   confidence: "high" | "medium" | "low" | null;
   reasoning: string | null;
+  macros: { protein: number; carbs: number; fat: number } | null;
   disclaimer: string;
   identifiedAt: string;
-  similarModels?: string[] | null;
 }
 
-interface UseLiveScanReturn {
+interface UseLiveFoodScanReturn {
   isLiveScanning: boolean;
-  liveResult: LiveScanResult | null;
+  liveResult: LiveFoodResult | null;
   scanStatus: "waiting" | "scanning" | "locked";
   isMotionDetected: boolean;
   startLiveScan: () => void;
   stopLiveScan: () => void;
-  lockResult: () => LiveScanResult | null;
+  lockResult: () => LiveFoodResult | null;
   rescan: () => void;
   captureFrame: () => string | null;
   setVideoRef: (ref: HTMLVideoElement | null) => void;
   setCanvasRef: (ref: HTMLCanvasElement | null) => void;
 }
 
-/**
- * Capture a small frame for motion detection (very low res)
- */
 function captureMotionFrame(
   canvas: HTMLCanvasElement,
   video: HTMLVideoElement
@@ -51,7 +52,6 @@ function captureMotionFrame(
   const ctx = canvas.getContext("2d", { willReadFrequently: true });
   if (!ctx) return null;
 
-  // Use tiny resolution for motion detection (fast)
   const width = 64;
   const height = 48;
   canvas.width = width;
@@ -61,9 +61,6 @@ function captureMotionFrame(
   return ctx.getImageData(0, 0, width, height);
 }
 
-/**
- * Compare two frames and return average pixel difference
- */
 function compareFrames(frame1: ImageData, frame2: ImageData): number {
   const data1 = frame1.data;
   const data2 = frame2.data;
@@ -71,7 +68,6 @@ function compareFrames(frame1: ImageData, frame2: ImageData): number {
   const pixelCount = data1.length / 4;
 
   for (let i = 0; i < data1.length; i += 4) {
-    // Compare grayscale values (faster than RGB)
     const gray1 = (data1[i] + data1[i + 1] + data1[i + 2]) / 3;
     const gray2 = (data2[i] + data2[i + 1] + data2[i + 2]) / 3;
     totalDiff += Math.abs(gray1 - gray2);
@@ -80,9 +76,6 @@ function compareFrames(frame1: ImageData, frame2: ImageData): number {
   return totalDiff / pixelCount;
 }
 
-/**
- * Resize frame for API call
- */
 function resizeFrameForScan(
   canvas: HTMLCanvasElement,
   video: HTMLVideoElement
@@ -107,9 +100,9 @@ function resizeFrameForScan(
   return dataUrl.replace(/^data:image\/jpeg;base64,/, "");
 }
 
-export function useLiveScan(): UseLiveScanReturn {
+export function useLiveFoodScan(): UseLiveFoodScanReturn {
   const [isLiveScanning, setIsLiveScanning] = useState(false);
-  const [liveResult, setLiveResult] = useState<LiveScanResult | null>(null);
+  const [liveResult, setLiveResult] = useState<LiveFoodResult | null>(null);
   const [scanStatus, setScanStatus] = useState<"waiting" | "scanning" | "locked">("waiting");
   const [isMotionDetected, setIsMotionDetected] = useState(true);
 
@@ -136,7 +129,6 @@ export function useLiveScan(): UseLiveScanReturn {
     return resizeFrameForScan(canvasRef.current, videoRef.current);
   }, []);
 
-  // Run a single scan
   const runScan = useCallback(async () => {
     if (isProcessingRef.current || !videoRef.current || !canvasRef.current) {
       return;
@@ -156,36 +148,35 @@ export function useLiveScan(): UseLiveScanReturn {
     setScanStatus("scanning");
 
     try {
-      const { data, error } = await supabase.functions.invoke("identify-car", {
+      const { data, error } = await supabase.functions.invoke("identify-food", {
         body: { image: frame },
       });
 
       if (error) {
-        console.log("[LiveScan] API error:", error.message);
+        console.log("[LiveFoodScan] API error:", error.message);
         setScanStatus("waiting");
         isProcessingRef.current = false;
         return;
       }
 
       if (data?.error) {
-        console.log("[LiveScan] Response error:", data.error);
+        console.log("[LiveFoodScan] Response error:", data.error);
         setScanStatus("waiting");
         isProcessingRef.current = false;
         return;
       }
 
-      const result = data as LiveScanResult;
+      const result = data as LiveFoodResult;
       setLiveResult(result);
       setScanStatus("locked");
     } catch (err) {
-      console.error("[LiveScan] Error:", err);
+      console.error("[LiveFoodScan] Error:", err);
       setScanStatus("waiting");
     } finally {
       isProcessingRef.current = false;
     }
   }, []);
 
-  // Motion detection loop
   const checkMotion = useCallback(() => {
     if (!videoRef.current || !motionCanvasRef.current) return;
     if (scanStatus === "scanning") return;
@@ -205,19 +196,15 @@ export function useLiveScan(): UseLiveScanReturn {
     setIsMotionDetected(hasMotion);
 
     if (hasMotion) {
-      // Camera is moving - reset stability counter
       stableCountRef.current = 0;
       
-      // If we had a locked result and camera moves significantly, unlock
       if (scanStatus === "locked" && motionLevel > MOTION_THRESHOLD * 2) {
         setScanStatus("waiting");
         hasScanTriggeredRef.current = false;
       }
     } else {
-      // Camera is stable
       stableCountRef.current++;
 
-      // If stable for enough frames and we haven't scanned yet, trigger scan
       if (
         stableCountRef.current >= STABILITY_FRAMES &&
         scanStatus === "waiting" &&
@@ -228,20 +215,18 @@ export function useLiveScan(): UseLiveScanReturn {
     }
   }, [scanStatus, runScan]);
 
-  // Manual rescan
   const rescan = useCallback(() => {
     if (isProcessingRef.current) return;
     
     hasScanTriggeredRef.current = false;
     setScanStatus("waiting");
-    stableCountRef.current = STABILITY_FRAMES; // Trigger immediate scan
+    stableCountRef.current = STABILITY_FRAMES;
     runScan();
   }, [runScan]);
 
   const startLiveScan = useCallback(() => {
     if (isLiveScanning) return;
 
-    // Create motion detection canvas
     if (!motionCanvasRef.current) {
       motionCanvasRef.current = document.createElement("canvas");
     }
@@ -256,7 +241,6 @@ export function useLiveScan(): UseLiveScanReturn {
     isProcessingRef.current = false;
     hasScanTriggeredRef.current = false;
 
-    // Start motion detection loop
     motionIntervalRef.current = window.setInterval(checkMotion, MOTION_CHECK_INTERVAL);
   }, [isLiveScanning, checkMotion]);
 
@@ -276,7 +260,7 @@ export function useLiveScan(): UseLiveScanReturn {
     hasScanTriggeredRef.current = false;
   }, []);
 
-  const lockResult = useCallback((): LiveScanResult | null => {
+  const lockResult = useCallback((): LiveFoodResult | null => {
     if (motionIntervalRef.current) {
       clearInterval(motionIntervalRef.current);
       motionIntervalRef.current = null;
@@ -285,7 +269,6 @@ export function useLiveScan(): UseLiveScanReturn {
     return liveResult;
   }, [liveResult]);
 
-  // Cleanup on unmount
   useEffect(() => {
     return () => {
       if (motionIntervalRef.current) {
