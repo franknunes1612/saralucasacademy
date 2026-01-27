@@ -1,8 +1,22 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
+import { 
+  checkRateLimit, 
+  getClientIdentifier, 
+  rateLimitResponse,
+  addRateLimitHeaders,
+  type RateLimitConfig 
+} from "../_shared/rateLimit.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
+};
+
+// Rate limit: 30 requests per minute per IP
+const RATE_LIMIT_CONFIG: RateLimitConfig = {
+  maxRequests: 30,
+  windowMs: 60 * 1000, // 1 minute
+  keyPrefix: "lookup-barcode",
 };
 
 interface OpenFoodFactsProduct {
@@ -51,6 +65,15 @@ serve(async (req) => {
   // Handle CORS preflight
   if (req.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders });
+  }
+
+  // Rate limiting
+  const clientId = getClientIdentifier(req);
+  const rateLimitResult = checkRateLimit(clientId, RATE_LIMIT_CONFIG);
+  
+  if (!rateLimitResult.allowed) {
+    console.log(`[lookup-barcode] Rate limit exceeded for ${clientId}`);
+    return rateLimitResponse(rateLimitResult, corsHeaders);
   }
 
   try {
