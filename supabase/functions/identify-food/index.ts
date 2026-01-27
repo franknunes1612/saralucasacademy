@@ -19,10 +19,16 @@ const corsHeaders = {
 // TYPES
 // ============================================
 
+type PortionSize = "small" | "medium" | "large";
+type PlateType = "single_item" | "half_plate" | "full_plate" | "mixed_dish" | "bowl" | "snack";
+type FoodCategory = "fruit" | "vegetable" | "grain" | "protein_lean" | "protein_fatty" | "dairy" | "fried" | "sauce" | "drink" | "dessert" | "unknown";
+
 interface FoodItem {
   name: string;
-  portion: "small" | "medium" | "large";
+  portion: PortionSize;
   estimatedCalories: number | null;
+  category?: FoodCategory;
+  calorieRange?: { min: number; max: number };
 }
 
 interface FoodIdentificationRequest {
@@ -33,10 +39,12 @@ interface FoodIdentificationResponse {
   foodDetected: boolean;
   items: FoodItem[];
   totalCalories: number | { min: number; max: number } | null;
+  calorieRange: { min: number; max: number } | null; // Internal range for transparency
   confidenceScore: number;
   confidence: "high" | "medium" | "low";
   reasoning: string;
   macros: { protein: number; carbs: number; fat: number } | null;
+  plateType: PlateType;
   disclaimer: string;
   identifiedAt: string;
 }
@@ -55,11 +63,17 @@ interface MockedFood {
 // Vision response structure from tool call
 interface VisionAnalysisResult {
   foodDetected: boolean;
-  items: FoodItem[];
+  items: Array<{
+    name: string;
+    portion: PortionSize;
+    estimatedCalories: number | null;
+    category?: FoodCategory;
+  }>;
   totalCalories: number | { min: number; max: number } | null;
   confidenceScore: number; // 0-100
   reasoning: string;
   macros: { protein: number; carbs: number; fat: number } | null;
+  plateType?: PlateType;
 }
 
 // ============================================
@@ -206,15 +220,20 @@ const MOCKED_FOODS: MockedFood[] = [
 function getMockedResponse(): FoodIdentificationResponse {
   const randomIndex = Math.floor(Math.random() * MOCKED_FOODS.length);
   const food = MOCKED_FOODS[randomIndex];
+  const variance = 0.15; // ±15% range
+  const minCal = Math.round(food.totalCalories * (1 - variance));
+  const maxCal = Math.round(food.totalCalories * (1 + variance));
 
   return {
     foodDetected: true,
     items: food.items,
     totalCalories: food.totalCalories,
+    calorieRange: { min: minCal, max: maxCal },
     confidenceScore: food.confidenceScore,
     confidence: getConfidenceLabel(food.confidenceScore),
     reasoning: `Mocked response for testing`,
     macros: food.confidenceScore >= 70 ? { protein: 25, carbs: 45, fat: 18 } : null,
+    plateType: "mixed_dish",
     disclaimer: DISCLAIMER,
     identifiedAt: new Date().toISOString(),
   };
@@ -505,10 +524,12 @@ serve(async (req: Request) => {
         foodDetected: false,
         items: [],
         totalCalories: null,
+        calorieRange: null,
         confidenceScore: safeNumber(Math.min(confidenceScore, 50), 30),
         confidence: "low",
         reasoning: reasoning || "No food detected in the image.",
         macros: null,
+        plateType: "single_item",
         disclaimer: DISCLAIMER,
         identifiedAt: new Date().toISOString(),
       };
@@ -523,6 +544,9 @@ serve(async (req: Request) => {
     // Apply fallback estimates for items missing calories
     const sanitizedItems = applyFallbackEstimates(items);
 
+    // Sanitize confidence score first (used in multiple places)
+    const finalConfidence = safeNumber(confidenceScore, 50);
+
     // Calculate total calories from items if missing
     let finalTotalCalories = sanitizeTotalCalories(totalCalories);
     if (finalTotalCalories === null && sanitizedItems.length > 0) {
@@ -533,8 +557,28 @@ serve(async (req: Request) => {
       }
     }
 
-    // Sanitize confidence score
-    const finalConfidence = safeNumber(confidenceScore, 50);
+    // Calculate calorie range based on confidence (±10-20% variance)
+    const baseCalories = typeof finalTotalCalories === "number" 
+      ? finalTotalCalories 
+      : finalTotalCalories 
+        ? Math.round((finalTotalCalories.min + finalTotalCalories.max) / 2)
+        : 0;
+    
+    // Higher confidence = smaller range, lower confidence = wider range
+    const variancePercent = finalConfidence >= 80 ? 0.10 : finalConfidence >= 60 ? 0.15 : 0.20;
+    const calorieRange = baseCalories > 0 
+      ? { 
+          min: Math.round(baseCalories * (1 - variancePercent)), 
+          max: Math.round(baseCalories * (1 + variancePercent)) 
+        }
+      : null;
+
+    // Determine plate type based on items
+    const plateType: PlateType = sanitizedItems.length === 1 
+      ? "single_item" 
+      : sanitizedItems.length >= 3 
+        ? "mixed_dish" 
+        : "half_plate";
 
     // Only include macros if confidence >= 70 and macros are valid
     const finalMacros = finalConfidence >= 70 ? sanitizeMacros(macros) : null;
@@ -544,15 +588,17 @@ serve(async (req: Request) => {
       foodDetected: true,
       items: sanitizedItems,
       totalCalories: finalTotalCalories,
+      calorieRange,
       confidenceScore: finalConfidence,
       confidence: getConfidenceLabel(finalConfidence),
       reasoning: reasoning || "Food identified from image.",
       macros: finalMacros,
+      plateType,
       disclaimer: DISCLAIMER,
       identifiedAt: new Date().toISOString(),
     };
     
-    console.log(`[identify-food] Final result: ${sanitizedItems.length} items, calories=${JSON.stringify(finalTotalCalories)}, macros=${JSON.stringify(finalMacros)}, confidence=${finalConfidence}%`);
+    console.log(`[identify-food] Final result: ${sanitizedItems.length} items, calories=${JSON.stringify(finalTotalCalories)}, range=${JSON.stringify(calorieRange)}, plateType=${plateType}, confidence=${finalConfidence}%`);
     return new Response(
       JSON.stringify(response),
       { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } }

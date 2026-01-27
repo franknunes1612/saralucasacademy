@@ -14,7 +14,7 @@ import { SplashScreen } from "@/components/SplashScreen";
 import { PermissionDenied } from "@/components/PermissionDenied";
 import { BarcodeScannerView } from "@/components/BarcodeScannerView";
 import { BarcodeResultCard } from "@/components/BarcodeResultCard";
-import { PortionAdjuster, PortionAdjustment } from "@/components/PortionAdjuster";
+import { PortionFeedback, PortionAdjustment } from "@/components/PortionFeedback";
 import { History, Radio, Image, ScanBarcode, HelpCircle } from "lucide-react";
 import { preprocessImage, getBase64SizeKB } from "@/lib/imageProcessor";
 import { toast } from "sonner";
@@ -28,14 +28,18 @@ import {
   resetMetrics,
 } from "@/lib/performanceLogger";
 
+type PlateType = "single_item" | "half_plate" | "full_plate" | "mixed_dish" | "bowl" | "snack";
+
 interface FoodResult {
   foodDetected: boolean;
   items: FoodItem[];
   totalCalories: number | { min: number; max: number } | null;
+  calorieRange: { min: number; max: number } | null;
   confidenceScore: number | null;
   confidence: "high" | "medium" | "low" | null;
   reasoning: string | null;
   macros: { protein: number; carbs: number; fat: number } | null;
+  plateType: PlateType;
   disclaimer: string;
   identifiedAt: string;
 }
@@ -493,10 +497,12 @@ export default function Index() {
         foodDetected: lockedResult.foodDetected,
         items: lockedResult.items,
         totalCalories: lockedResult.totalCalories,
+        calorieRange: null, // Live scan doesn't provide range
         confidenceScore: lockedResult.confidenceScore,
         confidence: lockedResult.confidence,
         reasoning: lockedResult.reasoning,
         macros: lockedResult.macros,
+        plateType: lockedResult.items.length >= 3 ? "mixed_dish" : lockedResult.items.length === 1 ? "single_item" : "half_plate",
         disclaimer: lockedResult.disclaimer,
         identifiedAt: lockedResult.identifiedAt,
       };
@@ -746,13 +752,12 @@ export default function Index() {
                 <CalorieMeter calories={getDisplayCalories()} size="lg" />
               </div>
 
-              {/* Portion adjuster - quick correction */}
+              {/* Portion feedback - simple question */}
               {result.totalCalories !== null && (
                 <div className="mb-5">
-                  <PortionAdjuster
+                  <PortionFeedback
                     originalCalories={getOriginalCalorieValue()}
                     onAdjust={handlePortionAdjust}
-                    onDismiss={() => {}}
                   />
                 </div>
               )}
