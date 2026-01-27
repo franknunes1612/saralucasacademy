@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import appIcon from "@/assets/app-icon.png";
 
 interface SplashScreenProps {
   onComplete: () => void;
@@ -40,9 +41,16 @@ export function SplashScreen({ onComplete, minDuration = 1000 }: SplashScreenPro
 
       {/* Content */}
       <div className="relative z-10 flex flex-col items-center text-center px-8 animate-fade-in">
+        {/* App Logo */}
+        <img 
+          src={appIcon} 
+          alt="CalorieSpot" 
+          className="w-28 h-28 rounded-3xl shadow-xl mb-6"
+        />
+        
         {/* App Name */}
         <h1 
-          className="text-5xl font-bold tracking-tight mb-2"
+          className="text-4xl font-bold tracking-tight mb-2"
           style={{ color: "hsl(0 0% 100%)" }}
         >
           CalorieSpot
