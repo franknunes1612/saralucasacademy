@@ -6,7 +6,7 @@ interface SplashScreenProps {
   minDuration?: number;
 }
 
-export function SplashScreen({ onComplete, minDuration = 3000 }: SplashScreenProps) {
+export function SplashScreen({ onComplete, minDuration = 5000 }: SplashScreenProps) {
   const [isExiting, setIsExiting] = useState(false);
   const [isEntered, setIsEntered] = useState(false);
 
