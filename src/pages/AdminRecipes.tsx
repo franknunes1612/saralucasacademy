@@ -1,6 +1,6 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { ArrowLeft, Plus, Edit2, Trash2, LogOut, Eye, EyeOff } from "lucide-react";
+import { ArrowLeft, Plus, Edit2, Trash2, LogOut, EyeOff } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { useAdminRecipes, DbRecipe } from "@/hooks/useRecipes";
 import { useLanguage } from "@/hooks/useLanguage";
@@ -11,63 +11,12 @@ import { cn } from "@/lib/utils";
 export default function AdminRecipes() {
   const navigate = useNavigate();
   const { t, language } = useLanguage();
-  const { user, isAdmin, isLoading: authLoading, signOut } = useAuth();
+  const { user, signOut } = useAuth();
   const { recipes, isLoading, error, refetch, deleteRecipe } = useAdminRecipes();
 
   const [showForm, setShowForm] = useState(false);
   const [editingRecipe, setEditingRecipe] = useState<DbRecipe | null>(null);
   const [deletingId, setDeletingId] = useState<string | null>(null);
-
-  // Redirect if not authenticated or not admin
-  useEffect(() => {
-    if (!authLoading && !user) {
-      navigate("/admin");
-    }
-  }, [user, authLoading, navigate]);
-
-  // Show loading while checking auth
-  if (authLoading) {
-    return (
-      <div className="min-h-screen bg-background flex items-center justify-center">
-        <div className="animate-pulse text-white/60">
-          {t({ pt: "A verificar...", en: "Checking..." })}
-        </div>
-      </div>
-    );
-  }
-
-  // Show access denied if not admin
-  if (!isAdmin) {
-    return (
-      <div className="min-h-screen bg-background px-4 py-5 safe-top safe-bottom">
-        <div className="flex items-center gap-3 mb-8">
-          <button
-            onClick={() => navigate("/")}
-            className="p-2 -ml-2 rounded-xl hover:bg-white/10 transition-colors"
-          >
-            <ArrowLeft className="h-5 w-5 text-white" />
-          </button>
-          <h1 className="text-xl font-bold text-white">
-            {t({ pt: "Acesso Negado", en: "Access Denied" })}
-          </h1>
-        </div>
-        <div className="result-card p-6 text-center">
-          <p className="text-white/70 mb-4">
-            {t({
-              pt: "Não tem permissões de administrador.",
-              en: "You don't have admin permissions.",
-            })}
-          </p>
-          <p className="text-xs text-white/50">
-            {t({
-              pt: "Contacte o administrador para obter acesso.",
-              en: "Contact the administrator for access.",
-            })}
-          </p>
-        </div>
-      </div>
-    );
-  }
 
   const handleEdit = (recipe: DbRecipe) => {
     setEditingRecipe(recipe);

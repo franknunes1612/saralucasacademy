@@ -1,56 +1,13 @@
-import { useEffect } from "react";
+import { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
-import { ArrowLeft, LogOut, ChefHat, FileText, Settings } from "lucide-react";
+import { ArrowLeft, LogOut, ChefHat, FileText } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { useLanguage } from "@/hooks/useLanguage";
 
 export default function AdminDashboard() {
   const navigate = useNavigate();
   const { t } = useLanguage();
-  const { user, isAdmin, isLoading: authLoading, signOut } = useAuth();
-
-  // Redirect if not authenticated or not admin
-  useEffect(() => {
-    if (!authLoading && !user) {
-      navigate("/admin");
-    }
-  }, [user, authLoading, navigate]);
-
-  if (authLoading) {
-    return (
-      <div className="min-h-screen bg-background flex items-center justify-center">
-        <div className="animate-pulse text-white/60">
-          {t({ pt: "A verificar...", en: "Checking..." })}
-        </div>
-      </div>
-    );
-  }
-
-  if (!isAdmin) {
-    return (
-      <div className="min-h-screen bg-background px-4 py-5 safe-top safe-bottom">
-        <div className="flex items-center gap-3 mb-8">
-          <button
-            onClick={() => navigate("/")}
-            className="p-2 -ml-2 rounded-xl hover:bg-white/10 transition-colors"
-          >
-            <ArrowLeft className="h-5 w-5 text-white" />
-          </button>
-          <h1 className="text-xl font-bold text-white">
-            {t({ pt: "Acesso Negado", en: "Access Denied" })}
-          </h1>
-        </div>
-        <div className="result-card p-6 text-center">
-          <p className="text-white/70 mb-4">
-            {t({
-              pt: "Não tem permissões de administrador.",
-              en: "You don't have admin permissions.",
-            })}
-          </p>
-        </div>
-      </div>
-    );
-  }
+  const { user, signOut } = useAuth();
 
   const handleSignOut = async () => {
     await signOut();

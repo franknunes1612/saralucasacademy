@@ -1,6 +1,6 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { ArrowLeft, Plus, Edit2, Trash2, LogOut, Save, X, Search, Filter } from "lucide-react";
+import { ArrowLeft, Plus, Edit2, Trash2, LogOut, Save, X, Search } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { useAdminCmsContent } from "@/hooks/useCmsContent";
 import { useLanguage } from "@/hooks/useLanguage";
@@ -21,7 +21,7 @@ interface CmsEntry {
 export default function AdminCms() {
   const navigate = useNavigate();
   const { t, language } = useLanguage();
-  const { user, isAdmin, isLoading: authLoading, signOut } = useAuth();
+  const { user, signOut } = useAuth();
   const { entries, isLoading, error, refetch, createEntry, updateEntry, deleteEntry, getCategories } = useAdminCmsContent();
 
   const [editingEntry, setEditingEntry] = useState<CmsEntry | null>(null);
@@ -39,49 +39,6 @@ export default function AdminCms() {
     category: "general",
     description: "",
   });
-
-  // Redirect if not authenticated or not admin
-  useEffect(() => {
-    if (!authLoading && !user) {
-      navigate("/admin");
-    }
-  }, [user, authLoading, navigate]);
-
-  if (authLoading) {
-    return (
-      <div className="min-h-screen bg-background flex items-center justify-center">
-        <div className="animate-pulse text-white/60">
-          {t({ pt: "A verificar...", en: "Checking..." })}
-        </div>
-      </div>
-    );
-  }
-
-  if (!isAdmin) {
-    return (
-      <div className="min-h-screen bg-background px-4 py-5 safe-top safe-bottom">
-        <div className="flex items-center gap-3 mb-8">
-          <button
-            onClick={() => navigate("/")}
-            className="p-2 -ml-2 rounded-xl hover:bg-white/10 transition-colors"
-          >
-            <ArrowLeft className="h-5 w-5 text-white" />
-          </button>
-          <h1 className="text-xl font-bold text-white">
-            {t({ pt: "Acesso Negado", en: "Access Denied" })}
-          </h1>
-        </div>
-        <div className="result-card p-6 text-center">
-          <p className="text-white/70 mb-4">
-            {t({
-              pt: "Não tem permissões de administrador.",
-              en: "You don't have admin permissions.",
-            })}
-          </p>
-        </div>
-      </div>
-    );
-  }
 
   const handleSignOut = async () => {
     await signOut();
@@ -172,7 +129,7 @@ export default function AdminCms() {
       <div className="flex items-center justify-between mb-4">
         <div className="flex items-center gap-3">
           <button
-            onClick={() => navigate("/admin/recipes")}
+            onClick={() => navigate("/admin/dashboard")}
             className="p-2 -ml-2 rounded-xl hover:bg-white/10 transition-colors"
           >
             <ArrowLeft className="h-5 w-5 text-white" />
