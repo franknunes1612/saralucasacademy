@@ -45,7 +45,8 @@ export function SplashScreen({ onComplete, minDuration = 1000 }: SplashScreenPro
         <img 
           src={appIcon} 
           alt="CalorieSpot" 
-          className="w-28 h-28 rounded-3xl shadow-xl mb-6"
+          className="w-28 h-28 rounded-3xl shadow-xl mb-6 animate-[scale-up_0.6s_ease-out_forwards]"
+          style={{ transform: "scale(0.8)", opacity: 0 }}
         />
         
         {/* App Name */}
