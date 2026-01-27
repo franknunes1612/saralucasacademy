@@ -12,133 +12,136 @@
 
 @layer base {
   :root {
-    /* Warm dark base - softer than pure black */
-    --background: 0 0% 96%;
-    --foreground: 0 0% 9%;
+    /* Warm food-friendly base - cream/off-white */
+    --background: 30 20% 98%;
+    --foreground: 340 20% 20%;
 
-    --card: 0 0% 98%;
-    --card-foreground: 0 0% 9%;
+    --card: 30 25% 99%;
+    --card-foreground: 340 20% 20%;
 
-    --popover: 0 0% 89%;
-    --popover-foreground: 0 0% 9%;
+    --popover: 30 20% 97%;
+    --popover-foreground: 340 20% 20%;
 
-    /* Primary - Fresh healthy green */
-    --primary: 20 90% 48%;
-    --primary-foreground: 33 100% 96%;
+    /* Primary - Soft Pink */
+    --primary: 340 75% 65%;
+    --primary-foreground: 0 0% 100%;
 
-    /* Secondary - Warm amber/orange for energy */
-    --secondary: 0 0% 32%;
-    --secondary-foreground: 0 0% 98%;
+    /* Secondary - Dusty Rose / Old Pink */
+    --secondary: 330 35% 55%;
+    --secondary-foreground: 0 0% 100%;
 
-    --muted: 0 0% 63%;
-    --muted-foreground: 0 0% 9%;
+    --muted: 30 15% 90%;
+    --muted-foreground: 340 15% 40%;
 
-    /* Accent - Soft amber for food vibes */
-    --accent: 47 100% 96%;
-    --accent-foreground: 37 92% 50%;
+    /* Accent - Light Cream with pink tint */
+    --accent: 25 30% 95%;
+    --accent-foreground: 330 35% 50%;
 
-    --destructive: 0 72% 50%;
-    --destructive-foreground: 0 85% 97%;
+    --destructive: 0 65% 55%;
+    --destructive-foreground: 0 0% 100%;
 
-    --success: 152 55% 48%;
-    --success-foreground: 30 20% 96%;
+    --success: 145 45% 45%;
+    --success-foreground: 0 0% 100%;
 
-    --warning: 38 92% 55%;
-    --warning-foreground: 220 20% 10%;
+    --warning: 38 85% 55%;
+    --warning-foreground: 30 30% 15%;
 
-    --border: 0 0% 83%;
-    --input: 0 0% 83%;
-    --ring: 20 90% 48%;
+    --border: 30 20% 88%;
+    --input: 30 20% 88%;
+    --ring: 340 75% 65%;
 
-    --radius: 0.75rem;
+    --radius: 0.875rem;
 
     /* Macro colors - fixed semantics per spec */
     /* Blue = Protein (muscle/satiety) */
-    --macro-protein: 210 70% 58%;
-    /* Yellow = Carbs (energy) */
-    --macro-carbs: 45 90% 55%;
-    /* Purple = Fat (hormones/satiety) */
-    --macro-fat: 280 60% 60%;
+    --macro-protein: 210 55% 55%;
+    /* Yellow/Gold = Carbs (energy) */
+    --macro-carbs: 42 75% 50%;
+    /* Purple/Mauve = Fat (hormones/satiety) */
+    --macro-fat: 280 40% 55%;
 
-    /* Calorie tiers - softer gradients */
-    --calorie-low: 152 55% 48%;
-    --calorie-mid: 38 85% 52%;
-    --calorie-high: 15 75% 55%;
+    /* Calorie tiers - warm palette */
+    --calorie-low: 145 45% 45%;
+    --calorie-mid: 340 75% 65%;
+    --calorie-high: 330 35% 55%;
 
-    /* Glassmorphism - warmer tones */
-    --glass-bg: 220 18% 14% / 0.85;
-    --glass-border: 220 15% 28% / 0.5;
+    /* Glassmorphism - warm cream tones */
+    --glass-bg: 30 20% 98% / 0.9;
+    --glass-border: 30 15% 85% / 0.6;
 
-    /* Sidebar */
-    --sidebar-background: 220 20% 10%;
-    --sidebar-foreground: 0 0% 9%;
-    --sidebar-primary: 20 90% 48%;
-    --sidebar-primary-foreground: 33 100% 96%;
-    --sidebar-accent: 0 0% 32%;
-    --sidebar-accent-foreground: 0 0% 98%;
-    --sidebar-border: 0 0% 83%;
-    --sidebar-ring: 20 90% 48%;
-    --chart-1: 27 95% 60%;
-    --chart-2: 43 96% 56%;
-    --chart-3: 47 95% 53%;
-    --chart-4: 24 94% 53%;
-    --chart-5: 0 0% 45%;
-    --sidebar: 0 0% 98%;
+    /* Sidebar - warm off-white */
+    --sidebar-background: 30 20% 97%;
+    --sidebar-foreground: 340 20% 20%;
+    --sidebar-primary: 340 75% 65%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 25 30% 95%;
+    --sidebar-accent-foreground: 330 35% 50%;
+    --sidebar-border: 30 20% 88%;
+    --sidebar-ring: 340 75% 65%;
+    --chart-1: 340 75% 65%;
+    --chart-2: 330 35% 55%;
+    --chart-3: 25 60% 70%;
+    --chart-4: 145 45% 50%;
+    --chart-5: 30 20% 70%;
+    --sidebar: 30 20% 97%;
     --font-sans: 'Roboto', ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Helvetica Neue', Arial, 'Noto Sans', sans-serif;
     --font-serif: 'Libre Caslon Text', ui-serif, Georgia, Cambria, 'Times New Roman', Times, serif;
     --font-mono: 'Roboto Mono', ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace;
-    --shadow-2xs: 0 1px 3px 0px hsl(0 0% 0% / 0.05);
-    --shadow-xs: 0 1px 3px 0px hsl(0 0% 0% / 0.05);
-    --shadow-sm: 0 1px 3px 0px hsl(0 0% 0% / 0.1), 0 1px 2px -1px hsl(0 0% 0% / 0.1);
-    --shadow: 0 1px 3px 0px hsl(0 0% 0% / 0.1), 0 1px 2px -1px hsl(0 0% 0% / 0.1);
-    --shadow-md: 0 1px 3px 0px hsl(0 0% 0% / 0.1), 0 2px 4px -1px hsl(0 0% 0% / 0.1);
-    --shadow-lg: 0 1px 3px 0px hsl(0 0% 0% / 0.1), 0 4px 6px -1px hsl(0 0% 0% / 0.1);
-    --shadow-xl: 0 1px 3px 0px hsl(0 0% 0% / 0.1), 0 8px 10px -1px hsl(0 0% 0% / 0.1);
-    --shadow-2xl: 0 1px 3px 0px hsl(0 0% 0% / 0.25);
+    --shadow-2xs: 0 1px 2px 0px hsl(340 20% 20% / 0.03);
+    --shadow-xs: 0 1px 3px 0px hsl(340 20% 20% / 0.04);
+    --shadow-sm: 0 1px 3px 0px hsl(340 20% 20% / 0.06), 0 1px 2px -1px hsl(340 20% 20% / 0.04);
+    --shadow: 0 2px 4px 0px hsl(340 20% 20% / 0.06), 0 1px 2px -1px hsl(340 20% 20% / 0.04);
+    --shadow-md: 0 4px 6px -1px hsl(340 20% 20% / 0.07), 0 2px 4px -2px hsl(340 20% 20% / 0.05);
+    --shadow-lg: 0 10px 15px -3px hsl(340 20% 20% / 0.08), 0 4px 6px -4px hsl(340 20% 20% / 0.04);
+    --shadow-xl: 0 20px 25px -5px hsl(340 20% 20% / 0.08), 0 8px 10px -6px hsl(340 20% 20% / 0.04);
+    --shadow-2xl: 0 25px 50px -12px hsl(340 20% 20% / 0.15);
     --tracking-normal: 0em;
     --spacing: 0.25rem;
   }
   .dark {
-    --background: 0 0% 9%;
-    --foreground: 0 0% 98%;
-    --card: 0 0% 14%;
-    --card-foreground: 0 0% 98%;
-    --popover: 0 0% 25%;
-    --popover-foreground: 0 0% 98%;
-    --primary: 27 95% 60%;
-    --primary-foreground: 12 81% 14%;
-    --secondary: 0 0% 45%;
-    --secondary-foreground: 0 0% 98%;
-    --muted: 0 0% 45%;
-    --muted-foreground: 0 0% 98%;
-    --accent: 20 91% 14%;
-    --accent-foreground: 43 96% 56%;
-    --destructive: 0 84% 60%;
-    --destructive-foreground: 0 85% 97%;
-    --border: 0 0% 32%;
-    --input: 0 0% 32%;
-    --ring: 27 95% 60%;
-    --chart-1: 30 97% 72%;
-    --chart-2: 45 96% 64%;
-    --chart-3: 48 96% 76%;
-    --chart-4: 27 95% 60%;
-    --chart-5: 0 0% 45%;
-    --sidebar: 0 0% 14%;
-    --sidebar-foreground: 0 0% 98%;
-    --sidebar-primary: 27 95% 60%;
-    --sidebar-primary-foreground: 12 81% 14%;
-    --sidebar-accent: 43 96% 56%;
-    --sidebar-accent-foreground: 20 91% 14%;
-    --sidebar-border: 0 0% 32%;
-    --sidebar-ring: 27 95% 60%;
-    --shadow-2xs: 0 1px 3px 0px hsl(0 0% 0% / 0.05);
-    --shadow-xs: 0 1px 3px 0px hsl(0 0% 0% / 0.05);
-    --shadow-sm: 0 1px 3px 0px hsl(0 0% 0% / 0.1), 0 1px 2px -1px hsl(0 0% 0% / 0.1);
-    --shadow: 0 1px 3px 0px hsl(0 0% 0% / 0.1), 0 1px 2px -1px hsl(0 0% 0% / 0.1);
-    --shadow-md: 0 1px 3px 0px hsl(0 0% 0% / 0.1), 0 2px 4px -1px hsl(0 0% 0% / 0.1);
-    --shadow-lg: 0 1px 3px 0px hsl(0 0% 0% / 0.1), 0 4px 6px -1px hsl(0 0% 0% / 0.1);
-    --shadow-xl: 0 1px 3px 0px hsl(0 0% 0% / 0.1), 0 8px 10px -1px hsl(0 0% 0% / 0.1);
-    --shadow-2xl: 0 1px 3px 0px hsl(0 0% 0% / 0.25);
+    /* Warm dark mode - soft charcoal with pink undertones */
+    --background: 340 15% 12%;
+    --foreground: 30 20% 95%;
+    --card: 340 12% 16%;
+    --card-foreground: 30 20% 95%;
+    --popover: 340 12% 18%;
+    --popover-foreground: 30 20% 95%;
+    --primary: 340 65% 70%;
+    --primary-foreground: 340 20% 10%;
+    --secondary: 330 30% 50%;
+    --secondary-foreground: 30 20% 95%;
+    --muted: 340 10% 25%;
+    --muted-foreground: 30 15% 75%;
+    --accent: 340 20% 20%;
+    --accent-foreground: 340 65% 75%;
+    --destructive: 0 60% 55%;
+    --destructive-foreground: 0 0% 100%;
+    --border: 340 10% 22%;
+    --input: 340 10% 22%;
+    --ring: 340 65% 70%;
+    --chart-1: 340 65% 70%;
+    --chart-2: 330 30% 55%;
+    --chart-3: 25 50% 65%;
+    --chart-4: 145 40% 50%;
+    --chart-5: 340 10% 50%;
+    --sidebar: 340 12% 14%;
+    --sidebar-foreground: 30 20% 95%;
+    --sidebar-primary: 340 65% 70%;
+    --sidebar-primary-foreground: 340 20% 10%;
+    --sidebar-accent: 340 20% 20%;
+    --sidebar-accent-foreground: 340 65% 75%;
+    --sidebar-border: 340 10% 22%;
+    --sidebar-ring: 340 65% 70%;
+    --glass-bg: 340 15% 12% / 0.9;
+    --glass-border: 340 10% 25% / 0.6;
+    --shadow-2xs: 0 1px 2px 0px hsl(0 0% 0% / 0.15);
+    --shadow-xs: 0 1px 3px 0px hsl(0 0% 0% / 0.2);
+    --shadow-sm: 0 1px 3px 0px hsl(0 0% 0% / 0.25), 0 1px 2px -1px hsl(0 0% 0% / 0.15);
+    --shadow: 0 2px 4px 0px hsl(0 0% 0% / 0.25), 0 1px 2px -1px hsl(0 0% 0% / 0.15);
+    --shadow-md: 0 4px 6px -1px hsl(0 0% 0% / 0.3), 0 2px 4px -2px hsl(0 0% 0% / 0.2);
+    --shadow-lg: 0 10px 15px -3px hsl(0 0% 0% / 0.35), 0 4px 6px -4px hsl(0 0% 0% / 0.2);
+    --shadow-xl: 0 20px 25px -5px hsl(0 0% 0% / 0.4), 0 8px 10px -6px hsl(0 0% 0% / 0.2);
+    --shadow-2xl: 0 25px 50px -12px hsl(0 0% 0% / 0.5);
   }
 }
 
@@ -163,39 +166,47 @@
 }
 
 @layer components {
-  /* Glassmorphism card - warmer feel */
+  /* Glassmorphism card - warm cream feel */
   .glass-card {
-    @apply rounded-2xl backdrop-blur-lg;
+    @apply rounded-2xl backdrop-blur-md;
     background: hsl(var(--glass-bg));
     border: 1px solid hsl(var(--glass-border));
-    box-shadow: 0 4px 20px -4px hsl(220 20% 5% / 0.3);
+    box-shadow: var(--shadow-md);
   }
 
-  /* Result card - subtle depth */
+  /* Result card - soft warm depth */
   .result-card {
-    @apply rounded-2xl backdrop-blur-lg;
+    @apply rounded-2xl;
     background: linear-gradient(
-      145deg,
-      hsl(220 18% 16%) 0%,
-      hsl(220 18% 12%) 100%
+      165deg,
+      hsl(var(--card)) 0%,
+      hsl(30 25% 97%) 100%
     );
-    border: 1px solid hsl(220 15% 26% / 0.6);
-    box-shadow: 0 8px 32px -8px hsl(220 20% 5% / 0.4);
+    border: 1px solid hsl(var(--border));
+    box-shadow: var(--shadow-lg);
   }
 
-  /* Soft border glow - subtle, not neon */
+  .dark .result-card {
+    background: linear-gradient(
+      165deg,
+      hsl(var(--card)) 0%,
+      hsl(340 12% 14%) 100%
+    );
+  }
+
+  /* Soft border glow - warm pink */
   .soft-border {
-    border: 1.5px solid hsl(var(--primary) / 0.4);
-    box-shadow: 0 0 20px hsl(var(--primary) / 0.1);
+    border: 1.5px solid hsl(var(--primary) / 0.35);
+    box-shadow: 0 0 16px hsl(var(--primary) / 0.08);
   }
 
-  /* Legacy neon-border kept for compatibility */
+  /* Legacy neon-border - now softer pink glow */
   .neon-border {
-    border: 1.5px solid hsl(var(--primary) / 0.5);
-    box-shadow: 0 0 16px hsl(var(--primary) / 0.15);
+    border: 1.5px solid hsl(var(--primary) / 0.4);
+    box-shadow: 0 0 12px hsl(var(--primary) / 0.1);
   }
 
-  /* Scan frame corners - softer */
+  /* Scan frame corners - soft pink */
   .scan-frame {
     position: relative;
   }
@@ -204,9 +215,9 @@
   .scan-frame::after {
     content: '';
     position: absolute;
-    width: 36px;
-    height: 36px;
-    border: 2.5px solid hsl(var(--primary) / 0.7);
+    width: 40px;
+    height: 40px;
+    border: 2.5px solid hsl(var(--primary) / 0.6);
     pointer-events: none;
   }
 
@@ -215,7 +226,7 @@
     left: 16px;
     border-right: none;
     border-bottom: none;
-    border-radius: 10px 0 0 0;
+    border-radius: 12px 0 0 0;
   }
 
   .scan-frame::after {
@@ -223,16 +234,16 @@
     right: 16px;
     border-left: none;
     border-bottom: none;
-    border-radius: 0 10px 0 0;
+    border-radius: 0 12px 0 0;
   }
 
   .scan-frame-bottom::before,
   .scan-frame-bottom::after {
     content: '';
     position: absolute;
-    width: 36px;
-    height: 36px;
-    border: 2.5px solid hsl(var(--primary) / 0.7);
+    width: 40px;
+    height: 40px;
+    border: 2.5px solid hsl(var(--primary) / 0.6);
     pointer-events: none;
   }
 
@@ -241,7 +252,7 @@
     left: 16px;
     border-right: none;
     border-top: none;
-    border-radius: 0 0 0 10px;
+    border-radius: 0 0 0 12px;
   }
 
   .scan-frame-bottom::after {
@@ -249,21 +260,21 @@
     right: 16px;
     border-left: none;
     border-top: none;
-    border-radius: 0 0 10px 0;
+    border-radius: 0 0 12px 0;
   }
 
-  /* Section divider - warmer */
+  /* Section divider - soft pink gradient */
   .section-divider {
     @apply h-px my-4;
     background: linear-gradient(
       90deg,
       transparent 0%,
-      hsl(var(--primary) / 0.25) 50%,
+      hsl(var(--primary) / 0.2) 50%,
       transparent 100%
     );
   }
 
-  /* Calorie color tiers - softer glows */
+  /* Calorie color tiers */
   .calorie-low {
     color: hsl(var(--calorie-low));
   }
@@ -281,62 +292,69 @@
   .macro-carbs { color: hsl(var(--macro-carbs)); }
   .macro-fat { color: hsl(var(--macro-fat)); }
 
-  /* Confidence badges - friendly */
+  /* Confidence badges - warm pink tones */
   .confidence-high {
-    @apply bg-primary/15 text-primary border border-primary/25;
+    background-color: hsl(var(--primary) / 0.12);
+    color: hsl(var(--primary));
+    border: 1px solid hsl(var(--primary) / 0.2);
   }
 
   .confidence-medium {
-    @apply bg-secondary text-muted-foreground border border-border;
+    background-color: hsl(var(--secondary) / 0.12);
+    color: hsl(var(--secondary));
+    border: 1px solid hsl(var(--secondary) / 0.2);
   }
 
   .confidence-low {
-    @apply bg-muted text-muted-foreground border border-border/50;
+    @apply bg-muted text-muted-foreground border border-border;
   }
 
-  /* Primary buttons - warm gradient */
+  /* Primary buttons - soft pink gradient */
   .btn-primary {
     @apply font-semibold rounded-xl transition-all duration-200;
-    background: linear-gradient(135deg, hsl(var(--primary)) 0%, hsl(162 50% 42%) 100%);
-    color: hsl(var(--background));
-    box-shadow: 0 4px 16px hsl(var(--primary) / 0.25);
+    background: linear-gradient(135deg, hsl(var(--primary)) 0%, hsl(var(--secondary)) 100%);
+    color: hsl(var(--primary-foreground));
+    box-shadow: var(--shadow-md), 0 0 0 0 hsl(var(--primary) / 0);
   }
 
   .btn-primary:hover {
-    box-shadow: 0 6px 20px hsl(var(--primary) / 0.35);
+    box-shadow: var(--shadow-lg), 0 4px 16px hsl(var(--primary) / 0.2);
     transform: translateY(-1px);
   }
 
   .btn-primary:active {
     transform: translateY(0);
+    box-shadow: var(--shadow-sm);
   }
 
   .btn-secondary {
-    @apply font-medium rounded-xl transition-all duration-200;
-    background: hsl(var(--secondary));
-    color: hsl(var(--foreground));
+    @apply font-medium rounded-xl transition-all duration-200 bg-card text-foreground;
     border: 1px solid hsl(var(--border));
+    box-shadow: var(--shadow-sm);
   }
 
   .btn-secondary:hover {
-    background: hsl(var(--muted));
-    border-color: hsl(var(--primary) / 0.3);
+    background: hsl(var(--accent));
+    border-color: hsl(var(--primary) / 0.25);
+    box-shadow: var(--shadow);
   }
 
-  /* Scan button - friendly glow */
+  /* Scan button - warm pink glow */
   .scan-button {
     @apply rounded-full transition-all duration-300;
-    background: linear-gradient(145deg, hsl(var(--primary)) 0%, hsl(162 50% 42%) 100%);
+    background: linear-gradient(145deg, hsl(var(--primary)) 0%, hsl(var(--secondary)) 100%);
     box-shadow: 
-      0 4px 24px hsl(var(--primary) / 0.3),
-      inset 0 2px 8px hsl(0 0% 100% / 0.15);
+      var(--shadow-lg),
+      0 4px 20px hsl(var(--primary) / 0.25),
+      inset 0 2px 6px hsl(0 0% 100% / 0.2);
   }
 
   .scan-button:active {
-    transform: scale(0.95);
+    transform: scale(0.96);
     box-shadow: 
-      0 2px 16px hsl(var(--primary) / 0.35),
-      inset 0 2px 8px hsl(0 0% 100% / 0.15);
+      var(--shadow-sm),
+      0 2px 12px hsl(var(--primary) / 0.2),
+      inset 0 2px 6px hsl(0 0% 100% / 0.2);
   }
 
   /* Circular score meter */
