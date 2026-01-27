@@ -14,6 +14,7 @@ import { SplashScreen } from "@/components/SplashScreen";
 import { PermissionDenied } from "@/components/PermissionDenied";
 import { BarcodeScannerView } from "@/components/BarcodeScannerView";
 import { BarcodeResultCard } from "@/components/BarcodeResultCard";
+import { PortionAdjuster, PortionAdjustment } from "@/components/PortionAdjuster";
 import { History, Radio, Image, ScanBarcode, HelpCircle } from "lucide-react";
 import { preprocessImage, getBase64SizeKB } from "@/lib/imageProcessor";
 import { toast } from "sonner";
@@ -64,6 +65,8 @@ export default function Index() {
   const [loadingText, setLoadingText] = useState<string>("Scanning…");
   const [barcodeProduct, setBarcodeProduct] = useState<BarcodeProduct | null>(null);
   const [scannedBarcode, setScannedBarcode] = useState<string>("");
+  const [adjustedCalories, setAdjustedCalories] = useState<number | null>(null);
+  const [portionAdjustment, setPortionAdjustment] = useState<PortionAdjustment | null>(null);
 
   const videoRef = useRef<HTMLVideoElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -399,8 +402,16 @@ export default function Index() {
     setErrorMessage("");
     setSaveError(null);
     setScanSource("camera");
+    setAdjustedCalories(null);
+    setPortionAdjustment(null);
     setAppState("camera");
     restartCamera();
+  };
+
+  // Handle portion adjustment
+  const handlePortionAdjust = (newCalories: number, adjustment: PortionAdjustment) => {
+    setAdjustedCalories(newCalories);
+    setPortionAdjustment(adjustment);
   };
 
   // Start live scanning mode
@@ -677,6 +688,24 @@ export default function Index() {
       ? result.items.map(i => i.name).slice(0, 3).join(", ")
       : "No food detected";
 
+    // Calculate displayed calories (original or adjusted)
+    const getDisplayCalories = (): number | { min: number; max: number } | null => {
+      if (adjustedCalories !== null) {
+        return adjustedCalories;
+      }
+      return result.totalCalories;
+    };
+
+    // Get original calorie value for adjustment calculations
+    const getOriginalCalorieValue = (): number => {
+      if (typeof result.totalCalories === "number") {
+        return result.totalCalories;
+      } else if (result.totalCalories && typeof result.totalCalories === "object") {
+        return Math.round((result.totalCalories.min + result.totalCalories.max) / 2);
+      }
+      return 0;
+    };
+
     return (
       <div className="min-h-screen bg-background px-4 py-5 safe-top safe-bottom">
         {/* Header with info button */}
@@ -718,8 +747,19 @@ export default function Index() {
 
               {/* Calorie meter - Hero */}
               <div className="flex justify-center mb-6">
-                <CalorieMeter calories={result.totalCalories} size="lg" />
+                <CalorieMeter calories={getDisplayCalories()} size="lg" />
               </div>
+
+              {/* Portion adjuster - quick correction */}
+              {result.totalCalories !== null && (
+                <div className="mb-5">
+                  <PortionAdjuster
+                    originalCalories={getOriginalCalorieValue()}
+                    onAdjust={handlePortionAdjust}
+                    onDismiss={() => {}}
+                  />
+                </div>
+              )}
 
               {/* Macros if available */}
               {result.macros && (
@@ -744,12 +784,12 @@ export default function Index() {
               {/* Section divider */}
               <div className="section-divider" />
 
-              {/* Feedback */}
+              {/* General Feedback - now that portion is handled above */}
               <div className="mt-4">
                 <MealFeedback
                   scanId={scanId}
                   items={result.items}
-                  totalCalories={result.totalCalories}
+                  totalCalories={getDisplayCalories()}
                   confidenceScore={result.confidenceScore}
                 />
               </div>

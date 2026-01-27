@@ -17,9 +17,9 @@ function getCalorieClass(calories: number | { min: number; max: number } | null)
 function formatCalories(calories: number | { min: number; max: number } | null): string {
   if (calories === null) return "—";
   if (typeof calories === "object") {
-    return `${Math.round(calories.min)}-${Math.round(calories.max)}`;
+    return `~${Math.round(calories.min)}-${Math.round(calories.max)}`;
   }
-  return String(Math.round(calories));
+  return `~${Math.round(calories)}`;
 }
 
 export function SavedMealCard({ meal, onTap }: SavedMealCardProps) {

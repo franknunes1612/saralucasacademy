@@ -27,7 +27,7 @@ function getPortionLabel(portion: "small" | "medium" | "large"): string {
 
 function formatCalories(calories: number | null): string {
   if (calories === null) return "—";
-  return String(Math.round(calories));
+  return `~${Math.round(calories)}`;
 }
 
 function formatMacroValue(value: number): string {

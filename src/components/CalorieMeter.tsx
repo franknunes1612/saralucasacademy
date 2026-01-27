@@ -14,8 +14,9 @@ function getCalorieLabel(calories: number): string {
   return "Light bite";
 }
 
-function formatCalorieDisplay(value: number): string {
-  return String(Math.round(value));
+function formatCalorieDisplay(value: number, showEstimate: boolean = true): string {
+  const rounded = Math.round(value);
+  return showEstimate ? `~${rounded}` : String(rounded);
 }
 
 function getCalorieTier(calories: number): "low" | "mid" | "high" {
@@ -112,7 +113,7 @@ export function CalorieMeter({ calories, size = "lg", animated = true }: Calorie
         <div className="relative z-10 text-center">
           {isRange ? (
             <span className={cn("font-bold", config.fontSize, colorClass)}>
-              {formatCalorieDisplay(calories.min)}-{formatCalorieDisplay(calories.max)}
+              ~{formatCalorieDisplay(calories.min, false)}-{formatCalorieDisplay(calories.max, false)}
             </span>
           ) : (
             <span className={cn("font-bold", config.fontSize, colorClass)}>
@@ -128,7 +129,7 @@ export function CalorieMeter({ calories, size = "lg", animated = true }: Calorie
           {label}
         </p>
         <p className="text-xs text-muted-foreground mt-0.5">
-          {isRange ? "est. kcal" : "kcal"}
+          est. kcal
         </p>
       </div>
     </div>
