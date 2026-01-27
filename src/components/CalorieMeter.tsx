@@ -30,12 +30,9 @@ function getCalorieTier(calories: number): "low" | "mid" | "high" {
   return "low";
 }
 
+// For pink-first design, all calorie text is white
 function getTierColorClass(tier: "low" | "mid" | "high"): string {
-  switch (tier) {
-    case "high": return "calorie-high";
-    case "mid": return "calorie-mid";
-    case "low": return "calorie-low";
-  }
+  return "text-white";
 }
 
 export function CalorieMeter({ calories, size = "lg", animated = true }: CalorieMeterProps) {
@@ -71,11 +68,11 @@ export function CalorieMeter({ calories, size = "lg", animated = true }: Calorie
   const circumference = 2 * Math.PI * radius;
   const strokeDashoffset = circumference * (1 - progress);
 
-  // Warm pink gradient colors
+  // White-based gradient colors for pink background
   const gradientColors = {
-    high: { start: "hsl(330 35% 55%)", end: "hsl(340 45% 45%)" },
-    mid: { start: "hsl(340 75% 65%)", end: "hsl(330 50% 55%)" },
-    low: { start: "hsl(145 45% 50%)", end: "hsl(155 40% 42%)" },
+    high: { start: "hsl(335 35% 58%)", end: "hsl(340 30% 50%)" },
+    mid: { start: "hsl(0 0% 100%)", end: "hsl(340 55% 88%)" },
+    low: { start: "hsl(155 45% 55%)", end: "hsl(160 40% 48%)" },
   };
 
   return (
@@ -92,13 +89,13 @@ export function CalorieMeter({ calories, size = "lg", animated = true }: Calorie
           height={config.ring}
           viewBox={`0 0 ${config.ring} ${config.ring}`}
         >
-          {/* Background ring */}
+          {/* Background ring - soft pink */}
           <circle
             cx={config.ring / 2}
             cy={config.ring / 2}
             r={radius}
             fill="none"
-            stroke="hsl(30 20% 92%)"
+            stroke="hsl(340 35% 65%)"
             strokeWidth={config.stroke}
           />
           {/* Progress ring with gradient */}
@@ -140,10 +137,10 @@ export function CalorieMeter({ calories, size = "lg", animated = true }: Calorie
 
       {/* Label */}
       <div className="text-center">
-        <p className={cn("font-medium", config.labelSize, colorClass)}>
+        <p className={cn("font-medium text-white", config.labelSize)}>
           {label}
         </p>
-        <p className="text-xs text-muted-foreground mt-0.5">
+        <p className="text-xs text-white/70 mt-0.5">
           est. kcal
         </p>
       </div>

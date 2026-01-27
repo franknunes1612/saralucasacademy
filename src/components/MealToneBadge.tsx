@@ -19,19 +19,19 @@ const TONE_CONFIG: Record<MealTone, ToneConfig> = {
   light: {
     label: "Light",
     description: "Low calorie density • Fruits, vegetables, light snacks",
-    className: "bg-success/15 text-success border-success/25",
+    className: "bg-success/25 text-white border-white/20",
     icon: "🥗",
   },
   balanced: {
     label: "Balanced",
     description: "Complete meal • Carbs + protein + fat",
-    className: "bg-primary/15 text-primary border-primary/25",
+    className: "bg-white/20 text-white border-white/25",
     icon: "🍽️",
   },
   rich: {
     label: "Rich",
     description: "High calorie density • Fried foods, sauces, large portions",
-    className: "bg-secondary/20 text-secondary border-secondary/30",
+    className: "bg-secondary/40 text-white border-white/20",
     icon: "🍔",
   },
 };

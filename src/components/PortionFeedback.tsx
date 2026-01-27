@@ -38,8 +38,8 @@ export function PortionFeedback({ originalCalories, onAdjust }: PortionFeedbackP
   if (confirmed) {
     return (
       <div className="flex items-center justify-center gap-2 py-3 animate-fade-in">
-        <Check className="h-4 w-4 text-primary" />
-        <span className="text-sm text-muted-foreground">
+        <Check className="h-4 w-4 text-white" />
+        <span className="text-sm text-white/70">
           {selected === "correct" ? "Thanks!" : "Estimate adjusted"}
         </span>
       </div>
@@ -48,16 +48,16 @@ export function PortionFeedback({ originalCalories, onAdjust }: PortionFeedbackP
 
   return (
     <div className="space-y-3 py-2">
-      <p className="text-sm text-center text-foreground">
+      <p className="text-sm text-center text-white">
         Was the portion about right?
       </p>
       <div className="flex gap-2 justify-center">
         <button
           onClick={() => handleSelect("smaller")}
           className={cn(
-            "flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm transition-all",
-            "bg-secondary hover:bg-muted border border-transparent",
-            selected === "smaller" && "border-primary bg-primary/10"
+            "flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm transition-all text-white",
+            "bg-white/15 hover:bg-white/25 border border-transparent",
+            selected === "smaller" && "border-white bg-white/25"
           )}
         >
           <Minus className="h-4 w-4" />
@@ -66,9 +66,9 @@ export function PortionFeedback({ originalCalories, onAdjust }: PortionFeedbackP
         <button
           onClick={() => handleSelect("correct")}
           className={cn(
-            "flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-medium transition-all",
-            "bg-secondary hover:bg-muted border border-transparent",
-            selected === "correct" && "border-primary bg-primary/10"
+            "flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-medium transition-all text-white",
+            "bg-white/15 hover:bg-white/25 border border-transparent",
+            selected === "correct" && "border-white bg-white/25"
           )}
         >
           <Check className="h-4 w-4" />
@@ -77,9 +77,9 @@ export function PortionFeedback({ originalCalories, onAdjust }: PortionFeedbackP
         <button
           onClick={() => handleSelect("larger")}
           className={cn(
-            "flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm transition-all",
-            "bg-secondary hover:bg-muted border border-transparent",
-            selected === "larger" && "border-primary bg-primary/10"
+            "flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm transition-all text-white",
+            "bg-white/15 hover:bg-white/25 border border-transparent",
+            selected === "larger" && "border-white bg-white/25"
           )}
         >
           <Plus className="h-4 w-4" />

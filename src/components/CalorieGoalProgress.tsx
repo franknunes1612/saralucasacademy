@@ -26,13 +26,13 @@ export function CalorieGoalProgress({
       statusColor = "text-destructive";
     } else if (pct >= 90) {
       statusText = "Almost there!";
-      statusColor = "text-warning";
+      statusColor = "text-white";
     } else if (pct >= 50) {
       statusText = "On track";
-      statusColor = "text-primary";
+      statusColor = "text-white";
     } else {
       statusText = "Just getting started";
-      statusColor = "text-muted-foreground";
+      statusColor = "text-white/70";
     }
     
     return { 
@@ -48,13 +48,13 @@ export function CalorieGoalProgress({
       {/* Header */}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2">
-          <Target className="h-4 w-4 text-primary" />
-          <span className="text-sm font-medium">Daily Goal</span>
+          <Target className="h-4 w-4 text-white" />
+          <span className="text-sm font-medium text-white">Daily Goal</span>
         </div>
         {onEditGoal && (
           <button
             onClick={onEditGoal}
-            className="text-xs text-primary hover:underline"
+            className="text-xs text-white/80 hover:text-white hover:underline"
           >
             Edit
           </button>
@@ -65,22 +65,22 @@ export function CalorieGoalProgress({
       <div className="space-y-2">
         <Progress 
           value={percentage} 
-          className={`h-3 ${isOver ? "[&>div]:bg-destructive" : ""}`}
+          className={`h-3 bg-white/20 ${isOver ? "[&>div]:bg-destructive" : "[&>div]:bg-white"}`}
         />
         
-        <div className="flex justify-between text-xs text-muted-foreground">
+        <div className="flex justify-between text-xs text-white/70">
           <span>{currentCalories} kcal</span>
           <span>{goalCalories} kcal goal</span>
         </div>
       </div>
       
       {/* Stats row */}
-      <div className="flex items-center justify-between pt-2 border-t border-border/50">
+      <div className="flex items-center justify-between pt-2 border-t border-white/15">
         <div className="flex items-center gap-1.5">
           {isOver ? (
             <Flame className="h-4 w-4 text-destructive" />
           ) : (
-            <TrendingUp className="h-4 w-4 text-primary" />
+            <TrendingUp className="h-4 w-4 text-white" />
           )}
           <span className={`text-sm font-medium ${status.color}`}>
             {status.text}
@@ -93,7 +93,7 @@ export function CalorieGoalProgress({
               +{Math.abs(remaining)} kcal over
             </span>
           ) : (
-            <span className="text-sm text-muted-foreground">
+            <span className="text-sm text-white/70">
               {remaining} kcal to go
             </span>
           )}

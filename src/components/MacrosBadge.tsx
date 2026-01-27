@@ -47,13 +47,13 @@ export function MacrosBadge({
   if (compact) {
     return (
       <div className="flex items-center gap-3 text-xs">
-        <span className="macro-protein font-medium">
+        <span className="font-medium" style={{ color: 'hsl(210 70% 82%)' }}>
           P {formatMacroValue(displayMacros.protein)}g
         </span>
-        <span className="macro-carbs font-medium">
+        <span className="font-medium" style={{ color: 'hsl(25 80% 80%)' }}>
           C {formatMacroValue(displayMacros.carbs)}g
         </span>
-        <span className="macro-fat font-medium">
+        <span className="font-medium" style={{ color: 'hsl(275 60% 82%)' }}>
           F {formatMacroValue(displayMacros.fat)}g
         </span>
       </div>
@@ -67,31 +67,31 @@ export function MacrosBadge({
     <div className="space-y-3">
       {/* Header with info icon */}
       <div className="flex items-center justify-center gap-1">
-        <span className="text-xs text-muted-foreground">
+        <span className="text-xs text-white/70">
           Macros
         </span>
         {showInfoIcon && <MacroInfoTooltip />}
       </div>
       
-      {/* Macro values */}
+      {/* Macro values - pastel colors on pink background */}
       <div className="flex gap-5 justify-center">
         <div className="text-center">
-          <p className="text-lg font-semibold macro-protein">{formatMacroValue(displayMacros.protein)}g</p>
-          <p className="text-xs text-muted-foreground">Protein</p>
+          <p className="text-lg font-semibold" style={{ color: 'hsl(210 70% 82%)' }}>{formatMacroValue(displayMacros.protein)}g</p>
+          <p className="text-xs text-white/70">Protein</p>
         </div>
         <div className="text-center">
-          <p className="text-lg font-semibold macro-carbs">{formatMacroValue(displayMacros.carbs)}g</p>
-          <p className="text-xs text-muted-foreground">Carbs</p>
+          <p className="text-lg font-semibold" style={{ color: 'hsl(25 80% 80%)' }}>{formatMacroValue(displayMacros.carbs)}g</p>
+          <p className="text-xs text-white/70">Carbs</p>
         </div>
         <div className="text-center">
-          <p className="text-lg font-semibold macro-fat">{formatMacroValue(displayMacros.fat)}g</p>
-          <p className="text-xs text-muted-foreground">Fat</p>
+          <p className="text-lg font-semibold" style={{ color: 'hsl(275 60% 82%)' }}>{formatMacroValue(displayMacros.fat)}g</p>
+          <p className="text-xs text-white/70">Fat</p>
         </div>
       </div>
 
       {/* Educational description */}
       {showDescription && (
-        <p className="text-[11px] text-muted-foreground/70 text-center leading-relaxed">
+        <p className="text-[11px] text-white/50 text-center leading-relaxed">
           Protein helps muscle repair • Carbs provide energy • Fat supports hormones
         </p>
       )}

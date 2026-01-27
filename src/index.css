@@ -12,136 +12,136 @@
 
 @layer base {
   :root {
-    /* Warm food-friendly base - cream/off-white */
-    --background: 30 20% 98%;
-    --foreground: 340 20% 20%;
+    /* Pink-first design - warm dusty rose background */
+    --background: 340 45% 72%;
+    --foreground: 0 0% 100%;
 
-    --card: 30 25% 99%;
-    --card-foreground: 340 20% 20%;
+    --card: 340 40% 78%;
+    --card-foreground: 0 0% 100%;
 
-    --popover: 30 20% 97%;
-    --popover-foreground: 340 20% 20%;
+    --popover: 340 38% 75%;
+    --popover-foreground: 0 0% 100%;
 
-    /* Primary - Soft Pink */
-    --primary: 340 75% 65%;
-    --primary-foreground: 0 0% 100%;
+    /* Primary - Lighter blush pink */
+    --primary: 340 55% 82%;
+    --primary-foreground: 340 40% 25%;
 
-    /* Secondary - Dusty Rose / Old Pink */
-    --secondary: 330 35% 55%;
+    /* Secondary - Deeper dusty rose */
+    --secondary: 335 35% 58%;
     --secondary-foreground: 0 0% 100%;
 
-    --muted: 30 15% 90%;
-    --muted-foreground: 340 15% 40%;
+    --muted: 340 30% 68%;
+    --muted-foreground: 0 0% 100% / 0.75;
 
-    /* Accent - Light Cream with pink tint */
-    --accent: 25 30% 95%;
-    --accent-foreground: 330 35% 50%;
+    /* Accent - Soft cream/blush highlight */
+    --accent: 340 50% 85%;
+    --accent-foreground: 340 35% 30%;
 
-    --destructive: 0 65% 55%;
+    --destructive: 350 50% 55%;
     --destructive-foreground: 0 0% 100%;
 
-    --success: 145 45% 45%;
+    --success: 155 40% 45%;
     --success-foreground: 0 0% 100%;
 
-    --warning: 38 85% 55%;
-    --warning-foreground: 30 30% 15%;
+    --warning: 38 70% 55%;
+    --warning-foreground: 0 0% 100%;
 
-    --border: 30 20% 88%;
-    --input: 30 20% 88%;
-    --ring: 340 75% 65%;
+    --border: 340 30% 65%;
+    --input: 340 35% 70%;
+    --ring: 0 0% 100%;
 
-    --radius: 0.875rem;
+    --radius: 1rem;
 
-    /* Macro colors - fixed semantics per spec */
-    /* Blue = Protein (muscle/satiety) */
-    --macro-protein: 210 55% 55%;
-    /* Yellow/Gold = Carbs (energy) */
-    --macro-carbs: 42 75% 50%;
-    /* Purple/Mauve = Fat (hormones/satiety) */
-    --macro-fat: 280 40% 55%;
+    /* Macro colors - pastel versions for pink background */
+    /* Pastel Blue = Protein */
+    --macro-protein: 210 60% 75%;
+    /* Pastel Peach = Carbs */
+    --macro-carbs: 25 70% 75%;
+    /* Pastel Lavender = Fat */
+    --macro-fat: 275 50% 78%;
 
-    /* Calorie tiers - warm palette */
-    --calorie-low: 145 45% 45%;
-    --calorie-mid: 340 75% 65%;
-    --calorie-high: 330 35% 55%;
+    /* Calorie tiers - soft pastels */
+    --calorie-low: 155 45% 55%;
+    --calorie-mid: 0 0% 100%;
+    --calorie-high: 335 35% 58%;
 
-    /* Glassmorphism - warm cream tones */
-    --glass-bg: 30 20% 98% / 0.9;
-    --glass-border: 30 15% 85% / 0.6;
+    /* Glassmorphism - pink frosted */
+    --glass-bg: 340 40% 76% / 0.85;
+    --glass-border: 0 0% 100% / 0.2;
 
-    /* Sidebar - warm off-white */
-    --sidebar-background: 30 20% 97%;
-    --sidebar-foreground: 340 20% 20%;
-    --sidebar-primary: 340 75% 65%;
-    --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 25 30% 95%;
-    --sidebar-accent-foreground: 330 35% 50%;
-    --sidebar-border: 30 20% 88%;
-    --sidebar-ring: 340 75% 65%;
-    --chart-1: 340 75% 65%;
-    --chart-2: 330 35% 55%;
-    --chart-3: 25 60% 70%;
-    --chart-4: 145 45% 50%;
-    --chart-5: 30 20% 70%;
-    --sidebar: 30 20% 97%;
+    /* Sidebar */
+    --sidebar-background: 340 42% 70%;
+    --sidebar-foreground: 0 0% 100%;
+    --sidebar-primary: 340 55% 85%;
+    --sidebar-primary-foreground: 340 40% 25%;
+    --sidebar-accent: 340 45% 78%;
+    --sidebar-accent-foreground: 0 0% 100%;
+    --sidebar-border: 340 30% 65%;
+    --sidebar-ring: 0 0% 100%;
+    --chart-1: 0 0% 100%;
+    --chart-2: 340 55% 85%;
+    --chart-3: 335 35% 58%;
+    --chart-4: 155 45% 55%;
+    --chart-5: 340 30% 68%;
+    --sidebar: 340 42% 70%;
     --font-sans: 'Roboto', ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Helvetica Neue', Arial, 'Noto Sans', sans-serif;
     --font-serif: 'Libre Caslon Text', ui-serif, Georgia, Cambria, 'Times New Roman', Times, serif;
     --font-mono: 'Roboto Mono', ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace;
-    --shadow-2xs: 0 1px 2px 0px hsl(340 20% 20% / 0.03);
-    --shadow-xs: 0 1px 3px 0px hsl(340 20% 20% / 0.04);
-    --shadow-sm: 0 1px 3px 0px hsl(340 20% 20% / 0.06), 0 1px 2px -1px hsl(340 20% 20% / 0.04);
-    --shadow: 0 2px 4px 0px hsl(340 20% 20% / 0.06), 0 1px 2px -1px hsl(340 20% 20% / 0.04);
-    --shadow-md: 0 4px 6px -1px hsl(340 20% 20% / 0.07), 0 2px 4px -2px hsl(340 20% 20% / 0.05);
-    --shadow-lg: 0 10px 15px -3px hsl(340 20% 20% / 0.08), 0 4px 6px -4px hsl(340 20% 20% / 0.04);
-    --shadow-xl: 0 20px 25px -5px hsl(340 20% 20% / 0.08), 0 8px 10px -6px hsl(340 20% 20% / 0.04);
-    --shadow-2xl: 0 25px 50px -12px hsl(340 20% 20% / 0.15);
+    --shadow-2xs: 0 1px 2px 0px hsl(340 30% 30% / 0.08);
+    --shadow-xs: 0 1px 3px 0px hsl(340 30% 30% / 0.1);
+    --shadow-sm: 0 2px 4px 0px hsl(340 30% 30% / 0.1), 0 1px 2px -1px hsl(340 30% 30% / 0.08);
+    --shadow: 0 3px 6px 0px hsl(340 30% 30% / 0.1), 0 2px 4px -1px hsl(340 30% 30% / 0.08);
+    --shadow-md: 0 6px 12px -2px hsl(340 30% 30% / 0.12), 0 3px 6px -2px hsl(340 30% 30% / 0.08);
+    --shadow-lg: 0 12px 20px -4px hsl(340 30% 30% / 0.15), 0 6px 10px -4px hsl(340 30% 30% / 0.08);
+    --shadow-xl: 0 20px 30px -6px hsl(340 30% 30% / 0.18), 0 10px 15px -6px hsl(340 30% 30% / 0.1);
+    --shadow-2xl: 0 30px 50px -10px hsl(340 30% 30% / 0.25);
     --tracking-normal: 0em;
     --spacing: 0.25rem;
   }
   .dark {
-    /* Warm dark mode - soft charcoal with pink undertones */
-    --background: 340 15% 12%;
-    --foreground: 30 20% 95%;
-    --card: 340 12% 16%;
-    --card-foreground: 30 20% 95%;
-    --popover: 340 12% 18%;
-    --popover-foreground: 30 20% 95%;
-    --primary: 340 65% 70%;
-    --primary-foreground: 340 20% 10%;
-    --secondary: 330 30% 50%;
-    --secondary-foreground: 30 20% 95%;
-    --muted: 340 10% 25%;
-    --muted-foreground: 30 15% 75%;
-    --accent: 340 20% 20%;
-    --accent-foreground: 340 65% 75%;
-    --destructive: 0 60% 55%;
+    /* Dark mode - deeper rose with white text */
+    --background: 340 30% 18%;
+    --foreground: 0 0% 98%;
+    --card: 340 28% 22%;
+    --card-foreground: 0 0% 98%;
+    --popover: 340 26% 24%;
+    --popover-foreground: 0 0% 98%;
+    --primary: 340 50% 75%;
+    --primary-foreground: 340 30% 15%;
+    --secondary: 335 30% 45%;
+    --secondary-foreground: 0 0% 98%;
+    --muted: 340 20% 28%;
+    --muted-foreground: 0 0% 98% / 0.7;
+    --accent: 340 35% 30%;
+    --accent-foreground: 340 50% 80%;
+    --destructive: 350 45% 50%;
     --destructive-foreground: 0 0% 100%;
-    --border: 340 10% 22%;
-    --input: 340 10% 22%;
-    --ring: 340 65% 70%;
-    --chart-1: 340 65% 70%;
-    --chart-2: 330 30% 55%;
-    --chart-3: 25 50% 65%;
-    --chart-4: 145 40% 50%;
-    --chart-5: 340 10% 50%;
-    --sidebar: 340 12% 14%;
-    --sidebar-foreground: 30 20% 95%;
-    --sidebar-primary: 340 65% 70%;
-    --sidebar-primary-foreground: 340 20% 10%;
-    --sidebar-accent: 340 20% 20%;
-    --sidebar-accent-foreground: 340 65% 75%;
-    --sidebar-border: 340 10% 22%;
-    --sidebar-ring: 340 65% 70%;
-    --glass-bg: 340 15% 12% / 0.9;
-    --glass-border: 340 10% 25% / 0.6;
-    --shadow-2xs: 0 1px 2px 0px hsl(0 0% 0% / 0.15);
-    --shadow-xs: 0 1px 3px 0px hsl(0 0% 0% / 0.2);
-    --shadow-sm: 0 1px 3px 0px hsl(0 0% 0% / 0.25), 0 1px 2px -1px hsl(0 0% 0% / 0.15);
-    --shadow: 0 2px 4px 0px hsl(0 0% 0% / 0.25), 0 1px 2px -1px hsl(0 0% 0% / 0.15);
-    --shadow-md: 0 4px 6px -1px hsl(0 0% 0% / 0.3), 0 2px 4px -2px hsl(0 0% 0% / 0.2);
-    --shadow-lg: 0 10px 15px -3px hsl(0 0% 0% / 0.35), 0 4px 6px -4px hsl(0 0% 0% / 0.2);
-    --shadow-xl: 0 20px 25px -5px hsl(0 0% 0% / 0.4), 0 8px 10px -6px hsl(0 0% 0% / 0.2);
-    --shadow-2xl: 0 25px 50px -12px hsl(0 0% 0% / 0.5);
+    --border: 340 20% 28%;
+    --input: 340 22% 26%;
+    --ring: 0 0% 100%;
+    --chart-1: 0 0% 100%;
+    --chart-2: 340 50% 75%;
+    --chart-3: 335 30% 50%;
+    --chart-4: 155 40% 50%;
+    --chart-5: 340 20% 50%;
+    --sidebar: 340 28% 20%;
+    --sidebar-foreground: 0 0% 98%;
+    --sidebar-primary: 340 50% 75%;
+    --sidebar-primary-foreground: 340 30% 15%;
+    --sidebar-accent: 340 35% 28%;
+    --sidebar-accent-foreground: 340 50% 80%;
+    --sidebar-border: 340 20% 28%;
+    --sidebar-ring: 0 0% 100%;
+    --glass-bg: 340 28% 20% / 0.9;
+    --glass-border: 0 0% 100% / 0.15;
+    --shadow-2xs: 0 1px 2px 0px hsl(0 0% 0% / 0.2);
+    --shadow-xs: 0 1px 3px 0px hsl(0 0% 0% / 0.25);
+    --shadow-sm: 0 2px 4px 0px hsl(0 0% 0% / 0.3), 0 1px 2px -1px hsl(0 0% 0% / 0.2);
+    --shadow: 0 3px 6px 0px hsl(0 0% 0% / 0.3), 0 2px 4px -1px hsl(0 0% 0% / 0.2);
+    --shadow-md: 0 6px 12px -2px hsl(0 0% 0% / 0.35), 0 3px 6px -2px hsl(0 0% 0% / 0.2);
+    --shadow-lg: 0 12px 20px -4px hsl(0 0% 0% / 0.4), 0 6px 10px -4px hsl(0 0% 0% / 0.2);
+    --shadow-xl: 0 20px 30px -6px hsl(0 0% 0% / 0.45), 0 10px 15px -6px hsl(0 0% 0% / 0.25);
+    --shadow-2xl: 0 30px 50px -10px hsl(0 0% 0% / 0.5);
   }
 }
 
@@ -166,7 +166,7 @@
 }
 
 @layer components {
-  /* Glassmorphism card - warm cream feel */
+  /* Glassmorphism card - frosted pink */
   .glass-card {
     @apply rounded-2xl backdrop-blur-md;
     background: hsl(var(--glass-bg));
@@ -174,15 +174,15 @@
     box-shadow: var(--shadow-md);
   }
 
-  /* Result card - soft warm depth */
+  /* Result card - soft floating card */
   .result-card {
     @apply rounded-2xl;
     background: linear-gradient(
       165deg,
       hsl(var(--card)) 0%,
-      hsl(30 25% 97%) 100%
+      hsl(340 42% 80%) 100%
     );
-    border: 1px solid hsl(var(--border));
+    border: 1px solid hsl(0 0% 100% / 0.15);
     box-shadow: var(--shadow-lg);
   }
 
@@ -190,23 +190,23 @@
     background: linear-gradient(
       165deg,
       hsl(var(--card)) 0%,
-      hsl(340 12% 14%) 100%
+      hsl(340 28% 24%) 100%
     );
   }
 
-  /* Soft border glow - warm pink */
+  /* Soft border glow - white glow on pink */
   .soft-border {
-    border: 1.5px solid hsl(var(--primary) / 0.35);
-    box-shadow: 0 0 16px hsl(var(--primary) / 0.08);
+    border: 1.5px solid hsl(0 0% 100% / 0.25);
+    box-shadow: 0 0 20px hsl(0 0% 100% / 0.1);
   }
 
-  /* Legacy neon-border - now softer pink glow */
+  /* Legacy neon-border - now soft white glow */
   .neon-border {
-    border: 1.5px solid hsl(var(--primary) / 0.4);
-    box-shadow: 0 0 12px hsl(var(--primary) / 0.1);
+    border: 1.5px solid hsl(0 0% 100% / 0.3);
+    box-shadow: 0 0 16px hsl(0 0% 100% / 0.12);
   }
 
-  /* Scan frame corners - soft pink */
+  /* Scan frame corners - white */
   .scan-frame {
     position: relative;
   }
@@ -215,9 +215,9 @@
   .scan-frame::after {
     content: '';
     position: absolute;
-    width: 40px;
-    height: 40px;
-    border: 2.5px solid hsl(var(--primary) / 0.6);
+    width: 44px;
+    height: 44px;
+    border: 3px solid hsl(0 0% 100% / 0.7);
     pointer-events: none;
   }
 
@@ -241,9 +241,9 @@
   .scan-frame-bottom::after {
     content: '';
     position: absolute;
-    width: 40px;
-    height: 40px;
-    border: 2.5px solid hsl(var(--primary) / 0.6);
+    width: 44px;
+    height: 44px;
+    border: 3px solid hsl(0 0% 100% / 0.7);
     pointer-events: none;
   }
 
@@ -263,13 +263,13 @@
     border-radius: 0 0 12px 0;
   }
 
-  /* Section divider - soft pink gradient */
+  /* Section divider - white gradient */
   .section-divider {
     @apply h-px my-4;
     background: linear-gradient(
       90deg,
       transparent 0%,
-      hsl(var(--primary) / 0.2) 50%,
+      hsl(0 0% 100% / 0.3) 50%,
       transparent 100%
     );
   }
@@ -292,33 +292,36 @@
   .macro-carbs { color: hsl(var(--macro-carbs)); }
   .macro-fat { color: hsl(var(--macro-fat)); }
 
-  /* Confidence badges - warm pink tones */
+  /* Confidence badges - white on pink variations */
   .confidence-high {
-    background-color: hsl(var(--primary) / 0.12);
-    color: hsl(var(--primary));
-    border: 1px solid hsl(var(--primary) / 0.2);
+    background-color: hsl(0 0% 100% / 0.2);
+    color: hsl(0 0% 100%);
+    border: 1px solid hsl(0 0% 100% / 0.3);
   }
 
   .confidence-medium {
-    background-color: hsl(var(--secondary) / 0.12);
-    color: hsl(var(--secondary));
-    border: 1px solid hsl(var(--secondary) / 0.2);
+    background-color: hsl(var(--secondary) / 0.3);
+    color: hsl(0 0% 100%);
+    border: 1px solid hsl(0 0% 100% / 0.2);
   }
 
   .confidence-low {
-    @apply bg-muted text-muted-foreground border border-border;
+    background-color: hsl(var(--muted) / 0.5);
+    color: hsl(0 0% 100% / 0.8);
+    border: 1px solid hsl(0 0% 100% / 0.15);
   }
 
-  /* Primary buttons - soft pink gradient */
+  /* Primary buttons - white background, pink text */
   .btn-primary {
     @apply font-semibold rounded-xl transition-all duration-200;
-    background: linear-gradient(135deg, hsl(var(--primary)) 0%, hsl(var(--secondary)) 100%);
-    color: hsl(var(--primary-foreground));
-    box-shadow: var(--shadow-md), 0 0 0 0 hsl(var(--primary) / 0);
+    background: hsl(0 0% 100%);
+    color: hsl(340 45% 45%);
+    box-shadow: var(--shadow-md);
   }
 
   .btn-primary:hover {
-    box-shadow: var(--shadow-lg), 0 4px 16px hsl(var(--primary) / 0.2);
+    background: hsl(0 0% 98%);
+    box-shadow: var(--shadow-lg), 0 4px 20px hsl(0 0% 100% / 0.2);
     transform: translateY(-1px);
   }
 
@@ -327,34 +330,35 @@
     box-shadow: var(--shadow-sm);
   }
 
+  /* Secondary buttons - transparent with white outline */
   .btn-secondary {
-    @apply font-medium rounded-xl transition-all duration-200 bg-card text-foreground;
-    border: 1px solid hsl(var(--border));
-    box-shadow: var(--shadow-sm);
+    @apply font-medium rounded-xl transition-all duration-200;
+    background: transparent;
+    color: hsl(0 0% 100%);
+    border: 1.5px solid hsl(0 0% 100% / 0.5);
   }
 
   .btn-secondary:hover {
-    background: hsl(var(--accent));
-    border-color: hsl(var(--primary) / 0.25);
-    box-shadow: var(--shadow);
+    background: hsl(0 0% 100% / 0.1);
+    border-color: hsl(0 0% 100% / 0.7);
   }
 
-  /* Scan button - warm pink glow */
+  /* Scan button - white with pink glow */
   .scan-button {
     @apply rounded-full transition-all duration-300;
-    background: linear-gradient(145deg, hsl(var(--primary)) 0%, hsl(var(--secondary)) 100%);
+    background: hsl(0 0% 100%);
     box-shadow: 
       var(--shadow-lg),
-      0 4px 20px hsl(var(--primary) / 0.25),
-      inset 0 2px 6px hsl(0 0% 100% / 0.2);
+      0 6px 30px hsl(0 0% 100% / 0.3),
+      inset 0 2px 4px hsl(0 0% 100% / 0.5);
   }
 
   .scan-button:active {
     transform: scale(0.96);
     box-shadow: 
       var(--shadow-sm),
-      0 2px 12px hsl(var(--primary) / 0.2),
-      inset 0 2px 6px hsl(0 0% 100% / 0.2);
+      0 3px 15px hsl(0 0% 100% / 0.2),
+      inset 0 2px 4px hsl(0 0% 100% / 0.5);
   }
 
   /* Circular score meter */

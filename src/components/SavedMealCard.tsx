@@ -8,12 +8,9 @@ interface SavedMealCardProps {
   onTap: () => void;
 }
 
+// For pink-first design, calories are all white
 function getCalorieClass(calories: number | { min: number; max: number } | null): string {
-  if (!hasValidCalories(calories)) return "";
-  const cal = getCalorieValue(calories);
-  if (cal >= 600) return "calorie-high";
-  if (cal >= 300) return "calorie-mid";
-  return "calorie-low";
+  return "text-white";
 }
 
 function formatCalories(calories: number | { min: number; max: number } | null): string {
@@ -45,7 +42,7 @@ export function SavedMealCard({ meal, onTap }: SavedMealCardProps) {
       onClick={onTap}
     >
       {/* Meal image or fallback */}
-      <div className="aspect-square rounded-xl bg-secondary/60 mb-3 flex items-center justify-center overflow-hidden">
+      <div className="aspect-square rounded-xl bg-white/10 mb-3 flex items-center justify-center overflow-hidden border border-white/10">
         {meal.imageData ? (
           <img 
             src={`data:image/jpeg;base64,${meal.imageData}`}
@@ -59,9 +56,9 @@ export function SavedMealCard({ meal, onTap }: SavedMealCardProps) {
       </div>
 
       {/* Meal name - truncated */}
-      <p className="font-medium text-sm text-foreground truncate mb-1">
+      <p className="font-medium text-sm text-white truncate mb-1">
         {displayName}
-        {hasMore && <span className="text-muted-foreground"> +{meal.items.length - 2}</span>}
+        {hasMore && <span className="text-white/60"> +{meal.items.length - 2}</span>}
       </p>
 
       {/* Meal tone badge */}
@@ -74,13 +71,13 @@ export function SavedMealCard({ meal, onTap }: SavedMealCardProps) {
       {/* Calorie display */}
       {meal.totalCalories !== null && (
         <div className={`text-lg font-bold ${getCalorieClass(meal.totalCalories)}`}>
-          {formatCalories(meal.totalCalories)} <span className="text-xs font-normal text-muted-foreground">kcal</span>
+          {formatCalories(meal.totalCalories)} <span className="text-xs font-normal text-white/60">kcal</span>
         </div>
       )}
 
       {/* Compact macro breakdown - always show if calories exist, infer if needed */}
       {hasValidCalories(meal.totalCalories) && (
-        <div className="mt-2 pt-2 border-t border-border/50">
+        <div className="mt-2 pt-2 border-t border-white/15">
           <MacrosBadge macros={ensureMacros(meal.macros, meal.totalCalories)} compact showInfoIcon={false} showDescription={false} />
         </div>
       )}

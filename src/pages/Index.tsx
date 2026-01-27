@@ -571,15 +571,20 @@ export default function Index() {
           )}
           <canvas ref={canvasRef} className="hidden" />
 
-          {/* My Meals button - top right */}
+          {/* Header - app title and My Meals button */}
           {appState === "camera" && (
-            <button
-              onClick={() => navigate("/meals")}
-              className="absolute top-5 right-5 z-10 p-3 glass-card rounded-xl"
-              aria-label="My Meals"
-            >
-              <History className="h-5 w-5 text-primary" />
-            </button>
+            <div className="absolute top-5 left-5 right-5 z-10 flex items-center justify-between">
+              <h1 className="text-lg font-semibold text-white drop-shadow-lg tracking-tight">
+                CalorieSpot
+              </h1>
+              <button
+                onClick={() => navigate("/meals")}
+                className="p-3 glass-card rounded-xl"
+                aria-label="My Meals"
+              >
+                <History className="h-5 w-5 text-white" />
+              </button>
+            </div>
           )}
         </div>
 
@@ -594,30 +599,30 @@ export default function Index() {
 
         {/* Bottom controls - camera mode */}
         {appState === "camera" && (
-          <div className="p-6 bg-background/95 backdrop-blur-lg border-t border-border/50">
+          <div className="p-6 bg-card/90 backdrop-blur-lg border-t border-white/10">
             {/* Secondary actions */}
             <div className="flex justify-center gap-3 mb-5">
               <button
                 onClick={handleStartLiveScan}
                 disabled={!!cameraError}
-                className="flex items-center gap-2 px-3 py-2 glass-card rounded-xl text-sm font-medium transition-colors hover:bg-muted disabled:opacity-50"
+                className="flex items-center gap-2 px-4 py-2.5 bg-white/15 backdrop-blur rounded-xl text-sm font-medium text-white transition-colors hover:bg-white/25 disabled:opacity-50"
               >
-                <Radio className="h-4 w-4 text-primary" />
+                <Radio className="h-4 w-4" />
                 Live
               </button>
               <button
                 onClick={handleStartBarcodeScan}
                 disabled={!!cameraError}
-                className="flex items-center gap-2 px-3 py-2 glass-card rounded-xl text-sm font-medium transition-colors hover:bg-muted disabled:opacity-50"
+                className="flex items-center gap-2 px-4 py-2.5 bg-white/15 backdrop-blur rounded-xl text-sm font-medium text-white transition-colors hover:bg-white/25 disabled:opacity-50"
               >
-                <ScanBarcode className="h-4 w-4 text-primary" />
+                <ScanBarcode className="h-4 w-4" />
                 Barcode
               </button>
               <button
                 onClick={openGalleryPicker}
-                className="flex items-center gap-2 px-3 py-2 glass-card rounded-xl text-sm font-medium transition-colors hover:bg-muted"
+                className="flex items-center gap-2 px-4 py-2.5 bg-white/15 backdrop-blur rounded-xl text-sm font-medium text-white transition-colors hover:bg-white/25"
               >
-                <Image className="h-4 w-4 text-primary" />
+                <Image className="h-4 w-4" />
                 Upload
               </button>
             </div>
@@ -627,9 +632,11 @@ export default function Index() {
               <button
                 onClick={handleCapture}
                 disabled={!!cameraError}
-                className="scan-button w-20 h-20 disabled:opacity-40"
+                className="scan-button w-20 h-20 disabled:opacity-40 flex items-center justify-center"
                 aria-label="Scan"
-              />
+              >
+                <div className="w-6 h-6 rounded-full bg-primary" />
+              </button>
             </div>
           </div>
         )}
@@ -714,14 +721,17 @@ export default function Index() {
 
     return (
       <div className="min-h-screen bg-background px-4 py-5 safe-top safe-bottom">
-        {/* Header with info button */}
-        <div className="flex justify-end mb-3">
+        {/* Header with app title and info button */}
+        <div className="flex items-center justify-between mb-4">
+          <h1 className="text-xl font-semibold text-white tracking-tight">
+            CalorieSpot
+          </h1>
           <button
             onClick={() => navigate("/how-it-works")}
-            className="p-2 rounded-xl hover:bg-muted transition-colors"
+            className="p-2 rounded-xl hover:bg-white/10 transition-colors"
             aria-label="How it works"
           >
-            <HelpCircle className="h-5 w-5 text-muted-foreground" />
+            <HelpCircle className="h-5 w-5 text-white/70" />
           </button>
         </div>
 
@@ -742,10 +752,10 @@ export default function Index() {
             <>
               {/* Meal summary */}
               <div className="text-center mb-6">
-                <span className="inline-block text-xs text-primary mb-2 font-medium">
+                <span className="inline-block text-xs text-white/80 mb-2 font-medium">
                   {result.items.length} item{result.items.length > 1 ? "s" : ""} found
                 </span>
-                <h1 className="text-xl font-bold tracking-tight">
+                <h1 className="text-xl font-bold tracking-tight text-white">
                   {mealSummary}
                   {result.items.length > 3 && ` +${result.items.length - 3}`}
                 </h1>
@@ -814,18 +824,18 @@ export default function Index() {
               )}
 
               {/* Disclaimer */}
-              <p className="text-xs text-muted-foreground/60 text-center mt-5">
+              <p className="text-xs text-white/50 text-center mt-5">
                 AI-based estimate. Not medical advice.
               </p>
 
               {/* Reasoning - collapsible */}
               {result.reasoning && (
                 <details className="mt-4">
-                  <summary className="text-xs cursor-pointer text-muted-foreground hover:text-primary transition-colors text-center">
+                  <summary className="text-xs cursor-pointer text-white/60 hover:text-white transition-colors text-center">
                     How we estimated this
                   </summary>
-                  <div className="mt-3 p-3 glass-card rounded-xl text-sm">
-                    <p className="text-muted-foreground">{result.reasoning}</p>
+                  <div className="mt-3 p-3 bg-white/10 rounded-xl text-sm">
+                    <p className="text-white/80">{result.reasoning}</p>
                   </div>
                 </details>
               )}
@@ -833,8 +843,8 @@ export default function Index() {
           ) : (
             <div className="text-center py-8">
               <div className="text-5xl mb-4">🍽️</div>
-              <h2 className="text-xl font-semibold mb-2">No food detected</h2>
-              <p className="text-muted-foreground text-sm">
+              <h2 className="text-xl font-semibold text-white mb-2">No food detected</h2>
+              <p className="text-white/70 text-sm">
                 Try a clearer photo of your meal
               </p>
             </div>
