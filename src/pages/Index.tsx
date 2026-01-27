@@ -22,7 +22,7 @@ import { RecipeSuggestions } from "@/components/RecipeSuggestions";
 import { History, Radio, Image, ScanBarcode, HelpCircle } from "lucide-react";
 import { preprocessImage, getBase64SizeKB } from "@/lib/imageProcessor";
 import { toast } from "sonner";
-import { safeNumber, getCalorieValue, hasValidCalories, ensureMacros } from "@/lib/nutritionUtils";
+import { safeNumber, getCalorieValue, hasValidCalories, isZeroCalorieResult, hasCalorieData, ensureMacros } from "@/lib/nutritionUtils";
 import {
   startScanMetrics,
   markUIResponse,
@@ -927,8 +927,8 @@ export default function Index() {
                 </h1>
               </div>
 
-              {/* Meal tone badge */}
-              {hasValidCalories(result.totalCalories) && (
+              {/* Meal tone badge - hide for zero-calorie items */}
+              {hasValidCalories(result.totalCalories) && !isZeroCalorieResult(result.totalCalories) && (
                 <div className="flex justify-center mb-4">
                   <MealToneBadge calories={getCalorieValue(result.totalCalories)} compact />
                 </div>
@@ -939,8 +939,8 @@ export default function Index() {
                 <CalorieMeter calories={getDisplayCalories()} size="lg" />
               </div>
 
-              {/* Portion feedback - simple question */}
-              {result.totalCalories !== null && (
+              {/* Portion feedback - hide for zero-calorie items */}
+              {result.totalCalories !== null && !isZeroCalorieResult(result.totalCalories) && (
                 <div className="mb-5">
                   <PortionFeedback
                     originalCalories={getOriginalCalorieValue()}
@@ -949,8 +949,8 @@ export default function Index() {
                 </div>
               )}
 
-              {/* Macros - always show if we have calories, infer if needed */}
-              {hasValidCalories(result.totalCalories) && (
+              {/* Macros - show for caloric items only, hide for zero-calorie */}
+              {hasValidCalories(result.totalCalories) && !isZeroCalorieResult(result.totalCalories) && (
                 <div className="mb-6">
                   <MacrosBadge macros={ensureMacros(result.macros, result.totalCalories)} />
                 </div>

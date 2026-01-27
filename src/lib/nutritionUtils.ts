@@ -85,12 +85,38 @@ export function getCalorieValue(
 
 /**
  * Check if calorie data is available and valid
+ * Note: 0 calories is valid for zero-calorie items
  */
 export function hasValidCalories(
   calories: number | { min: number; max: number } | null | undefined
 ): boolean {
   const value = getCalorieValue(calories);
   return value > 0;
+}
+
+/**
+ * Check if this is an explicit zero-calorie result (not missing data)
+ * Zero-calorie items have calories === 0 explicitly set
+ */
+export function isZeroCalorieResult(
+  calories: number | { min: number; max: number } | null | undefined
+): boolean {
+  if (calories === null || calories === undefined) return false;
+  
+  if (typeof calories === "object") {
+    return calories.min === 0 && calories.max === 0;
+  }
+  
+  return calories === 0;
+}
+
+/**
+ * Check if calorie data exists (either positive or explicitly zero)
+ */
+export function hasCalorieData(
+  calories: number | { min: number; max: number } | null | undefined
+): boolean {
+  return hasValidCalories(calories) || isZeroCalorieResult(calories);
 }
 
 /**
