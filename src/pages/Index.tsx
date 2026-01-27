@@ -17,7 +17,7 @@ import { BarcodeResultCard } from "@/components/BarcodeResultCard";
 import { PortionFeedback, PortionAdjustment } from "@/components/PortionFeedback";
 import { MealToneBadge } from "@/components/MealToneBadge";
 import { Onboarding } from "@/components/Onboarding";
-import { BookNutritionistButton } from "@/components/BookNutritionistButton";
+
 import { RecipeSuggestions } from "@/components/RecipeSuggestions";
 import { History, Radio, Image, ScanBarcode, HelpCircle } from "lucide-react";
 import { preprocessImage, getBase64SizeKB } from "@/lib/imageProcessor";
@@ -727,10 +727,6 @@ export default function Index() {
         {/* Bottom controls - camera mode */}
         {appState === "camera" && (
           <div className="p-6 bg-card/90 backdrop-blur-lg border-t border-white/10">
-            {/* Book Nutritionist - fixed at top of controls, always visible */}
-            <div className="mb-4">
-              <BookNutritionistButton variant="subtle" fullWidth />
-            </div>
 
             {/* Secondary actions */}
             <div className="flex justify-center gap-3 mb-5">
@@ -994,21 +990,18 @@ export default function Index() {
               {/* Section divider */}
               <div className="section-divider mt-6" />
 
-              {/* Book Nutritionist */}
-              <div className="mt-5 text-center">
-                <p className="text-xs text-white/60 mb-3">Want personalized guidance?</p>
-                <BookNutritionistButton variant="subtle" />
-              </div>
+              {/* Guidance hint */}
+              <p className="text-xs text-white/50 text-center mt-5">
+                Tap the chat button for personalized nutrition advice
+              </p>
             </>
           ) : (
             <div className="text-center py-8">
               <div className="text-5xl mb-4">🍽️</div>
               <h2 className="text-xl font-semibold text-white mb-2">No food detected</h2>
-              <p className="text-white/70 text-sm mb-6">
+              <p className="text-white/70 text-sm">
                 Try a clearer photo of your meal
               </p>
-              {/* Book Nutritionist - visible even when no food detected */}
-              <BookNutritionistButton variant="subtle" />
             </div>
           )}
         </div>

@@ -3,7 +3,7 @@ import { ArrowLeft, ChefHat, Flame, Scale, Zap } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { recipes, getRecipesByCategory, Recipe } from "@/data/recipes";
 import { RecipeCard } from "@/components/RecipeCard";
-import { BookNutritionistButton } from "@/components/BookNutritionistButton";
+
 import { useLanguage } from "@/hooks/useLanguage";
 import { cn } from "@/lib/utils";
 
@@ -97,16 +97,13 @@ export default function FitRecipes() {
         </p>
       </div>
 
-      {/* Book nutritionist */}
-      <div className="mb-4">
-        <p className="text-sm text-white/70 text-center mb-3">
-          {t({
-            pt: "Quer um plano alimentar personalizado?",
-            en: "Want a personalized meal plan?",
-          })}
-        </p>
-        <BookNutritionistButton variant="primary" fullWidth />
-      </div>
+      {/* Personalized guidance hint */}
+      <p className="text-xs text-white/50 text-center mb-4">
+        {t({
+          pt: "Toque no botão de chat para falar com um nutricionista",
+          en: "Tap the chat button for personalized nutrition advice",
+        })}
+      </p>
     </div>
   );
 }

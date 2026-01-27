@@ -1,6 +1,6 @@
 import { ArrowLeft, Camera, Sparkles, Shield, HelpCircle, RotateCcw, ChefHat } from "lucide-react";
 import { useNavigate } from "react-router-dom";
-import { BookNutritionistButton } from "@/components/BookNutritionistButton";
+
 
 export default function HowItWorks() {
   const navigate = useNavigate();
@@ -158,13 +158,12 @@ export default function HowItWorks() {
           </button>
         </section>
 
-        {/* Book Nutritionist */}
-        <section className="result-card p-5 space-y-4">
+        {/* Personalized guidance hint */}
+        <section className="result-card p-5 space-y-3">
           <h2 className="font-semibold">Want personalized guidance?</h2>
           <p className="text-sm text-muted-foreground leading-relaxed">
-            Connect with a professional nutritionist for a personalized meal plan.
+            Tap the chat button in the corner to connect with a professional nutritionist.
           </p>
-          <BookNutritionistButton variant="primary" fullWidth />
         </section>
 
         {/* View Tutorial Again */}
