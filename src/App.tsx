@@ -14,6 +14,8 @@ import AdminLogin from "./pages/AdminLogin";
 import AdminDashboard from "./pages/AdminDashboard";
 import AdminRecipes from "./pages/AdminRecipes";
 import AdminCms from "./pages/AdminCms";
+import AdminPremium from "./pages/AdminPremium";
+import AdminStore from "./pages/AdminStore";
 import Premium from "./pages/Premium";
 import PersonalizedPlan from "./pages/PersonalizedPlan";
 import TrainingClasses from "./pages/TrainingClasses";
@@ -65,6 +67,16 @@ const App = () => (
             <Route path="/admin/recipes" element={
               <AdminAuthGuard>
                 <AdminRecipes />
+              </AdminAuthGuard>
+            } />
+            <Route path="/admin/premium" element={
+              <AdminAuthGuard>
+                <AdminPremium />
+              </AdminAuthGuard>
+            } />
+            <Route path="/admin/store" element={
+              <AdminAuthGuard>
+                <AdminStore />
               </AdminAuthGuard>
             } />
             <Route path="/admin/cms" element={

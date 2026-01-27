@@ -1,98 +1,29 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { ArrowLeft, Heart, ExternalLink, Star } from "lucide-react";
-
-interface Product {
-  id: string;
-  name: string;
-  brand: string;
-  category: string;
-  description: string;
-  price: string;
-  rating: number;
-  imageEmoji: string;
-  affiliateUrl: string;
-  isFavorite?: boolean;
-}
-
-const PRODUCTS: Product[] = [
-  {
-    id: "1",
-    name: "Organic Protein Powder",
-    brand: "NutriPure",
-    category: "Supplements",
-    description: "Plant-based protein with 25g per serving. No artificial sweeteners.",
-    price: "€34.99",
-    rating: 4.8,
-    imageEmoji: "🥛",
-    affiliateUrl: "https://www.amazon.com/s?k=organic+plant+protein+powder"
-  },
-  {
-    id: "2",
-    name: "Digital Food Scale",
-    brand: "FitTrack",
-    category: "Kitchen",
-    description: "Precise 0.1g accuracy with nutritional database integration.",
-    price: "€29.99",
-    rating: 4.6,
-    imageEmoji: "⚖️",
-    affiliateUrl: "https://www.amazon.com/s?k=digital+food+scale"
-  },
-  {
-    id: "3",
-    name: "Meal Prep Containers",
-    brand: "GlassLock",
-    category: "Kitchen",
-    description: "BPA-free glass containers with portion control dividers. Set of 10.",
-    price: "€24.99",
-    rating: 4.7,
-    imageEmoji: "📦",
-    affiliateUrl: "https://www.amazon.com/s?k=glass+meal+prep+containers"
-  },
-  {
-    id: "4",
-    name: "Resistance Bands Set",
-    brand: "FlexFit",
-    category: "Fitness",
-    description: "5 resistance levels for home workouts. Includes door anchor.",
-    price: "€19.99",
-    rating: 4.5,
-    imageEmoji: "🏋️",
-    affiliateUrl: "https://www.amazon.com/s?k=resistance+bands+set"
-  },
-  {
-    id: "5",
-    name: "Greek Yogurt Maker",
-    brand: "CulturePro",
-    category: "Kitchen",
-    description: "Make fresh, high-protein yogurt at home. 1L capacity.",
-    price: "€39.99",
-    rating: 4.4,
-    imageEmoji: "🥣",
-    affiliateUrl: "https://www.amazon.com/s?k=greek+yogurt+maker"
-  },
-  {
-    id: "6",
-    name: "Omega-3 Fish Oil",
-    brand: "PureOcean",
-    category: "Supplements",
-    description: "High-potency EPA/DHA from wild-caught fish. 120 softgels.",
-    price: "€22.99",
-    rating: 4.9,
-    imageEmoji: "🐟",
-    affiliateUrl: "https://www.amazon.com/s?k=omega+3+fish+oil"
-  }
-];
+import { useStoreItems, type StoreItem } from "@/hooks/useStoreItems";
+import { useLanguage } from "@/hooks/useLanguage";
+import { Skeleton } from "@/components/ui/skeleton";
 
 function ProductCard({ 
-  product, 
+  item,
+  language,
+  isFavorite,
   onToggleFavorite 
 }: { 
-  product: Product; 
+  item: StoreItem;
+  language: "pt" | "en";
+  isFavorite: boolean;
   onToggleFavorite: (id: string) => void;
 }) {
+  const name = language === "pt" ? item.name_pt : item.name_en;
+  const description = language === "pt" ? item.description_pt : item.description_en;
+  const currencySymbol = item.currency === "EUR" ? "€" : item.currency === "USD" ? "$" : "£";
+
   const handleBuy = () => {
-    window.open(product.affiliateUrl, "_blank", "noopener,noreferrer");
+    if (item.purchase_link) {
+      window.open(item.purchase_link, "_blank", "noopener,noreferrer");
+    }
   };
 
   return (
@@ -100,44 +31,71 @@ function ProductCard({
       <div className="flex gap-4">
         {/* Image */}
         <div className="w-16 h-16 rounded-xl bg-white/10 flex items-center justify-center text-2xl flex-shrink-0">
-          {product.imageEmoji}
+          {item.image_emoji || "📦"}
         </div>
         
         {/* Content */}
         <div className="flex-1 min-w-0">
           <div className="flex items-start justify-between gap-2 mb-0.5">
             <div className="min-w-0">
-              <h3 className="font-semibold text-white truncate">{product.name}</h3>
-              <p className="text-xs text-white/50">{product.brand}</p>
+              <h3 className="font-semibold text-white truncate">{name}</h3>
+              {item.brand && <p className="text-xs text-white/50">{item.brand}</p>}
             </div>
             <button
-              onClick={() => onToggleFavorite(product.id)}
+              onClick={() => onToggleFavorite(item.id)}
               className="p-1.5 rounded-lg hover:bg-white/10 transition-colors"
-              aria-label={product.isFavorite ? "Remove from favorites" : "Add to favorites"}
+              aria-label={isFavorite ? "Remove from favorites" : "Add to favorites"}
             >
               <Heart 
-                className={`h-4 w-4 ${product.isFavorite ? "fill-destructive text-destructive" : "text-white/40"}`} 
+                className={`h-4 w-4 ${isFavorite ? "fill-destructive text-destructive" : "text-white/40"}`} 
               />
             </button>
           </div>
           
-          <p className="text-xs text-white/70 line-clamp-2 mb-2">{product.description}</p>
+          {description && (
+            <p className="text-xs text-white/70 line-clamp-2 mb-2">{description}</p>
+          )}
           
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
-              <span className="text-sm font-bold text-white">{product.price}</span>
-              <div className="flex items-center gap-0.5 text-warning">
-                <Star className="h-3 w-3 fill-current" />
-                <span className="text-xs">{product.rating}</span>
-              </div>
+              <span className="text-sm font-bold text-white">
+                {currencySymbol}{Number(item.price).toFixed(2)}
+              </span>
+              {item.rating && (
+                <div className="flex items-center gap-0.5 text-warning">
+                  <Star className="h-3 w-3 fill-current" />
+                  <span className="text-xs">{Number(item.rating).toFixed(1)}</span>
+                </div>
+              )}
             </div>
-            <button
-              onClick={handleBuy}
-              className="flex items-center gap-1 px-3 py-1.5 rounded-lg bg-primary text-primary-foreground text-xs font-medium hover:bg-primary/90 transition-colors"
-            >
-              View
-              <ExternalLink className="h-3 w-3" />
-            </button>
+            {item.purchase_link && (
+              <button
+                onClick={handleBuy}
+                className="flex items-center gap-1 px-3 py-1.5 rounded-lg bg-primary text-primary-foreground text-xs font-medium hover:bg-primary/90 transition-colors"
+              >
+                View
+                <ExternalLink className="h-3 w-3" />
+              </button>
+            )}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function ProductCardSkeleton() {
+  return (
+    <div className="result-card p-4">
+      <div className="flex gap-4">
+        <Skeleton className="w-16 h-16 rounded-xl" />
+        <div className="flex-1 space-y-2">
+          <Skeleton className="h-5 w-1/2" />
+          <Skeleton className="h-3 w-1/4" />
+          <Skeleton className="h-4 w-full" />
+          <div className="flex justify-between">
+            <Skeleton className="h-5 w-16" />
+            <Skeleton className="h-8 w-16 rounded-lg" />
           </div>
         </div>
       </div>
@@ -147,20 +105,28 @@ function ProductCard({
 
 export default function Products() {
   const navigate = useNavigate();
-  const [products, setProducts] = useState<Product[]>(PRODUCTS);
+  const { t, language } = useLanguage();
+  const { data: items, isLoading, error } = useStoreItems();
+  const [favorites, setFavorites] = useState<Set<string>>(new Set());
   const [showFavoritesOnly, setShowFavoritesOnly] = useState(false);
 
   const toggleFavorite = (id: string) => {
-    setProducts(prev => 
-      prev.map(p => p.id === id ? { ...p, isFavorite: !p.isFavorite } : p)
-    );
+    setFavorites(prev => {
+      const next = new Set(prev);
+      if (next.has(id)) {
+        next.delete(id);
+      } else {
+        next.add(id);
+      }
+      return next;
+    });
   };
 
-  const displayProducts = showFavoritesOnly 
-    ? products.filter(p => p.isFavorite) 
-    : products;
+  const displayItems = showFavoritesOnly 
+    ? items?.filter(item => favorites.has(item.id)) 
+    : items;
 
-  const favoriteCount = products.filter(p => p.isFavorite).length;
+  const favoriteCount = favorites.size;
 
   return (
     <div className="min-h-screen bg-background px-4 py-5 safe-top safe-bottom">
@@ -174,8 +140,12 @@ export default function Products() {
           <ArrowLeft className="h-5 w-5 text-white" />
         </button>
         <div>
-          <h1 className="text-xl font-bold text-white">Recommended Products</h1>
-          <p className="text-xs text-white/60">Curated by nutritionists</p>
+          <h1 className="text-xl font-bold text-white">
+            {t({ pt: "Produtos Recomendados", en: "Recommended Products" })}
+          </h1>
+          <p className="text-xs text-white/60">
+            {t({ pt: "Curados por nutricionistas", en: "Curated by nutritionists" })}
+          </p>
         </div>
       </div>
 
@@ -189,7 +159,7 @@ export default function Products() {
               : "bg-white/10 text-white/80 hover:bg-white/20"
           }`}
         >
-          All Products
+          {t({ pt: "Todos", en: "All Products" })}
         </button>
         <button
           onClick={() => setShowFavoritesOnly(true)}
@@ -200,25 +170,48 @@ export default function Products() {
           }`}
         >
           <Heart className="h-3.5 w-3.5" />
-          Favorites {favoriteCount > 0 && `(${favoriteCount})`}
+          {t({ pt: "Favoritos", en: "Favorites" })} {favoriteCount > 0 && `(${favoriteCount})`}
         </button>
       </div>
 
       {/* Products list */}
       <div className="space-y-3">
-        {displayProducts.length > 0 ? (
-          displayProducts.map((product) => (
+        {isLoading ? (
+          <>
+            <ProductCardSkeleton />
+            <ProductCardSkeleton />
+            <ProductCardSkeleton />
+          </>
+        ) : error ? (
+          <div className="text-center py-8">
+            <p className="text-white/60">
+              {t({ pt: "Erro ao carregar produtos", en: "Error loading products" })}
+            </p>
+          </div>
+        ) : displayItems && displayItems.length > 0 ? (
+          displayItems.map((item) => (
             <ProductCard 
-              key={product.id} 
-              product={product} 
+              key={item.id} 
+              item={item}
+              language={language}
+              isFavorite={favorites.has(item.id)}
               onToggleFavorite={toggleFavorite}
             />
           ))
         ) : (
           <div className="text-center py-12">
             <Heart className="h-12 w-12 text-white/20 mx-auto mb-3" />
-            <p className="text-white/60">No favorites yet</p>
-            <p className="text-xs text-white/40 mt-1">Tap the heart icon to save products</p>
+            <p className="text-white/60">
+              {showFavoritesOnly 
+                ? t({ pt: "Sem favoritos", en: "No favorites yet" })
+                : t({ pt: "Sem produtos", en: "No products yet" })
+              }
+            </p>
+            {showFavoritesOnly && (
+              <p className="text-xs text-white/40 mt-1">
+                {t({ pt: "Toca no coração para guardar", en: "Tap the heart to save products" })}
+              </p>
+            )}
           </div>
         )}
       </div>
@@ -226,7 +219,10 @@ export default function Products() {
       {/* Affiliate disclaimer */}
       <div className="mt-6 p-3 rounded-xl bg-white/5">
         <p className="text-[10px] text-white/40 text-center">
-          Some links are affiliate links. We may earn a small commission at no extra cost to you.
+          {t({
+            pt: "Alguns links são links de afiliados. Podemos ganhar uma pequena comissão sem custo extra para si.",
+            en: "Some links are affiliate links. We may earn a small commission at no extra cost to you."
+          })}
         </p>
       </div>
     </div>

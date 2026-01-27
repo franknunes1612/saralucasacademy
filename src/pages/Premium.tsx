@@ -1,31 +1,44 @@
 import { useNavigate } from "react-router-dom";
-import { ArrowLeft, Sparkles, Dumbbell, Heart, Gift } from "lucide-react";
+import { ArrowLeft, Sparkles, Dumbbell, Heart, Gift, Star, Zap, Crown } from "lucide-react";
+import { usePremiumOffers, type PremiumOffer } from "@/hooks/usePremiumOffers";
+import { useLanguage } from "@/hooks/useLanguage";
+import { Skeleton } from "@/components/ui/skeleton";
+
+const ICON_MAP: Record<string, typeof Sparkles> = {
+  sparkles: Sparkles,
+  dumbbell: Dumbbell,
+  heart: Heart,
+  gift: Gift,
+  star: Star,
+  zap: Zap,
+  crown: Crown,
+};
 
 interface PremiumCardProps {
-  icon: typeof Sparkles;
-  title: string;
-  description: string;
-  price?: string;
-  cta: string;
-  onClick: () => void;
-  badge?: string;
-  accentColor?: string;
+  offer: PremiumOffer;
+  language: "pt" | "en";
+  onSelect: (offer: PremiumOffer) => void;
 }
 
-function PremiumCard({ 
-  icon: Icon, 
-  title, 
-  description, 
-  price, 
-  cta, 
-  onClick,
-  badge,
-  accentColor = "bg-primary"
-}: PremiumCardProps) {
+function PremiumCard({ offer, language, onSelect }: PremiumCardProps) {
+  const Icon = ICON_MAP[offer.icon || "sparkles"] || Sparkles;
+  const title = language === "pt" ? offer.title_pt : offer.title_en;
+  const subtitle = language === "pt" ? offer.subtitle_pt : offer.subtitle_en;
+  const badge = language === "pt" ? offer.badge_pt : offer.badge_en;
+  const features = language === "pt" ? offer.features_pt : offer.features_en;
+  
+  const billingLabel = {
+    "one-time": language === "pt" ? "pagamento único" : "one-time",
+    "monthly": language === "pt" ? "/mês" : "/mo",
+    "yearly": language === "pt" ? "/ano" : "/year",
+  }[offer.billing_type] || "";
+
+  const priceDisplay = `${offer.currency === "EUR" ? "€" : offer.currency === "USD" ? "$" : "£"}${Number(offer.price).toFixed(2)}${billingLabel.startsWith("/") ? billingLabel : ""}`;
+
   return (
     <div className="result-card p-5 space-y-4">
       <div className="flex items-start gap-4">
-        <div className={`p-3 rounded-xl ${accentColor}`}>
+        <div className={`p-3 rounded-xl ${offer.accent_color || "bg-primary"}`}>
           <Icon className="h-6 w-6 text-white" />
         </div>
         <div className="flex-1">
@@ -37,20 +50,47 @@ function PremiumCard({
               </span>
             )}
           </div>
-          <p className="text-sm text-white/70 leading-relaxed">{description}</p>
+          {subtitle && (
+            <p className="text-sm text-white/70 leading-relaxed">{subtitle}</p>
+          )}
+          {features && features.length > 0 && (
+            <ul className="mt-2 space-y-1">
+              {features.slice(0, 3).map((feature, i) => (
+                <li key={i} className="text-xs text-white/60 flex items-center gap-1">
+                  <span className="text-success">✓</span> {feature}
+                </li>
+              ))}
+            </ul>
+          )}
         </div>
       </div>
       
       <div className="flex items-center justify-between pt-2">
-        {price && (
-          <span className="text-lg font-bold text-white">{price}</span>
-        )}
+        <span className="text-lg font-bold text-white">{priceDisplay}</span>
         <button 
-          onClick={onClick}
-          className="btn-primary px-5 py-2.5 rounded-xl text-sm font-medium ml-auto"
+          onClick={() => onSelect(offer)}
+          className="btn-primary px-5 py-2.5 rounded-xl text-sm font-medium"
         >
-          {cta}
+          {language === "pt" ? "Ver mais" : "Learn More"}
         </button>
+      </div>
+    </div>
+  );
+}
+
+function PremiumCardSkeleton() {
+  return (
+    <div className="result-card p-5 space-y-4">
+      <div className="flex items-start gap-4">
+        <Skeleton className="w-12 h-12 rounded-xl" />
+        <div className="flex-1 space-y-2">
+          <Skeleton className="h-5 w-1/3" />
+          <Skeleton className="h-4 w-2/3" />
+        </div>
+      </div>
+      <div className="flex items-center justify-between pt-2">
+        <Skeleton className="h-6 w-16" />
+        <Skeleton className="h-10 w-24 rounded-xl" />
       </div>
     </div>
   );
@@ -58,6 +98,20 @@ function PremiumCard({
 
 export default function Premium() {
   const navigate = useNavigate();
+  const { t, language } = useLanguage();
+  const { data: offers, isLoading, error } = usePremiumOffers();
+
+  const handleSelect = (offer: PremiumOffer) => {
+    // Navigate based on offer type/category - for now just show details
+    // In future this could route to specific purchase flows
+    if (offer.title_en.toLowerCase().includes("training")) {
+      navigate("/premium/training");
+    } else if (offer.title_en.toLowerCase().includes("gift")) {
+      navigate("/premium/gift");
+    } else {
+      navigate("/premium/plans");
+    }
+  };
 
   return (
     <div className="min-h-screen bg-background px-4 py-5 safe-top safe-bottom">
@@ -70,7 +124,9 @@ export default function Premium() {
         >
           <ArrowLeft className="h-5 w-5 text-white" />
         </button>
-        <h1 className="text-xl font-bold text-white">Premium Features</h1>
+        <h1 className="text-xl font-bold text-white">
+          {t({ pt: "Premium", en: "Premium Features" })}
+        </h1>
       </div>
 
       {/* Hero section */}
@@ -79,60 +135,55 @@ export default function Premium() {
           <Sparkles className="h-8 w-8 text-white" />
         </div>
         <h2 className="text-xl font-bold text-white mb-2">
-          Level Up Your Nutrition
+          {t({ pt: "Eleva a Tua Nutrição", en: "Level Up Your Nutrition" })}
         </h2>
         <p className="text-sm text-white/70 max-w-xs mx-auto">
-          Get personalized plans, on-demand workouts, and curated product recommendations.
+          {t({ 
+            pt: "Planos personalizados, treinos on-demand e recomendações de produtos.",
+            en: "Get personalized plans, on-demand workouts, and curated product recommendations."
+          })}
         </p>
       </div>
 
-      {/* Premium cards */}
+      {/* Premium offers - data driven */}
       <div className="space-y-4">
-        <PremiumCard
-          icon={Sparkles}
-          title="Personalized Nutrition Plan"
-          description="AI-generated custom nutrition and training plan tailored to your goals. Self-guided program, no consultation required."
-          price="€19.99"
-          cta="Get My Plan"
-          onClick={() => navigate("/premium/plans")}
-          badge="Most Popular"
-          accentColor="bg-gradient-to-br from-primary to-secondary"
-        />
-
-        <PremiumCard
-          icon={Dumbbell}
-          title="Training Classes"
-          description="On-demand workout videos for all fitness levels. Cardio, strength, HIIT, yoga, and more."
-          price="€9.99/mo"
-          cta="Browse Classes"
-          onClick={() => navigate("/premium/training")}
-          accentColor="bg-success"
-        />
-
-        <PremiumCard
-          icon={Heart}
-          title="Product Favorites"
-          description="Curated healthy products recommended by nutritionists. Save your favorites and shop with affiliate links."
-          cta="Explore Products"
-          onClick={() => navigate("/premium/products")}
-          accentColor="bg-secondary"
-        />
-
-        <PremiumCard
-          icon={Gift}
-          title="Gift a Plan"
-          description="Send a personalized nutrition plan to a friend or family member."
-          price="€24.99"
-          cta="Gift Now"
-          onClick={() => navigate("/premium/gift")}
-          accentColor="bg-warning"
-        />
+        {isLoading ? (
+          <>
+            <PremiumCardSkeleton />
+            <PremiumCardSkeleton />
+            <PremiumCardSkeleton />
+          </>
+        ) : error ? (
+          <div className="text-center py-8">
+            <p className="text-white/60">
+              {t({ pt: "Erro ao carregar ofertas", en: "Error loading offers" })}
+            </p>
+          </div>
+        ) : offers && offers.length > 0 ? (
+          offers.map((offer) => (
+            <PremiumCard 
+              key={offer.id} 
+              offer={offer} 
+              language={language} 
+              onSelect={handleSelect}
+            />
+          ))
+        ) : (
+          <div className="text-center py-12">
+            <Sparkles className="h-12 w-12 text-white/20 mx-auto mb-3" />
+            <p className="text-white/60">
+              {t({ pt: "Brevemente novas ofertas", en: "New offers coming soon" })}
+            </p>
+          </div>
+        )}
       </div>
 
       {/* Disclaimer */}
       <p className="text-xs text-white/40 text-center mt-8 px-4">
-        All purchases are non-refundable. Personalized plans are AI-generated and self-guided. 
-        Not a substitute for professional medical advice.
+        {t({
+          pt: "Todas as compras não são reembolsáveis. Os planos personalizados são gerados por IA e autoguiados. Não substitui aconselhamento médico profissional.",
+          en: "All purchases are non-refundable. Personalized plans are AI-generated and self-guided. Not a substitute for professional medical advice."
+        })}
       </p>
     </div>
   );

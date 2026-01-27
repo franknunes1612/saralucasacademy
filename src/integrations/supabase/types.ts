@@ -50,6 +50,69 @@ export type Database = {
         }
         Relationships: []
       }
+      premium_offers: {
+        Row: {
+          accent_color: string | null
+          badge_en: string | null
+          badge_pt: string | null
+          billing_type: string
+          created_at: string
+          currency: string
+          display_order: number
+          features_en: string[]
+          features_pt: string[]
+          icon: string | null
+          id: string
+          is_active: boolean
+          price: number
+          subtitle_en: string | null
+          subtitle_pt: string | null
+          title_en: string
+          title_pt: string
+          updated_at: string
+        }
+        Insert: {
+          accent_color?: string | null
+          badge_en?: string | null
+          badge_pt?: string | null
+          billing_type: string
+          created_at?: string
+          currency?: string
+          display_order?: number
+          features_en?: string[]
+          features_pt?: string[]
+          icon?: string | null
+          id?: string
+          is_active?: boolean
+          price: number
+          subtitle_en?: string | null
+          subtitle_pt?: string | null
+          title_en: string
+          title_pt: string
+          updated_at?: string
+        }
+        Update: {
+          accent_color?: string | null
+          badge_en?: string | null
+          badge_pt?: string | null
+          billing_type?: string
+          created_at?: string
+          currency?: string
+          display_order?: number
+          features_en?: string[]
+          features_pt?: string[]
+          icon?: string | null
+          id?: string
+          is_active?: boolean
+          price?: number
+          subtitle_en?: string | null
+          subtitle_pt?: string | null
+          title_en?: string
+          title_pt?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       recipes: {
         Row: {
           calories: number
@@ -182,6 +245,69 @@ export type Database = {
           user_correct_make?: string | null
           user_correct_model?: string | null
           user_suggestion?: string | null
+        }
+        Relationships: []
+      }
+      store_items: {
+        Row: {
+          brand: string | null
+          category: string
+          created_at: string
+          currency: string
+          description_en: string | null
+          description_pt: string | null
+          display_order: number
+          id: string
+          image_emoji: string | null
+          image_url: string | null
+          is_active: boolean
+          name_en: string
+          name_pt: string
+          price: number
+          purchase_link: string | null
+          purchase_type: string
+          rating: number | null
+          updated_at: string
+        }
+        Insert: {
+          brand?: string | null
+          category: string
+          created_at?: string
+          currency?: string
+          description_en?: string | null
+          description_pt?: string | null
+          display_order?: number
+          id?: string
+          image_emoji?: string | null
+          image_url?: string | null
+          is_active?: boolean
+          name_en: string
+          name_pt: string
+          price: number
+          purchase_link?: string | null
+          purchase_type?: string
+          rating?: number | null
+          updated_at?: string
+        }
+        Update: {
+          brand?: string | null
+          category?: string
+          created_at?: string
+          currency?: string
+          description_en?: string | null
+          description_pt?: string | null
+          display_order?: number
+          id?: string
+          image_emoji?: string | null
+          image_url?: string | null
+          is_active?: boolean
+          name_en?: string
+          name_pt?: string
+          price?: number
+          purchase_link?: string | null
+          purchase_type?: string
+          rating?: number | null
+          updated_at?: string
         }
         Relationships: []
       }
