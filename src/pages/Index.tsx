@@ -4,6 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useSavedMeals, FoodItem } from "@/hooks/useSavedMeals";
 import { useLiveFoodScan, LiveFoodResult } from "@/hooks/useLiveFoodScan";
 import { useAuth } from "@/hooks/useAuth";
+import { usePortionLearning } from "@/hooks/usePortionLearning";
 import { ResultSkeleton } from "@/components/ResultSkeleton";
 import { LiveFoodOverlay } from "@/components/LiveFoodOverlay";
 import { MealFeedback } from "@/components/MealFeedback";
@@ -15,11 +16,10 @@ import { SplashScreen } from "@/components/SplashScreen";
 import { PermissionDenied } from "@/components/PermissionDenied";
 import { BarcodeScannerView } from "@/components/BarcodeScannerView";
 import { BarcodeResultCard } from "@/components/BarcodeResultCard";
-import { PortionFeedback, PortionAdjustment } from "@/components/PortionFeedback";
+import { PortionSlider } from "@/components/PortionSlider";
 import { MealToneBadge } from "@/components/MealToneBadge";
 import { ZeroCalorieBadge, ZeroMacrosBadge } from "@/components/ZeroCalorieBadge";
 import { EstimationLabel, EstimationType } from "@/components/EstimationLabel";
-import { PortionContext } from "@/components/PortionContext";
 import { Onboarding } from "@/components/Onboarding";
 
 import { RecipeSuggestions } from "@/components/RecipeSuggestions";
@@ -115,8 +115,15 @@ export default function Index() {
   const [loadingText, setLoadingText] = useState<string>("Scanning…");
   const [barcodeProduct, setBarcodeProduct] = useState<BarcodeProduct | null>(null);
   const [scannedBarcode, setScannedBarcode] = useState<string>("");
-  const [adjustedCalories, setAdjustedCalories] = useState<number | null>(null);
-  const [portionAdjustment, setPortionAdjustment] = useState<PortionAdjustment | null>(null);
+  const [sliderAdjustment, setSliderAdjustment] = useState<{
+    grams: number;
+    calories: number;
+    macros: { protein: number; carbs: number; fat: number } | null;
+    multiplier: number;
+  } | null>(null);
+  
+  // Portion learning hook
+  const { recordAdjustment } = usePortionLearning();
 
   const videoRef = useRef<HTMLVideoElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -605,17 +612,52 @@ export default function Index() {
     setErrorMessage("");
     setSaveError(null);
     setScanSource("camera");
-    setAdjustedCalories(null);
-    setPortionAdjustment(null);
+    setSliderAdjustment(null);
     setAppState("camera");
     restartCamera();
   };
 
-  // Handle portion adjustment
-  const handlePortionAdjust = (newCalories: number, adjustment: PortionAdjustment) => {
-    setAdjustedCalories(newCalories);
-    setPortionAdjustment(adjustment);
-  };
+  // Handle portion slider adjustment with learning
+  const handleSliderAdjust = useCallback((adjusted: {
+    grams: number;
+    calories: number;
+    macros: { protein: number; carbs: number; fat: number } | null;
+    multiplier: number;
+  }) => {
+    setSliderAdjustment(adjusted);
+    
+    // Record for learning (only significant adjustments)
+    if (result && result.items.length > 0) {
+      const category = result.items[0].name || "unknown";
+      recordAdjustment(category, getEstimatedGrams(), adjusted.grams, adjusted.multiplier);
+    }
+  }, [result, recordAdjustment]);
+
+  // Estimate grams based on plate type and portion
+  const getEstimatedGrams = useCallback((): number => {
+    if (!result) return 150;
+    
+    const portionMultipliers: Record<string, number> = {
+      small: 0.7,
+      medium: 1.0,
+      large: 1.4,
+    };
+    
+    const plateBaseGrams: Record<PlateType, number> = {
+      single_item: 120,
+      half_plate: 200,
+      full_plate: 350,
+      mixed_dish: 300,
+      bowl: 280,
+      snack: 80,
+    };
+    
+    const baseGrams = plateBaseGrams[result.plateType] || 200;
+    const dominantPortion = result.items.length > 0 ? result.items[0].portion : "medium";
+    const multiplier = portionMultipliers[dominantPortion] || 1.0;
+    
+    return Math.round(baseGrams * multiplier);
+  }, [result]);
 
   // Start live scanning mode
   const handleStartLiveScan = () => {
@@ -945,36 +987,37 @@ export default function Index() {
       ? result.items.map(i => i.name).slice(0, 3).join(", ")
       : "No food detected";
 
-    // Calculate displayed calories (original or adjusted)
+    // Calculate displayed calories (original or slider-adjusted)
     const getDisplayCalories = (): number | { min: number; max: number } | null => {
-      if (adjustedCalories !== null && Number.isFinite(adjustedCalories)) {
-        return adjustedCalories;
+      if (sliderAdjustment !== null && Number.isFinite(sliderAdjustment.calories)) {
+        return sliderAdjustment.calories;
       }
       return result.totalCalories;
     };
 
-    // Get original calorie value for adjustment calculations
+    // Get display macros (original or slider-adjusted)
+    const getDisplayMacros = () => {
+      if (sliderAdjustment?.macros) {
+        return sliderAdjustment.macros;
+      }
+      return ensureMacros(result.macros, result.totalCalories);
+    };
+
+    // Get original calorie value for slider base
     const getOriginalCalorieValue = (): number => {
       return getCalorieValue(result.totalCalories);
     };
 
     // Determine estimation type for label
     const getEstimationType = (): EstimationType => {
-      if (portionAdjustment && portionAdjustment !== "correct") {
+      if (sliderAdjustment && Math.abs(sliderAdjustment.multiplier - 1.0) > 0.05) {
         return "user_adjusted";
       }
       return "visual";
     };
 
-    // Get dominant portion from items
-    const getDominantPortion = (): string => {
-      if (result.items.length === 0) return "medium";
-      const portionCounts = result.items.reduce((acc, item) => {
-        acc[item.portion] = (acc[item.portion] || 0) + 1;
-        return acc;
-      }, {} as Record<string, number>);
-      return Object.entries(portionCounts).sort((a, b) => b[1] - a[1])[0]?.[0] || "medium";
-    };
+    // Check if low confidence (show slider more prominently)
+    const isLowConfidence = safeNumber(result.confidenceScore, 70) < 70;
 
     return (
       <div className="min-h-screen bg-background px-4 py-5 safe-top safe-bottom">
@@ -1047,27 +1090,23 @@ export default function Index() {
                     <CalorieMeter calories={getDisplayCalories()} size="lg" />
                   </div>
 
-                  {/* Portion feedback */}
-                  {result.totalCalories !== null && (
+                  {/* Portion slider with gram estimate */}
+                  {result.totalCalories !== null && hasValidCalories(result.totalCalories) && (
                     <div className="mb-5">
-                      <PortionFeedback
-                        originalCalories={getOriginalCalorieValue()}
-                        onAdjust={handlePortionAdjust}
+                      <PortionSlider
+                        baseGrams={getEstimatedGrams()}
+                        baseCalories={getOriginalCalorieValue()}
+                        baseMacros={ensureMacros(result.macros, result.totalCalories)}
+                        onAdjust={handleSliderAdjust}
+                        lowConfidence={isLowConfidence}
                       />
                     </div>
                   )}
 
-                  {/* Portion context */}
-                  {hasValidCalories(result.totalCalories) && (
-                    <div className="mb-4">
-                      <PortionContext portionLabel={getDominantPortion()} compact />
-                    </div>
-                  )}
-
-                  {/* Macros */}
+                  {/* Macros - updated with slider adjustment */}
                   {hasValidCalories(result.totalCalories) && (
                     <div className="mb-5">
-                      <MacrosBadge macros={ensureMacros(result.macros, result.totalCalories)} />
+                      <MacrosBadge macros={getDisplayMacros()} />
                     </div>
                   )}
                 </>
