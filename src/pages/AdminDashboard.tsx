@@ -1,5 +1,5 @@
 import { useNavigate, Link } from "react-router-dom";
-import { ArrowLeft, LogOut, ChefHat, FileText, Sparkles, ShoppingBag } from "lucide-react";
+import { ArrowLeft, LogOut, ChefHat, FileText, Sparkles, ShoppingBag, Heart } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { useLanguage } from "@/hooks/useLanguage";
 
@@ -30,10 +30,17 @@ export default function AdminDashboard() {
     },
     {
       title: { pt: "Loja / Produtos", en: "Store / Products" },
-      description: { pt: "Gerir produtos e afiliados", en: "Manage products and affiliates" },
+      description: { pt: "Gerir produtos vendidos na app", en: "Manage products sold in app" },
       icon: ShoppingBag,
       path: "/admin/store",
       color: "bg-green-500/20 text-green-400",
+    },
+    {
+      title: { pt: "Produtos Favoritos", en: "Favorite Products" },
+      description: { pt: "Produtos externos recomendados", en: "External recommended products" },
+      icon: Heart,
+      path: "/admin/recommended-products",
+      color: "bg-pink-500/20 text-pink-400",
     },
     {
       title: { pt: "Conteúdo CMS", en: "CMS Content" },

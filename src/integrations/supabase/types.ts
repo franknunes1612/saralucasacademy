@@ -194,6 +194,57 @@ export type Database = {
         }
         Relationships: []
       }
+      recommended_products: {
+        Row: {
+          brand: string | null
+          category: string
+          created_at: string
+          description_en: string | null
+          description_pt: string | null
+          display_order: number
+          external_link: string | null
+          id: string
+          image_emoji: string | null
+          image_url: string | null
+          is_active: boolean
+          name_en: string
+          name_pt: string
+          updated_at: string
+        }
+        Insert: {
+          brand?: string | null
+          category: string
+          created_at?: string
+          description_en?: string | null
+          description_pt?: string | null
+          display_order?: number
+          external_link?: string | null
+          id?: string
+          image_emoji?: string | null
+          image_url?: string | null
+          is_active?: boolean
+          name_en: string
+          name_pt: string
+          updated_at?: string
+        }
+        Update: {
+          brand?: string | null
+          category?: string
+          created_at?: string
+          description_en?: string | null
+          description_pt?: string | null
+          display_order?: number
+          external_link?: string | null
+          id?: string
+          image_emoji?: string | null
+          image_url?: string | null
+          is_active?: boolean
+          name_en?: string
+          name_pt?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       scan_feedback: {
         Row: {
           confidence_score: number | null
