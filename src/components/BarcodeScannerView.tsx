@@ -24,7 +24,7 @@ export function BarcodeScannerView({
   onProductFound, 
   onClose 
 }: BarcodeScannerViewProps) {
-  const { isScanning, lastBarcode, error, startScanning, stopScanning, clearResult } = useBarcodeScanner();
+  const { isScanning, lastBarcode, error, isSupported, startScanning, stopScanning, clearResult } = useBarcodeScanner();
   const [isLookingUp, setIsLookingUp] = useState(false);
   const [lookupError, setLookupError] = useState<string | null>(null);
   const [notFound, setNotFound] = useState(false);
@@ -139,7 +139,18 @@ export function BarcodeScannerView({
       {/* Status messages */}
       <div className="absolute bottom-32 left-0 right-0 px-4">
         <div className="glass-card p-4 rounded-xl text-center mx-auto max-w-sm">
-          {error ? (
+          {!isSupported ? (
+            <div className="flex flex-col items-center gap-2 text-destructive">
+              <AlertCircle className="h-5 w-5" />
+              <span className="text-sm">Barcode scanning not supported on this device.</span>
+              <button 
+                onClick={onClose}
+                className="mt-2 px-4 py-2 rounded-lg bg-primary text-primary-foreground text-sm font-medium"
+              >
+                Use Photo Instead
+              </button>
+            </div>
+          ) : error ? (
             <div className="flex items-center justify-center gap-2 text-destructive">
               <AlertCircle className="h-5 w-5" />
               <span className="text-sm">{error}</span>
