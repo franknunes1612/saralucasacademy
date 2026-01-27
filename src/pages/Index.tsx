@@ -136,6 +136,7 @@ export default function Index() {
   const initializingRef = useRef(false); // Prevent duplicate initialization
   const initTimeoutRef = useRef<NodeJS.Timeout | null>(null); // Hard timeout failsafe
   const abortControllerRef = useRef<AbortController | null>(null); // Cancel stale requests
+  const cameraInitRetryRef = useRef(0); // Silent retry count for camera init
 
   // Live scan hook
   const {
@@ -214,6 +215,29 @@ export default function Index() {
       }
       console.error("[Camera] Error attaching stream:", err);
       return false;
+    }
+  }, []);
+
+  // Fully release camera resources (tracks + video element binding)
+  const releaseCameraResources = useCallback(() => {
+    try {
+      // Stop tracks
+      streamRef.current?.getTracks().forEach((t) => t.stop());
+    } catch {
+      // ignore
+    }
+    streamRef.current = null;
+
+    // Detach from video element
+    if (videoRef.current) {
+      try {
+        videoRef.current.pause();
+      } catch {
+        // ignore
+      }
+      // Important for iOS Safari: clear srcObject to release camera
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      (videoRef.current as any).srcObject = null;
     }
   }, []);
 
@@ -342,6 +366,7 @@ export default function Index() {
       cleanupInitialization();
       initializingRef.current = false;
       setCameraLifecycle("ready");
+      cameraInitRetryRef.current = 0;
       console.log("[Camera] Ready");
       
     } catch (err) {
@@ -366,16 +391,34 @@ export default function Index() {
         setCameraLifecycle("error");
         setAppState("permissionDenied");
       } else {
+        // Silent one-time auto retry to avoid iOS camera lock/freeze edge cases
+        if (cameraInitRetryRef.current < 1) {
+          cameraInitRetryRef.current += 1;
+          console.log("[Camera] Auto-retrying initialization...");
+          setTimeout(() => {
+            // Only retry if we're still on a camera-based screen
+            if (
+              appState === "camera" ||
+              appState === "barcodeScan" ||
+              appState === "liveScan"
+            ) {
+              initializeCamera();
+            }
+          }, 200);
+          return;
+        }
+
         // For other errors, show retry option
         setCameraLifecycle("error");
         setCameraError("Camera unavailable. Tap Retry or use Upload.");
       }
     }
-  }, [attachStreamToVideo, cleanupInitialization]);
+  }, [appState, attachStreamToVideo, cleanupInitialization]);
 
   // Effect to start camera initialization when entering camera state
   useEffect(() => {
-    if (appState === "camera" && cameraLifecycle === "checking_permissions" && !initializingRef.current) {
+    const shouldInit = appState === "camera" || appState === "barcodeScan" || appState === "liveScan";
+    if (shouldInit && cameraLifecycle === "checking_permissions" && !initializingRef.current) {
       initializeCamera();
     }
   }, [appState, cameraLifecycle, initializeCamera]);
@@ -383,20 +426,19 @@ export default function Index() {
   // Retry camera permission/initialization
   const handleRetryPermission = useCallback(() => {
     cleanupInitialization();
-    streamRef.current?.getTracks().forEach(t => t.stop());
-    streamRef.current = null;
+    releaseCameraResources();
     setCameraError(null);
     setCameraLifecycle("checking_permissions");
     // initializeCamera will be triggered by the effect
-  }, [cleanupInitialization]);
+  }, [cleanupInitialization, releaseCameraResources]);
 
   // Cleanup on unmount
   useEffect(() => {
     return () => {
       cleanupInitialization();
-      streamRef.current?.getTracks().forEach(t => t.stop());
+      releaseCameraResources();
     };
-  }, [cleanupInitialization]);
+  }, [cleanupInitialization, releaseCameraResources]);
 
   // Restart camera - uses the same unified initialization flow
   const restartCamera = useCallback(() => {
@@ -404,9 +446,8 @@ export default function Index() {
   }, [handleRetryPermission]);
 
   const stopCamera = useCallback(() => {
-    streamRef.current?.getTracks().forEach((t) => t.stop());
-    streamRef.current = null;
-  }, []);
+    releaseCameraResources();
+  }, [releaseCameraResources]);
 
   const captureImage = useCallback((): string | null => {
     if (!videoRef.current || !canvasRef.current) return null;
@@ -709,11 +750,10 @@ export default function Index() {
 
   // Start barcode scanning
   const handleStartBarcodeScan = () => {
-    // Ensure camera is ready before starting barcode scan
-    if (cameraLifecycle !== "ready") {
-      // Try to restart camera first
-      restartCamera();
-    }
+    // Force a clean camera instance for barcode scanning (prevents iOS lockups)
+    releaseCameraResources();
+    setCameraError(null);
+    setCameraLifecycle("checking_permissions");
     setScanSource("barcode");
     setAppState("barcodeScan");
   };
@@ -723,16 +763,19 @@ export default function Index() {
     setBarcodeProduct(null);
     setScannedBarcode("");
     setAppState("camera");
-    // Restart camera to ensure it's working for next scan
-    if (cameraLifecycle !== "ready" || !streamRef.current?.active) {
-      restartCamera();
-    }
+    // Fully reinitialize camera when leaving barcode mode
+    releaseCameraResources();
+    setCameraError(null);
+    setCameraLifecycle("checking_permissions");
   };
 
   // Handle barcode product found
   const handleBarcodeProductFound = (product: BarcodeProduct, barcode: string) => {
     setBarcodeProduct(product);
     setScannedBarcode(barcode);
+    // Release camera while showing the result screen to prevent iOS camera being held
+    releaseCameraResources();
+    setCameraLifecycle("idle");
     setAppState("barcodeResult");
   };
 
