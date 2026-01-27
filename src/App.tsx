@@ -10,6 +10,11 @@ import FitRecipes from "./pages/FitRecipes";
 import RecipeDetail from "./pages/RecipeDetail";
 import AdminLogin from "./pages/AdminLogin";
 import AdminRecipes from "./pages/AdminRecipes";
+import Premium from "./pages/Premium";
+import PersonalizedPlan from "./pages/PersonalizedPlan";
+import TrainingClasses from "./pages/TrainingClasses";
+import Products from "./pages/Products";
+import GiftPlan from "./pages/GiftPlan";
 import NotFound from "./pages/NotFound";
 import { NutritionistFAB } from "./components/NutritionistFAB";
 
@@ -20,7 +25,7 @@ function NutritionistFABWrapper() {
   const location = useLocation();
   
   // Show on main screens: home (camera/result), meals, how-it-works, recipes
-  const showOnRoutes = ["/", "/meals", "/how-it-works", "/recipes"];
+  const showOnRoutes = ["/", "/meals", "/how-it-works", "/recipes", "/premium"];
   const isRecipeDetail = location.pathname.startsWith("/recipes/");
   const shouldShow = showOnRoutes.includes(location.pathname) || isRecipeDetail;
   
@@ -41,6 +46,11 @@ const App = () => (
           <Route path="/how-it-works" element={<HowItWorks />} />
           <Route path="/recipes" element={<FitRecipes />} />
           <Route path="/recipes/:recipeId" element={<RecipeDetail />} />
+          <Route path="/premium" element={<Premium />} />
+          <Route path="/premium/plans" element={<PersonalizedPlan />} />
+          <Route path="/premium/training" element={<TrainingClasses />} />
+          <Route path="/premium/products" element={<Products />} />
+          <Route path="/premium/gift" element={<GiftPlan />} />
           <Route path="/admin" element={<AdminLogin />} />
           <Route path="/admin/recipes" element={<AdminRecipes />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
