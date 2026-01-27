@@ -11,7 +11,8 @@ import { MealRemindersSettings } from "@/components/MealRemindersSettings";
 import { FoodItemsList } from "@/components/FoodItemsList";
 import { MacrosBadge } from "@/components/MacrosBadge";
 import { MealToneBadge } from "@/components/MealToneBadge";
-import { ArrowLeft, Trash2, Camera, Bell, BellOff, HelpCircle } from "lucide-react";
+import { BookNutritionistButton } from "@/components/BookNutritionistButton";
+import { ArrowLeft, Trash2, Camera, Bell, BellOff, HelpCircle, ChefHat } from "lucide-react";
 import { safeNumber, getCalorieValue, ensureMacros } from "@/lib/nutritionUtils";
 
 function calculateTotalCalories(meals: SavedMeal[]): number {
@@ -289,6 +290,20 @@ export default function MyMeals() {
           ))}
         </div>
       ) : null}
+
+      {/* Recipes & Nutritionist buttons */}
+      {isSupported && meals.length > 0 && (
+        <div className="mt-6 space-y-3">
+          <button
+            onClick={() => navigate("/recipes")}
+            className="w-full py-3 btn-secondary rounded-xl flex items-center justify-center gap-2 font-medium"
+          >
+            <ChefHat className="h-4 w-4" />
+            Fit Recipes
+          </button>
+          <BookNutritionistButton variant="subtle" fullWidth />
+        </div>
+      )}
 
       {/* Privacy footer */}
       {isSupported && meals.length > 0 && (

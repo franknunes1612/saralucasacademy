@@ -1,5 +1,6 @@
-import { ArrowLeft, Camera, Sparkles, Shield, HelpCircle, RotateCcw } from "lucide-react";
+import { ArrowLeft, Camera, Sparkles, Shield, HelpCircle, RotateCcw, ChefHat } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import { BookNutritionistButton } from "@/components/BookNutritionistButton";
 
 export default function HowItWorks() {
   const navigate = useNavigate();
@@ -137,6 +138,35 @@ export default function HowItWorks() {
           </p>
         </section>
 
+        {/* Fit Recipes */}
+        <section className="result-card p-5 space-y-4">
+          <div className="flex items-center gap-3">
+            <div className="p-2 rounded-xl bg-primary/15">
+              <ChefHat className="h-5 w-5 text-primary" />
+            </div>
+            <h2 className="font-semibold">Healthy recipes</h2>
+          </div>
+          <p className="text-sm text-muted-foreground leading-relaxed">
+            Explore our collection of fit recipes with calorie and macro information.
+          </p>
+          <button
+            onClick={() => navigate("/recipes")}
+            className="w-full py-3 btn-secondary rounded-xl font-medium flex items-center justify-center gap-2"
+          >
+            <ChefHat className="h-4 w-4" />
+            View Fit Recipes
+          </button>
+        </section>
+
+        {/* Book Nutritionist */}
+        <section className="result-card p-5 space-y-4">
+          <h2 className="font-semibold">Want personalized guidance?</h2>
+          <p className="text-sm text-muted-foreground leading-relaxed">
+            Connect with a professional nutritionist for a personalized meal plan.
+          </p>
+          <BookNutritionistButton variant="primary" fullWidth />
+        </section>
+
         {/* View Tutorial Again */}
         <section className="result-card p-5 space-y-4">
           <div className="flex items-center gap-3">
@@ -153,7 +183,7 @@ export default function HowItWorks() {
               localStorage.removeItem("caloriespot_onboarding_complete");
               navigate("/");
             }}
-            className="w-full py-3 btn-primary rounded-xl font-medium flex items-center justify-center gap-2"
+            className="w-full py-3 btn-secondary rounded-xl font-medium flex items-center justify-center gap-2"
           >
             <RotateCcw className="h-4 w-4" />
             View Tutorial Again
