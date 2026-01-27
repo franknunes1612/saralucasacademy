@@ -1,6 +1,7 @@
 import { useParams, useNavigate } from "react-router-dom";
 import { ArrowLeft, Clock, Plus, Bookmark } from "lucide-react";
-import { recipes } from "@/data/recipes";
+import { recipes as staticRecipes } from "@/data/recipes";
+import { useRecipes, Recipe } from "@/hooks/useRecipes";
 import { useLanguage } from "@/hooks/useLanguage";
 import { useSavedMeals } from "@/hooks/useSavedMeals";
 import { toast } from "sonner";
@@ -11,8 +12,28 @@ export default function RecipeDetail() {
   const navigate = useNavigate();
   const { language, t } = useLanguage();
   const { saveMeal } = useSavedMeals();
+  const { recipes: dbRecipes, isLoading, getRecipeById } = useRecipes();
 
-  const recipe = recipes.find((r) => r.id === recipeId);
+  // Try to find recipe in DB first, then fall back to static recipes
+  const dbRecipe = getRecipeById(recipeId || "");
+  const staticRecipe = staticRecipes.find((r) => r.id === recipeId);
+  
+  // Normalize static recipe to match DB recipe interface
+  const recipe: Recipe | undefined = dbRecipe || (staticRecipe ? {
+    ...staticRecipe,
+    imageUrl: null,
+    steps: { pt: [], en: [] },
+  } : undefined);
+
+  if (isLoading && !recipe) {
+    return (
+      <div className="min-h-screen bg-background px-4 py-5 safe-top safe-bottom flex items-center justify-center">
+        <div className="animate-pulse text-white/60">
+          {t({ pt: "A carregar...", en: "Loading..." })}
+        </div>
+      </div>
+    );
+  }
 
   if (!recipe) {
     return (
@@ -55,7 +76,6 @@ export default function RecipeDetail() {
   };
 
   const handleSaveRecipe = () => {
-    // For now, just show a confirmation - could integrate with favorites later
     toast.success(
       t({ pt: "Receita guardada nos favoritos", en: "Recipe saved to favorites" }),
       { duration: 2000 }
@@ -74,18 +94,24 @@ export default function RecipeDetail() {
     rich: { pt: "Rico", en: "Rich" },
   };
 
-  // Generate preparation steps based on recipe type
+  // Use stored steps or generate default ones
   const getPreparationSteps = () => {
+    if (recipe.steps && recipe.steps[language].length > 0) {
+      return recipe.steps[language];
+    }
+    
+    // Default steps for static recipes
+    const ingredientsList = recipe.ingredients[language].join(", ");
     const steps = {
       pt: [
-        `Prepare todos os ingredientes: ${recipe.ingredients.pt.join(", ")}.`,
+        `Prepare todos os ingredientes: ${ingredientsList}.`,
         "Lave e corte os ingredientes frescos conforme necessário.",
         "Cozinhe os ingredientes principais seguindo o método adequado.",
         "Tempere a gosto e ajuste os sabores.",
         "Sirva imediatamente para melhor sabor e textura.",
       ],
       en: [
-        `Prepare all ingredients: ${recipe.ingredients.en.join(", ")}.`,
+        `Prepare all ingredients: ${ingredientsList}.`,
         "Wash and cut fresh ingredients as needed.",
         "Cook main ingredients following the appropriate method.",
         "Season to taste and adjust flavors.",
@@ -121,8 +147,16 @@ export default function RecipeDetail() {
       {/* Recipe hero */}
       <div className="px-4 pt-6 pb-4">
         <div className="flex items-center gap-4 mb-4">
-          <div className="w-20 h-20 rounded-2xl bg-white/10 flex items-center justify-center text-5xl">
-            {recipe.imageEmoji}
+          <div className="w-20 h-20 rounded-2xl bg-white/10 flex items-center justify-center text-5xl overflow-hidden">
+            {recipe.imageUrl ? (
+              <img
+                src={recipe.imageUrl}
+                alt={recipe.name[language]}
+                className="w-full h-full object-cover"
+              />
+            ) : (
+              recipe.imageEmoji
+            )}
           </div>
           <div className="flex-1">
             <div className="flex items-center gap-2 mb-1">

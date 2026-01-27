@@ -1,7 +1,8 @@
 import { useState } from "react";
 import { ArrowLeft, ChefHat, Flame, Scale, Zap } from "lucide-react";
 import { useNavigate } from "react-router-dom";
-import { recipes, getRecipesByCategory, Recipe } from "@/data/recipes";
+import { useRecipes } from "@/hooks/useRecipes";
+import { recipes as staticRecipes, getRecipesByCategory as getStaticRecipesByCategory } from "@/data/recipes";
 import { RecipeCard } from "@/components/RecipeCard";
 
 import { useLanguage } from "@/hooks/useLanguage";
@@ -13,6 +14,16 @@ export default function FitRecipes() {
   const navigate = useNavigate();
   const { t } = useLanguage();
   const [selectedCategory, setSelectedCategory] = useState<Category>("all");
+  
+  // Use database recipes with fallback to static data
+  const { recipes: dbRecipes, isLoading, getRecipesByCategory } = useRecipes();
+  
+  // Use DB recipes if available, otherwise use static recipes
+  const hasDbRecipes = dbRecipes.length > 0;
+  
+  const filteredRecipes = selectedCategory === "all" 
+    ? (hasDbRecipes ? dbRecipes : staticRecipes)
+    : (hasDbRecipes ? getRecipesByCategory(selectedCategory) : getStaticRecipesByCategory(selectedCategory));
 
   const categories: { id: Category; label: { pt: string; en: string }; icon: React.ElementType; color: string }[] = [
     { id: "all", label: { pt: "Todas", en: "All" }, icon: ChefHat, color: "text-white" },
@@ -21,9 +32,6 @@ export default function FitRecipes() {
     { id: "rich", label: { pt: "Ricas", en: "Rich" }, icon: Flame, color: "text-secondary" },
   ];
 
-  const filteredRecipes = selectedCategory === "all" 
-    ? recipes 
-    : getRecipesByCategory(selectedCategory);
 
   const getCategoryDescription = () => {
     switch (selectedCategory) {
@@ -37,6 +45,39 @@ export default function FitRecipes() {
         return t({ pt: "Todas as receitas saudáveis", en: "All healthy recipes" });
     }
   };
+
+  if (isLoading && !hasDbRecipes) {
+    return (
+      <div className="min-h-screen bg-background px-4 py-5 safe-top safe-bottom">
+        <div className="flex items-center gap-3 mb-6">
+          <button
+            onClick={() => navigate(-1)}
+            className="p-2 -ml-2 rounded-xl hover:bg-white/10 transition-colors"
+          >
+            <ArrowLeft className="h-5 w-5 text-white" />
+          </button>
+          <div>
+            <h1 className="text-xl font-bold text-white tracking-tight">
+              {t({ pt: "Receitas Fit", en: "Fit Recipes" })}
+            </h1>
+          </div>
+        </div>
+        <div className="space-y-4">
+          {[1, 2, 3].map((i) => (
+            <div key={i} className="result-card p-4 animate-pulse">
+              <div className="flex items-center gap-3">
+                <div className="w-14 h-14 rounded-xl bg-white/10" />
+                <div className="flex-1 space-y-2">
+                  <div className="h-4 bg-white/10 rounded w-32" />
+                  <div className="h-3 bg-white/10 rounded w-48" />
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-background px-4 py-5 safe-top safe-bottom">
