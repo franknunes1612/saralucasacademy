@@ -179,6 +179,9 @@ export default function HowItWorks() {
           </p>
           <button
             onClick={() => {
+              // Clear session onboarding state so splash + onboarding shows again
+              sessionStorage.removeItem("caloriespot_onboarding_session");
+              // Also clear legacy localStorage key if present
               localStorage.removeItem("caloriespot_onboarding_complete");
               navigate("/");
             }}
