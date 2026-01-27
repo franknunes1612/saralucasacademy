@@ -1,6 +1,7 @@
 import { useState } from "react";
-import { Camera, Sparkles, History, ChevronRight, ChevronLeft, MessageCircle } from "lucide-react";
+import { Camera, Sparkles, History, ChevronRight, ChevronLeft, MessageCircle, BookOpen } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { useLanguage } from "@/hooks/useLanguage";
 
 interface OnboardingProps {
   onComplete: () => void;
@@ -104,29 +105,59 @@ const NutritionistIllustration = () => (
   </div>
 );
 
-const STEPS: OnboardingStep[] = [
-  {
-    title: "Scan Your Meals Instantly",
-    description: "Point your camera at any plate and get instant calorie and macro estimates.",
-    icon: <Camera className="h-6 w-6" />,
-    illustration: <ScanIllustration />,
-  },
-  {
-    title: "Talk to a Real Nutritionist",
-    description: "Message a certified nutritionist directly from the app — no appointments, no waiting.",
-    note: "Available in Portuguese or English, via WhatsApp.",
-    icon: <MessageCircle className="h-6 w-6" />,
-    illustration: <NutritionistIllustration />,
-  },
-  {
-    title: "Discover Fit Recipes",
-    description: "Browse curated recipes with calorie and macro info. Save your favorites to track later.",
-    icon: <History className="h-6 w-6" />,
-    illustration: <TrackIllustration />,
-  },
-];
+// Localized content for onboarding steps
+const getLocalizedSteps = (language: "pt" | "en"): OnboardingStep[] => {
+  if (language === "pt") {
+    return [
+      {
+        title: "Analise as Suas Refeições",
+        description: "Aponte a câmara para qualquer prato e obtenha estimativas de calorias e macros instantaneamente.",
+        icon: <Camera className="h-6 w-6" />,
+        illustration: <ScanIllustration />,
+      },
+      {
+        title: "Agende com uma Nutricionista",
+        description: "Marque uma consulta com uma nutricionista certificada diretamente pelo WhatsApp. Um serviço profissional, personalizado e adaptado aos seus objetivos.",
+        note: "Disponível em Português ou Inglês.",
+        icon: <MessageCircle className="h-6 w-6" />,
+        illustration: <NutritionistIllustration />,
+      },
+      {
+        title: "Descubra Receitas Fit",
+        description: "Explore receitas selecionadas com informações de calorias e macros. Guarde as suas favoritas para acompanhar.",
+        icon: <BookOpen className="h-6 w-6" />,
+        illustration: <TrackIllustration />,
+      },
+    ];
+  }
+  
+  // English (default)
+  return [
+    {
+      title: "Scan Your Meals Instantly",
+      description: "Point your camera at any plate and get instant calorie and macro estimates.",
+      icon: <Camera className="h-6 w-6" />,
+      illustration: <ScanIllustration />,
+    },
+    {
+      title: "Book a Nutritionist",
+      description: "Book a consultation with a certified nutritionist via WhatsApp. A professional, personalized nutrition service.",
+      note: "Available in Portuguese or English.",
+      icon: <MessageCircle className="h-6 w-6" />,
+      illustration: <NutritionistIllustration />,
+    },
+    {
+      title: "Discover Fit Recipes",
+      description: "Browse curated recipes with calorie and macro info. Save your favorites to track later.",
+      icon: <BookOpen className="h-6 w-6" />,
+      illustration: <TrackIllustration />,
+    },
+  ];
+};
 
 export function Onboarding({ onComplete }: OnboardingProps) {
+  const { language } = useLanguage();
+  const STEPS = getLocalizedSteps(language);
   const [currentStep, setCurrentStep] = useState(0);
   const step = STEPS[currentStep];
   const isLast = currentStep === STEPS.length - 1;
