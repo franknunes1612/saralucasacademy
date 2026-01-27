@@ -16,6 +16,7 @@ import { BarcodeScannerView } from "@/components/BarcodeScannerView";
 import { BarcodeResultCard } from "@/components/BarcodeResultCard";
 import { PortionFeedback, PortionAdjustment } from "@/components/PortionFeedback";
 import { MealToneBadge } from "@/components/MealToneBadge";
+import { Onboarding } from "@/components/Onboarding";
 import { History, Radio, Image, ScanBarcode, HelpCircle } from "lucide-react";
 import { preprocessImage, getBase64SizeKB } from "@/lib/imageProcessor";
 import { toast } from "sonner";
@@ -28,6 +29,8 @@ import {
   markFinalRender,
   resetMetrics,
 } from "@/lib/performanceLogger";
+
+const ONBOARDING_KEY = "caloriespot_onboarding_complete";
 
 type PlateType = "single_item" | "half_plate" | "full_plate" | "mixed_dish" | "bowl" | "snack";
 
@@ -45,7 +48,7 @@ interface FoodResult {
   identifiedAt: string;
 }
 
-type AppState = "splash" | "permissionDenied" | "camera" | "liveScan" | "barcodeScan" | "barcodeResult" | "processing" | "result" | "error";
+type AppState = "splash" | "onboarding" | "permissionDenied" | "camera" | "liveScan" | "barcodeScan" | "barcodeResult" | "processing" | "result" | "error";
 
 interface BarcodeProduct {
   name: string;
@@ -73,6 +76,9 @@ export default function Index() {
   const [scannedBarcode, setScannedBarcode] = useState<string>("");
   const [adjustedCalories, setAdjustedCalories] = useState<number | null>(null);
   const [portionAdjustment, setPortionAdjustment] = useState<PortionAdjustment | null>(null);
+  const [hasSeenOnboarding, setHasSeenOnboarding] = useState<boolean>(() => {
+    return localStorage.getItem(ONBOARDING_KEY) === "true";
+  });
 
   const videoRef = useRef<HTMLVideoElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -95,8 +101,24 @@ export default function Index() {
     setCanvasRef,
   } = useLiveFoodScan();
 
-  // Handle splash complete - request camera permission
-  const handleSplashComplete = useCallback(async () => {
+  // Handle splash complete - show onboarding or go to camera
+  const handleSplashComplete = useCallback(() => {
+    if (!hasSeenOnboarding) {
+      setAppState("onboarding");
+    } else {
+      initializeCamera();
+    }
+  }, [hasSeenOnboarding]);
+
+  // Handle onboarding complete
+  const handleOnboardingComplete = useCallback(() => {
+    localStorage.setItem(ONBOARDING_KEY, "true");
+    setHasSeenOnboarding(true);
+    initializeCamera();
+  }, []);
+
+  // Initialize camera
+  const initializeCamera = useCallback(async () => {
     if (cameraInitialized.current) return;
     cameraInitialized.current = true;
     
@@ -538,6 +560,11 @@ export default function Index() {
   // Splash screen
   if (appState === "splash") {
     return <SplashScreen onComplete={handleSplashComplete} minDuration={1200} />;
+  }
+
+  // Onboarding screen
+  if (appState === "onboarding") {
+    return <Onboarding onComplete={handleOnboardingComplete} />;
   }
 
   // Permission denied screen
