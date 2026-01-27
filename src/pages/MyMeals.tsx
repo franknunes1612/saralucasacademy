@@ -1,12 +1,14 @@
 import { useState, useMemo, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useSavedMeals, SavedMeal, FoodItem } from "@/hooks/useSavedMeals";
+import { useCalorieGoal } from "@/hooks/useCalorieGoal";
 import { SavedMealCard } from "@/components/SavedMealCard";
 import { CalorieMeter } from "@/components/CalorieMeter";
+import { CalorieGoalProgress } from "@/components/CalorieGoalProgress";
+import { CalorieGoalEditor } from "@/components/CalorieGoalEditor";
 import { FoodItemsList } from "@/components/FoodItemsList";
 import { MacrosBadge } from "@/components/MacrosBadge";
 import { ArrowLeft, Trash2, Camera } from "lucide-react";
-
 function calculateTotalCalories(meals: SavedMeal[]): number {
   let total = 0;
   for (const meal of meals) {
@@ -22,14 +24,24 @@ function calculateTotalCalories(meals: SavedMeal[]): number {
 export default function MyMeals() {
   const navigate = useNavigate();
   const { meals, deleteMeal, clearAllMeals, storageError, isLoading, isSupported, reloadMeals } = useSavedMeals();
+  const { goal, setGoal } = useCalorieGoal();
   const [selectedMeal, setSelectedMeal] = useState<SavedMeal | null>(null);
   const [showClearConfirm, setShowClearConfirm] = useState(false);
+  const [showGoalEditor, setShowGoalEditor] = useState(false);
 
   useEffect(() => {
     reloadMeals();
   }, [reloadMeals]);
 
   const totalCalories = useMemo(() => calculateTotalCalories(meals), [meals]);
+  
+  // Filter meals to only include today's meals for goal tracking
+  const todaysMeals = useMemo(() => {
+    const today = new Date().toDateString();
+    return meals.filter(meal => new Date(meal.timestamp).toDateString() === today);
+  }, [meals]);
+  
+  const todaysCalories = useMemo(() => calculateTotalCalories(todaysMeals), [todaysMeals]);
 
   const handleBack = () => {
     if (selectedMeal) {
@@ -139,13 +151,22 @@ export default function MyMeals() {
         )}
       </div>
 
-      {/* Total Calories - Hero */}
-      {meals.length > 0 && (
-        <div className="result-card p-6 mb-6 text-center">
-          <p className="text-xs text-primary uppercase tracking-widest font-medium mb-2">Total Today</p>
-          <div className="text-5xl font-bold calorie-mid mb-2">{totalCalories}</div>
+      {/* Daily Goal Progress */}
+      {isSupported && (
+        <CalorieGoalProgress
+          currentCalories={todaysCalories}
+          goalCalories={goal}
+          onEditGoal={() => setShowGoalEditor(true)}
+        />
+      )}
+
+      {/* Today's Summary */}
+      {todaysMeals.length > 0 && (
+        <div className="result-card p-5 mt-4 text-center">
+          <p className="text-xs text-muted-foreground uppercase tracking-widest font-medium mb-2">Today</p>
+          <div className="text-4xl font-bold calorie-mid mb-1">{todaysCalories}</div>
           <p className="text-sm text-muted-foreground">
-            calories from {meals.length} meal{meals.length === 1 ? "" : "s"}
+            from {todaysMeals.length} meal{todaysMeals.length === 1 ? "" : "s"}
           </p>
         </div>
       )}
@@ -227,6 +248,15 @@ export default function MyMeals() {
         <p className="text-xs text-muted-foreground/50 mt-6 text-center">
           Saved locally · Images never stored
         </p>
+      )}
+
+      {/* Goal Editor Modal */}
+      {showGoalEditor && (
+        <CalorieGoalEditor
+          currentGoal={goal}
+          onSave={setGoal}
+          onClose={() => setShowGoalEditor(false)}
+        />
       )}
     </div>
   );
