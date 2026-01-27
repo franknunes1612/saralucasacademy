@@ -1,4 +1,5 @@
 import { Clock, Plus } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 import { Recipe } from "@/data/recipes";
 import { useLanguage } from "@/hooks/useLanguage";
 import { useSavedMeals } from "@/hooks/useSavedMeals";
@@ -11,6 +12,7 @@ interface RecipeCardProps {
 }
 
 export function RecipeCard({ recipe, compact = false }: RecipeCardProps) {
+  const navigate = useNavigate();
   const { language, t } = useLanguage();
   const { saveMeal } = useSavedMeals();
 
@@ -46,9 +48,21 @@ export function RecipeCard({ recipe, compact = false }: RecipeCardProps) {
     rich: { pt: "Rico", en: "Rich" },
   };
 
+  const handleNavigateToDetail = () => {
+    navigate(`/recipes/${recipe.id}`);
+  };
+
+  const handleAddClick = (e: React.MouseEvent) => {
+    e.stopPropagation(); // Prevent navigation when clicking add button
+    handleAddToMeals();
+  };
+
   if (compact) {
     return (
-      <div className="result-card p-3 flex items-center gap-3">
+      <div 
+        onClick={handleNavigateToDetail}
+        className="result-card p-3 flex items-center gap-3 cursor-pointer hover:bg-white/5 active:scale-[0.98] transition-all"
+      >
         <div className="w-12 h-12 rounded-xl bg-white/10 flex items-center justify-center text-2xl shrink-0">
           {recipe.imageEmoji}
         </div>
@@ -61,7 +75,7 @@ export function RecipeCard({ recipe, compact = false }: RecipeCardProps) {
           </div>
         </div>
         <button
-          onClick={handleAddToMeals}
+          onClick={handleAddClick}
           className="p-2 rounded-lg bg-primary/20 text-primary hover:bg-primary/30 transition-colors shrink-0"
           aria-label={t({ pt: "Adicionar", en: "Add" })}
         >
@@ -72,7 +86,10 @@ export function RecipeCard({ recipe, compact = false }: RecipeCardProps) {
   }
 
   return (
-    <div className="result-card overflow-hidden">
+    <div 
+      onClick={handleNavigateToDetail}
+      className="result-card overflow-hidden cursor-pointer hover:bg-white/5 active:scale-[0.99] transition-all"
+    >
       {/* Header with emoji and category */}
       <div className="p-4 pb-3 flex items-start justify-between">
         <div className="flex items-center gap-3">
@@ -126,7 +143,7 @@ export function RecipeCard({ recipe, compact = false }: RecipeCardProps) {
       {/* Add button */}
       <div className="p-4 pt-2">
         <button
-          onClick={handleAddToMeals}
+          onClick={handleAddClick}
           className="w-full py-3 btn-secondary rounded-xl font-medium flex items-center justify-center gap-2"
         >
           <Plus className="h-4 w-4" />

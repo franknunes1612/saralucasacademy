@@ -7,6 +7,7 @@ import Index from "./pages/Index";
 import MyMeals from "./pages/MyMeals";
 import HowItWorks from "./pages/HowItWorks";
 import FitRecipes from "./pages/FitRecipes";
+import RecipeDetail from "./pages/RecipeDetail";
 import NotFound from "./pages/NotFound";
 import { NutritionistFAB } from "./components/NutritionistFAB";
 
@@ -18,7 +19,8 @@ function NutritionistFABWrapper() {
   
   // Show on main screens: home (camera/result), meals, how-it-works, recipes
   const showOnRoutes = ["/", "/meals", "/how-it-works", "/recipes"];
-  const shouldShow = showOnRoutes.includes(location.pathname);
+  const isRecipeDetail = location.pathname.startsWith("/recipes/");
+  const shouldShow = showOnRoutes.includes(location.pathname) || isRecipeDetail;
   
   if (!shouldShow) return null;
   
@@ -36,6 +38,7 @@ const App = () => (
           <Route path="/meals" element={<MyMeals />} />
           <Route path="/how-it-works" element={<HowItWorks />} />
           <Route path="/recipes" element={<FitRecipes />} />
+          <Route path="/recipes/:recipeId" element={<RecipeDetail />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>
