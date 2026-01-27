@@ -104,9 +104,21 @@ export default function Premium() {
   const handleSelect = (offer: PremiumOffer) => {
     // Navigate based on offer type/category - for now just show details
     // In future this could route to specific purchase flows
-    if (offer.title_en.toLowerCase().includes("training")) {
+    const titleEn = (offer.title_en || "").toLowerCase();
+    const titlePt = (offer.title_pt || "").toLowerCase();
+
+    const isProducts =
+      offer.icon === "heart" ||
+      titleEn.includes("product") ||
+      titleEn.includes("favorite") ||
+      titlePt.includes("produto") ||
+      titlePt.includes("favorito");
+
+    if (isProducts) {
+      navigate("/premium/products");
+    } else if (titleEn.includes("training")) {
       navigate("/premium/training");
-    } else if (offer.title_en.toLowerCase().includes("gift")) {
+    } else if (titleEn.includes("gift")) {
       navigate("/premium/gift");
     } else {
       navigate("/premium/plans");
