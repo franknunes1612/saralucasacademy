@@ -2,13 +2,16 @@ import { useState, useMemo, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useSavedMeals, SavedMeal, FoodItem } from "@/hooks/useSavedMeals";
 import { useCalorieGoal } from "@/hooks/useCalorieGoal";
+import { useMealReminders } from "@/hooks/useMealReminders";
 import { SavedMealCard } from "@/components/SavedMealCard";
 import { CalorieMeter } from "@/components/CalorieMeter";
 import { CalorieGoalProgress } from "@/components/CalorieGoalProgress";
 import { CalorieGoalEditor } from "@/components/CalorieGoalEditor";
+import { MealRemindersSettings } from "@/components/MealRemindersSettings";
 import { FoodItemsList } from "@/components/FoodItemsList";
 import { MacrosBadge } from "@/components/MacrosBadge";
-import { ArrowLeft, Trash2, Camera } from "lucide-react";
+import { ArrowLeft, Trash2, Camera, Bell, BellOff } from "lucide-react";
+
 function calculateTotalCalories(meals: SavedMeal[]): number {
   let total = 0;
   for (const meal of meals) {
@@ -25,9 +28,11 @@ export default function MyMeals() {
   const navigate = useNavigate();
   const { meals, deleteMeal, clearAllMeals, storageError, isLoading, isSupported, reloadMeals } = useSavedMeals();
   const { goal, setGoal } = useCalorieGoal();
+  const { settings: reminderSettings } = useMealReminders();
   const [selectedMeal, setSelectedMeal] = useState<SavedMeal | null>(null);
   const [showClearConfirm, setShowClearConfirm] = useState(false);
   const [showGoalEditor, setShowGoalEditor] = useState(false);
+  const [showRemindersSettings, setShowRemindersSettings] = useState(false);
 
   useEffect(() => {
     reloadMeals();
@@ -141,14 +146,30 @@ export default function MyMeals() {
           <h1 className="text-xl font-bold tracking-tight">My Meals</h1>
         </div>
         
-        {meals.length > 0 && (
+        <div className="flex items-center gap-2">
+          {/* Reminders button */}
           <button
-            onClick={() => setShowClearConfirm(true)}
-            className="text-sm text-muted-foreground hover:text-destructive transition-colors"
+            onClick={() => setShowRemindersSettings(true)}
+            className="p-2 rounded-xl hover:bg-muted transition-colors"
+            aria-label="Meal Reminders"
           >
-            Clear
+            {reminderSettings.enabled ? (
+              <Bell className="h-5 w-5 text-primary" />
+            ) : (
+              <BellOff className="h-5 w-5 text-muted-foreground" />
+            )}
           </button>
-        )}
+          
+          {/* Clear button */}
+          {meals.length > 0 && (
+            <button
+              onClick={() => setShowClearConfirm(true)}
+              className="text-sm text-muted-foreground hover:text-destructive transition-colors px-2"
+            >
+              Clear
+            </button>
+          )}
+        </div>
       </div>
 
       {/* Daily Goal Progress */}
@@ -256,6 +277,13 @@ export default function MyMeals() {
           currentGoal={goal}
           onSave={setGoal}
           onClose={() => setShowGoalEditor(false)}
+        />
+      )}
+
+      {/* Reminders Settings Modal */}
+      {showRemindersSettings && (
+        <MealRemindersSettings
+          onClose={() => setShowRemindersSettings(false)}
         />
       )}
     </div>
