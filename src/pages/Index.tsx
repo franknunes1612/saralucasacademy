@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useSavedMeals, FoodItem } from "@/hooks/useSavedMeals";
 import { useLiveFoodScan, LiveFoodResult } from "@/hooks/useLiveFoodScan";
+import { useAuth } from "@/hooks/useAuth";
 import { ResultSkeleton } from "@/components/ResultSkeleton";
 import { LiveFoodOverlay } from "@/components/LiveFoodOverlay";
 import { MealFeedback } from "@/components/MealFeedback";
@@ -20,7 +21,7 @@ import { ZeroCalorieBadge, ZeroMacrosBadge } from "@/components/ZeroCalorieBadge
 import { Onboarding } from "@/components/Onboarding";
 
 import { RecipeSuggestions } from "@/components/RecipeSuggestions";
-import { History, Radio, Image, ScanBarcode, HelpCircle } from "lucide-react";
+import { History, Radio, Image, ScanBarcode, HelpCircle, Settings } from "lucide-react";
 import { preprocessImage, getBase64SizeKB } from "@/lib/imageProcessor";
 import { toast } from "sonner";
 import { safeNumber, getCalorieValue, hasValidCalories, isZeroCalorieResult, hasCalorieData, ensureMacros } from "@/lib/nutritionUtils";
@@ -99,6 +100,7 @@ const getInitialCameraLifecycle = (): CameraLifecycle => {
 export default function Index() {
   const navigate = useNavigate();
   const { saveMeal, storageError } = useSavedMeals();
+  const { isAdmin } = useAuth();
   
   const [appState, setAppState] = useState<AppState>(getInitialAppState);
   const [cameraLifecycle, setCameraLifecycle] = useState<CameraLifecycle>(getInitialCameraLifecycle);
@@ -787,19 +789,30 @@ export default function Index() {
             </div>
           )}
 
-          {/* Header - app title and My Meals button */}
+          {/* Header - app title and action buttons */}
           {appState === "camera" && !isInitializing && (
             <div className="absolute top-5 left-5 right-5 z-10 flex items-center justify-between">
               <h1 className="text-lg font-semibold text-white drop-shadow-lg tracking-tight">
                 CalorieSpot
               </h1>
-              <button
-                onClick={() => navigate("/meals")}
-                className="p-3 glass-card rounded-xl"
-                aria-label="My Meals"
-              >
-                <History className="h-5 w-5 text-white" />
-              </button>
+              <div className="flex items-center gap-2">
+                {isAdmin && (
+                  <button
+                    onClick={() => navigate("/admin/recipes")}
+                    className="p-3 glass-card rounded-xl"
+                    aria-label="Manage Recipes"
+                  >
+                    <Settings className="h-5 w-5 text-white" />
+                  </button>
+                )}
+                <button
+                  onClick={() => navigate("/meals")}
+                  className="p-3 glass-card rounded-xl"
+                  aria-label="My Meals"
+                >
+                  <History className="h-5 w-5 text-white" />
+                </button>
+              </div>
             </div>
           )}
         </div>

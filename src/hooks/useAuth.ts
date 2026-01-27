@@ -32,6 +32,26 @@ export function useAuth() {
     }
   }, []);
 
+  const bootstrapAdminRole = useCallback(async (userId: string, email: string) => {
+    try {
+      // Call the database function to auto-assign admin role based on email whitelist
+      const { data, error } = await supabase.rpc("bootstrap_admin_role", {
+        _user_id: userId,
+        _email: email,
+      });
+
+      if (error) {
+        console.error("[Auth] Bootstrap admin role error:", error);
+        return false;
+      }
+
+      return data === true;
+    } catch (err) {
+      console.error("[Auth] Bootstrap admin role exception:", err);
+      return false;
+    }
+  }, []);
+
   useEffect(() => {
     // Set up auth state listener BEFORE checking session
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
@@ -39,12 +59,12 @@ export function useAuth() {
         const user = session?.user ?? null;
         let isAdmin = false;
 
-        if (user) {
-          // Use setTimeout to avoid potential deadlock with Supabase client
-          setTimeout(async () => {
-            isAdmin = await checkAdminRole(user.id);
-            setState((prev) => ({ ...prev, isAdmin }));
-          }, 0);
+        if (user && user.email) {
+          // First, try to bootstrap admin role based on email whitelist
+          await bootstrapAdminRole(user.id, user.email);
+          
+          // Then check if user has admin role
+          isAdmin = await checkAdminRole(user.id);
         }
 
         setState({
@@ -61,7 +81,11 @@ export function useAuth() {
       const user = session?.user ?? null;
       let isAdmin = false;
 
-      if (user) {
+      if (user && user.email) {
+        // First, try to bootstrap admin role based on email whitelist
+        await bootstrapAdminRole(user.id, user.email);
+        
+        // Then check if user has admin role
         isAdmin = await checkAdminRole(user.id);
       }
 
@@ -76,7 +100,7 @@ export function useAuth() {
     return () => {
       subscription.unsubscribe();
     };
-  }, [checkAdminRole]);
+  }, [checkAdminRole, bootstrapAdminRole]);
 
   const signIn = async (email: string, password: string) => {
     const { error } = await supabase.auth.signInWithPassword({
