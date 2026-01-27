@@ -16,6 +16,7 @@ import AdminRecipes from "./pages/AdminRecipes";
 import AdminCms from "./pages/AdminCms";
 import AdminPremium from "./pages/AdminPremium";
 import AdminStore from "./pages/AdminStore";
+import AdminRecommendedProducts from "./pages/AdminRecommendedProducts";
 import Premium from "./pages/Premium";
 import PersonalizedPlan from "./pages/PersonalizedPlan";
 import TrainingClasses from "./pages/TrainingClasses";
@@ -82,6 +83,11 @@ const App = () => (
             <Route path="/admin/cms" element={
               <AdminAuthGuard>
                 <AdminCms />
+              </AdminAuthGuard>
+            } />
+            <Route path="/admin/recommended-products" element={
+              <AdminAuthGuard>
+                <AdminRecommendedProducts />
               </AdminAuthGuard>
             } />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}

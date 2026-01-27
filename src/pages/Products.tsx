@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { ArrowLeft, Heart, ExternalLink, Star } from "lucide-react";
-import { useStoreItems, type StoreItem } from "@/hooks/useStoreItems";
+import { ArrowLeft, Heart, ExternalLink } from "lucide-react";
+import { useRecommendedProducts, type RecommendedProduct } from "@/hooks/useRecommendedProducts";
 import { useLanguage } from "@/hooks/useLanguage";
 import { Skeleton } from "@/components/ui/skeleton";
 
@@ -11,18 +11,17 @@ function ProductCard({
   isFavorite,
   onToggleFavorite 
 }: { 
-  item: StoreItem;
+  item: RecommendedProduct;
   language: "pt" | "en";
   isFavorite: boolean;
   onToggleFavorite: (id: string) => void;
 }) {
   const name = language === "pt" ? item.name_pt : item.name_en;
   const description = language === "pt" ? item.description_pt : item.description_en;
-  const currencySymbol = item.currency === "EUR" ? "€" : item.currency === "USD" ? "$" : "£";
 
-  const handleBuy = () => {
-    if (item.purchase_link) {
-      window.open(item.purchase_link, "_blank", "noopener,noreferrer");
+  const handleView = () => {
+    if (item.external_link) {
+      window.open(item.external_link, "_blank", "noopener,noreferrer");
     }
   };
 
@@ -57,23 +56,15 @@ function ProductCard({
           )}
           
           <div className="flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              <span className="text-sm font-bold text-white">
-                {currencySymbol}{Number(item.price).toFixed(2)}
-              </span>
-              {item.rating && (
-                <div className="flex items-center gap-0.5 text-warning">
-                  <Star className="h-3 w-3 fill-current" />
-                  <span className="text-xs">{Number(item.rating).toFixed(1)}</span>
-                </div>
-              )}
-            </div>
-            {item.purchase_link && (
+            <span className="text-[10px] text-white/40 bg-white/5 px-2 py-0.5 rounded-full">
+              {language === "pt" ? "Produto recomendado" : "Recommended product"}
+            </span>
+            {item.external_link && (
               <button
-                onClick={handleBuy}
+                onClick={handleView}
                 className="flex items-center gap-1 px-3 py-1.5 rounded-lg bg-primary text-primary-foreground text-xs font-medium hover:bg-primary/90 transition-colors"
               >
-                View
+                {language === "pt" ? "Ver produto" : "View product"}
                 <ExternalLink className="h-3 w-3" />
               </button>
             )}
@@ -94,8 +85,8 @@ function ProductCardSkeleton() {
           <Skeleton className="h-3 w-1/4" />
           <Skeleton className="h-4 w-full" />
           <div className="flex justify-between">
-            <Skeleton className="h-5 w-16" />
-            <Skeleton className="h-8 w-16 rounded-lg" />
+            <Skeleton className="h-5 w-24" />
+            <Skeleton className="h-8 w-20 rounded-lg" />
           </div>
         </div>
       </div>
@@ -106,7 +97,7 @@ function ProductCardSkeleton() {
 export default function Products() {
   const navigate = useNavigate();
   const { t, language } = useLanguage();
-  const { data: items, isLoading, error } = useStoreItems();
+  const { data: items, isLoading, error } = useRecommendedProducts();
   const [favorites, setFavorites] = useState<Set<string>>(new Set());
   const [showFavoritesOnly, setShowFavoritesOnly] = useState(false);
 
@@ -128,6 +119,32 @@ export default function Products() {
 
   const favoriteCount = favorites.size;
 
+  // Hide section if no products are active
+  if (!isLoading && !error && (!items || items.length === 0)) {
+    return (
+      <div className="min-h-screen bg-background px-4 py-5 safe-top safe-bottom">
+        <div className="flex items-center gap-3 mb-6">
+          <button
+            onClick={() => navigate(-1)}
+            className="p-2 rounded-xl hover:bg-white/10 transition-colors"
+            aria-label="Go back"
+          >
+            <ArrowLeft className="h-5 w-5 text-white" />
+          </button>
+          <h1 className="text-xl font-bold text-white">
+            {t({ pt: "Produtos Favoritos", en: "Favorite Products" })}
+          </h1>
+        </div>
+        <div className="text-center py-12">
+          <Heart className="h-12 w-12 text-white/20 mx-auto mb-3" />
+          <p className="text-white/60">
+            {t({ pt: "Nenhum produto disponível", en: "No products available" })}
+          </p>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-background px-4 py-5 safe-top safe-bottom">
       {/* Header */}
@@ -141,10 +158,10 @@ export default function Products() {
         </button>
         <div>
           <h1 className="text-xl font-bold text-white">
-            {t({ pt: "Produtos Recomendados", en: "Recommended Products" })}
+            {t({ pt: "Produtos Favoritos", en: "Favorite Products" })}
           </h1>
           <p className="text-xs text-white/60">
-            {t({ pt: "Curados por nutricionistas", en: "Curated by nutritionists" })}
+            {t({ pt: "Produtos recomendados por nutricionistas", en: "Products recommended by nutritionists" })}
           </p>
         </div>
       </div>
