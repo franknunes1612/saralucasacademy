@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Camera, Sparkles, History, ChevronRight, ChevronLeft } from "lucide-react";
+import { Camera, Sparkles, History, ChevronRight, ChevronLeft, MessageCircle } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 interface OnboardingProps {
@@ -9,27 +9,13 @@ interface OnboardingProps {
 interface OnboardingStep {
   title: string;
   description: string;
+  note?: string;
   icon: React.ReactNode;
   illustration: React.ReactNode;
 }
 
-const FoodIllustration = () => (
-  <div className="relative w-48 h-48 mx-auto">
-    {/* Plate */}
-    <div className="absolute inset-4 rounded-full bg-white/20 border-4 border-white/30 shadow-lg" />
-    {/* Food items */}
-    <div className="absolute top-8 left-1/2 -translate-x-1/2 text-5xl animate-bounce" style={{ animationDuration: '2s' }}>
-      🥗
-    </div>
-    {/* Sparkles */}
-    <Sparkles className="absolute top-2 right-6 h-6 w-6 text-white/80 animate-pulse" />
-    <Sparkles className="absolute bottom-8 left-4 h-5 w-5 text-white/60 animate-pulse" style={{ animationDelay: '0.5s' }} />
-    {/* Glow ring */}
-    <div className="absolute inset-0 rounded-full border-2 border-white/20 animate-ping" style={{ animationDuration: '3s' }} />
-  </div>
-);
-
-const CameraIllustration = () => (
+// Screen 1: Scan illustration (camera + food)
+const ScanIllustration = () => (
   <div className="relative w-48 h-48 mx-auto flex items-center justify-center">
     {/* Phone frame */}
     <div className="relative w-28 h-48 rounded-3xl bg-white/15 border-2 border-white/30 overflow-hidden shadow-xl">
@@ -52,55 +38,13 @@ const CameraIllustration = () => (
     </div>
     {/* Flash effect */}
     <div className="absolute -right-2 top-1/3 w-12 h-12 rounded-full bg-white/30 blur-xl animate-pulse" />
+    {/* Sparkles */}
+    <Sparkles className="absolute top-2 left-2 h-5 w-5 text-white/60 animate-pulse" />
   </div>
 );
 
-const CaloriesIllustration = () => (
-  <div className="relative w-48 h-48 mx-auto flex items-center justify-center">
-    {/* Circular meter */}
-    <div className="relative w-36 h-36">
-      {/* Background ring */}
-      <svg className="w-full h-full -rotate-90" viewBox="0 0 100 100">
-        <circle
-          cx="50"
-          cy="50"
-          r="42"
-          fill="none"
-          stroke="rgba(255,255,255,0.2)"
-          strokeWidth="8"
-        />
-        <circle
-          cx="50"
-          cy="50"
-          r="42"
-          fill="none"
-          stroke="white"
-          strokeWidth="8"
-          strokeLinecap="round"
-          strokeDasharray={`${2 * Math.PI * 42 * 0.65} ${2 * Math.PI * 42}`}
-          className="drop-shadow-lg"
-        />
-      </svg>
-      {/* Center content */}
-      <div className="absolute inset-0 flex flex-col items-center justify-center">
-        <span className="text-2xl font-bold text-white">~350</span>
-        <span className="text-xs text-white/70">kcal</span>
-      </div>
-    </div>
-    {/* Floating badges */}
-    <div className="absolute top-2 right-0 px-2 py-1 rounded-full bg-white/20 text-xs text-white font-medium">
-      P 18g
-    </div>
-    <div className="absolute bottom-4 left-0 px-2 py-1 rounded-full bg-white/20 text-xs text-white font-medium">
-      C 42g
-    </div>
-    <div className="absolute bottom-2 right-4 px-2 py-1 rounded-full bg-white/20 text-xs text-white font-medium">
-      F 12g
-    </div>
-  </div>
-);
-
-const HistoryIllustration = () => (
+// Screen 2: Track illustration (history cards + progress)
+const TrackIllustration = () => (
   <div className="relative w-48 h-48 mx-auto">
     {/* Stacked cards */}
     <div className="absolute top-4 left-1/2 -translate-x-1/2 w-36 h-24 rounded-2xl bg-white/10 border border-white/20 rotate-6 transform" />
@@ -137,30 +81,48 @@ const HistoryIllustration = () => (
   </div>
 );
 
+// Screen 3: Nutritionist illustration (person + chat)
+const NutritionistIllustration = () => (
+  <div className="relative w-48 h-48 mx-auto flex items-center justify-center">
+    {/* Person silhouette circle */}
+    <div className="relative w-28 h-28 rounded-full bg-white/20 border-2 border-white/30 shadow-lg flex items-center justify-center">
+      {/* Person icon */}
+      <div className="text-5xl">👩‍⚕️</div>
+    </div>
+    {/* Chat bubble */}
+    <div className="absolute -right-2 top-4 bg-white/25 border border-white/30 rounded-2xl rounded-br-sm px-3 py-2 shadow-lg">
+      <MessageCircle className="h-5 w-5 text-white" />
+    </div>
+    {/* Floating elements */}
+    <div className="absolute bottom-4 -left-2 px-2 py-1 rounded-full bg-white/20 text-xs text-white font-medium">
+      🇵🇹 🇬🇧
+    </div>
+    {/* Sparkle */}
+    <Sparkles className="absolute top-0 left-4 h-5 w-5 text-white/60 animate-pulse" />
+    {/* Glow ring */}
+    <div className="absolute inset-0 rounded-full border-2 border-white/10 animate-ping" style={{ animationDuration: '3s' }} />
+  </div>
+);
+
 const STEPS: OnboardingStep[] = [
   {
-    title: "Welcome to CalorieSpot",
-    description: "Your friendly food companion that estimates calories from photos. No manual logging needed!",
-    icon: <Sparkles className="h-6 w-6" />,
-    illustration: <FoodIllustration />,
-  },
-  {
-    title: "Point & Scan",
-    description: "Simply take a photo of your meal. Our AI will identify the food and estimate portion sizes.",
+    title: "Scan Your Meals Instantly",
+    description: "Take a photo of your plate and get an instant calorie and macro estimate.",
     icon: <Camera className="h-6 w-6" />,
-    illustration: <CameraIllustration />,
+    illustration: <ScanIllustration />,
   },
   {
-    title: "See Your Nutrients",
-    description: "Get instant calorie estimates with protein, carbs, and fat. Looking for ideas? Explore our fit recipes for inspiration.",
-    icon: <Sparkles className="h-6 w-6" />,
-    illustration: <CaloriesIllustration />,
-  },
-  {
-    title: "Track Your Journey",
-    description: "All your meals are saved automatically. Need support? You can reach a nutritionist directly from the app.",
+    title: "Understand Your Eating Habits",
+    description: "Meals are saved automatically so you can track calories, macros, and meal balance over time.",
     icon: <History className="h-6 w-6" />,
-    illustration: <HistoryIllustration />,
+    illustration: <TrackIllustration />,
+  },
+  {
+    title: "Talk to a Real Nutritionist",
+    description: "Book a certified nutritionist directly from the app for personalized guidance, questions, or meal planning.",
+    note: "Available in Portuguese or English.",
+    icon: <MessageCircle className="h-6 w-6" />,
+    illustration: <NutritionistIllustration />,
   },
 ];
 
@@ -214,6 +176,11 @@ export function Onboarding({ onComplete }: OnboardingProps) {
           <p className="text-white/70 text-base leading-relaxed">
             {step.description}
           </p>
+          {step.note && (
+            <p className="text-white/50 text-sm mt-3">
+              {step.note}
+            </p>
+          )}
         </div>
       </div>
 
@@ -237,28 +204,36 @@ export function Onboarding({ onComplete }: OnboardingProps) {
         </div>
 
         {/* Buttons */}
-        <div className="flex gap-3">
-          {currentStep > 0 && (
-            <button
-              onClick={handlePrev}
-              className="flex-1 py-4 rounded-xl bg-white/15 text-white font-medium flex items-center justify-center gap-2 hover:bg-white/25 transition-colors"
-            >
-              <ChevronLeft className="h-5 w-5" />
-              Back
-            </button>
-          )}
-          <button
-            onClick={handleNext}
-            className={cn(
-              "flex-1 py-4 rounded-xl font-semibold flex items-center justify-center gap-2 transition-all",
-              isLast
-                ? "bg-white text-primary shadow-lg hover:shadow-xl"
-                : "bg-white text-primary hover:bg-white/90"
+        <div className="flex flex-col gap-3">
+          <div className="flex gap-3">
+            {currentStep > 0 && (
+              <button
+                onClick={handlePrev}
+                className="flex-1 py-4 rounded-xl bg-white/15 text-white font-medium flex items-center justify-center gap-2 hover:bg-white/25 transition-colors"
+              >
+                <ChevronLeft className="h-5 w-5" />
+                Back
+              </button>
             )}
-          >
-            {isLast ? "Get Started" : "Next"}
-            {!isLast && <ChevronRight className="h-5 w-5" />}
-          </button>
+            <button
+              onClick={handleNext}
+              className={cn(
+                "flex-1 py-4 rounded-xl font-semibold flex items-center justify-center gap-2 transition-all",
+                isLast
+                  ? "bg-white text-primary shadow-lg hover:shadow-xl"
+                  : "bg-white text-primary hover:bg-white/90"
+              )}
+            >
+              {isLast ? "Get Started" : "Next"}
+              {!isLast && <ChevronRight className="h-5 w-5" />}
+            </button>
+          </div>
+          {/* Microcopy on last screen */}
+          {isLast && (
+            <p className="text-center text-white/50 text-xs">
+              You can book a nutritionist anytime.
+            </p>
+          )}
         </div>
       </div>
     </div>
