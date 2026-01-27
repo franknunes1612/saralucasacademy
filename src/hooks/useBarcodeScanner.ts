@@ -1,4 +1,5 @@
 import { useState, useRef, useCallback, useEffect } from "react";
+import { BarcodeDetector as BarcodeDetectorPolyfill } from "barcode-detector/ponyfill";
 
 interface BarcodeResult {
   barcode: string;
@@ -9,37 +10,61 @@ interface UseBarcodeScnnerReturn {
   isScanning: boolean;
   lastBarcode: BarcodeResult | null;
   error: string | null;
+  isSupported: boolean;
   startScanning: (video: HTMLVideoElement) => void;
   stopScanning: () => void;
   clearResult: () => void;
 }
 
-// Check if BarcodeDetector is available
-const isBarcodeDetectorSupported = "BarcodeDetector" in window;
+// Check if native BarcodeDetector is available
+const hasNativeBarcodeDetector = typeof window !== "undefined" && "BarcodeDetector" in window;
 
 export function useBarcodeScanner(): UseBarcodeScnnerReturn {
   const [isScanning, setIsScanning] = useState(false);
   const [lastBarcode, setLastBarcode] = useState<BarcodeResult | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [isSupported, setIsSupported] = useState(true);
   
-  const detectorRef = useRef<BarcodeDetector | null>(null);
+  const detectorRef = useRef<BarcodeDetectorPolyfill | null>(null);
   const videoRef = useRef<HTMLVideoElement | null>(null);
   const animationFrameRef = useRef<number | null>(null);
   const lastScannedRef = useRef<string | null>(null);
   const cooldownRef = useRef<boolean>(false);
+  const isScanningRef = useRef<boolean>(false);
 
-  // Initialize detector
+  // Initialize detector (use polyfill for cross-platform support including iOS)
   useEffect(() => {
-    if (isBarcodeDetectorSupported) {
+    const initDetector = async () => {
       try {
-        detectorRef.current = new BarcodeDetector({
-          formats: ["ean_13", "ean_8", "upc_a", "upc_e", "code_128", "code_39"],
+        // Always use the polyfill for consistent cross-platform behavior
+        // It uses WebAssembly ZXing under the hood and works on iOS Safari
+        const formats = ["ean_13", "ean_8", "upc_a", "upc_e", "code_128", "code_39"] as const;
+        
+        // Check if formats are supported
+        const supportedFormats = await BarcodeDetectorPolyfill.getSupportedFormats();
+        const availableFormats = formats.filter(f => supportedFormats.includes(f));
+        
+        if (availableFormats.length === 0) {
+          console.warn("[BarcodeScanner] No supported barcode formats");
+          setError("Barcode scanning not supported on this device");
+          setIsSupported(false);
+          return;
+        }
+        
+        detectorRef.current = new BarcodeDetectorPolyfill({
+          formats: availableFormats,
         });
+        
+        console.log("[BarcodeScanner] Initialized with formats:", availableFormats);
+        setIsSupported(true);
       } catch (err) {
         console.error("[BarcodeScanner] Failed to initialize:", err);
         setError("Barcode scanner not available");
+        setIsSupported(false);
       }
-    }
+    };
+    
+    initDetector();
     
     return () => {
       if (animationFrameRef.current) {
@@ -50,7 +75,15 @@ export function useBarcodeScanner(): UseBarcodeScnnerReturn {
 
   const scanFrame = useCallback(async () => {
     if (!detectorRef.current || !videoRef.current || cooldownRef.current) {
-      if (isScanning) {
+      if (isScanningRef.current) {
+        animationFrameRef.current = requestAnimationFrame(scanFrame);
+      }
+      return;
+    }
+
+    // Check if video is ready
+    if (videoRef.current.readyState < 2) {
+      if (isScanningRef.current) {
         animationFrameRef.current = requestAnimationFrame(scanFrame);
       }
       return;
@@ -65,6 +98,7 @@ export function useBarcodeScanner(): UseBarcodeScnnerReturn {
         // Avoid duplicate scans
         if (barcode.rawValue !== lastScannedRef.current) {
           lastScannedRef.current = barcode.rawValue;
+          console.log("[BarcodeScanner] Detected:", barcode.rawValue, barcode.format);
           setLastBarcode({
             barcode: barcode.rawValue,
             format: barcode.format,
@@ -78,31 +112,45 @@ export function useBarcodeScanner(): UseBarcodeScnnerReturn {
         }
       }
     } catch (err) {
-      // Detection errors are normal during scanning
+      // Detection errors are normal during scanning, just continue
+      console.debug("[BarcodeScanner] Frame detection error (normal):", err);
     }
 
-    if (isScanning) {
+    if (isScanningRef.current) {
       animationFrameRef.current = requestAnimationFrame(scanFrame);
     }
-  }, [isScanning]);
+  }, []);
 
   const startScanning = useCallback((video: HTMLVideoElement) => {
-    if (!isBarcodeDetectorSupported) {
-      setError("Barcode scanning not supported on this device. Try using Chrome on Android.");
+    if (!detectorRef.current) {
+      setError("Barcode scanner initializing, please wait...");
+      // Retry after a short delay
+      setTimeout(() => {
+        if (detectorRef.current) {
+          startScanning(video);
+        } else {
+          setError("Barcode scanner not available. Please try again.");
+        }
+      }, 500);
       return;
     }
 
     videoRef.current = video;
     setIsScanning(true);
+    isScanningRef.current = true;
     setError(null);
     lastScannedRef.current = null;
+    
+    console.log("[BarcodeScanner] Starting scan loop");
     
     // Start scanning loop
     animationFrameRef.current = requestAnimationFrame(scanFrame);
   }, [scanFrame]);
 
   const stopScanning = useCallback(() => {
+    console.log("[BarcodeScanner] Stopping scan");
     setIsScanning(false);
+    isScanningRef.current = false;
     if (animationFrameRef.current) {
       cancelAnimationFrame(animationFrameRef.current);
       animationFrameRef.current = null;
@@ -118,32 +166,9 @@ export function useBarcodeScanner(): UseBarcodeScnnerReturn {
     isScanning,
     lastBarcode,
     error,
+    isSupported,
     startScanning,
     stopScanning,
     clearResult,
-  };
-}
-
-// Type declaration for BarcodeDetector
-declare global {
-  interface BarcodeDetector {
-    detect(image: ImageBitmapSource): Promise<DetectedBarcode[]>;
-  }
-  
-  interface DetectedBarcode {
-    boundingBox: DOMRectReadOnly;
-    rawValue: string;
-    format: string;
-    cornerPoints: { x: number; y: number }[];
-  }
-  
-  interface BarcodeDetectorOptions {
-    formats: string[];
-  }
-  
-  var BarcodeDetector: {
-    prototype: BarcodeDetector;
-    new(options?: BarcodeDetectorOptions): BarcodeDetector;
-    getSupportedFormats(): Promise<string[]>;
   };
 }
