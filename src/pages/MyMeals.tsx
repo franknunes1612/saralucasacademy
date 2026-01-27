@@ -76,10 +76,10 @@ export default function MyMeals() {
       <div className="min-h-screen bg-background px-4 py-5 safe-top safe-bottom">
         {/* Header */}
         <div className="flex items-center gap-3 mb-6">
-          <button onClick={handleBack} className="p-2 -ml-2 rounded-xl hover:bg-muted transition-colors">
-            <ArrowLeft className="h-5 w-5" />
+          <button onClick={handleBack} className="p-2 -ml-2 rounded-xl hover:bg-white/10 transition-colors">
+            <ArrowLeft className="h-5 w-5 text-white" />
           </button>
-          <h1 className="text-lg font-semibold">Meal Details</h1>
+          <h1 className="text-lg font-semibold text-white">Meal Details</h1>
         </div>
 
         <div className="result-card p-6 text-center space-y-6">
@@ -97,7 +97,7 @@ export default function MyMeals() {
           )}
 
           {/* Meal name */}
-          <h2 className="text-xl font-bold">{displayName}</h2>
+          <h2 className="text-xl font-bold text-white">{displayName}</h2>
 
           {/* Meal tone badge */}
           {getCalorieValue(selectedMeal.totalCalories) > 0 && (
@@ -120,7 +120,7 @@ export default function MyMeals() {
           <FoodItemsList items={selectedMeal.items} />
 
           {/* Timestamp */}
-          <p className="text-sm text-muted-foreground">
+          <p className="text-sm text-white/70">
             {new Date(selectedMeal.timestamp).toLocaleDateString(undefined, {
               weekday: "short",
               month: "short",
@@ -131,7 +131,7 @@ export default function MyMeals() {
           </p>
 
           {/* Disclaimer */}
-          <p className="text-xs text-muted-foreground/60 pt-2 border-t border-border/30">
+          <p className="text-xs text-white/40 pt-2 border-t border-white/15">
             Visual estimate based on a single image. May vary depending on portion and preparation.
           </p>
         </div>
@@ -142,7 +142,7 @@ export default function MyMeals() {
             await deleteMeal(selectedMeal.id);
             setSelectedMeal(null);
           }}
-          className="w-full mt-5 py-4 glass-card rounded-xl text-destructive flex items-center justify-center gap-2 font-medium transition-colors hover:bg-destructive/10"
+          className="w-full mt-5 py-4 bg-destructive/20 border border-destructive/40 rounded-xl text-destructive flex items-center justify-center gap-2 font-medium transition-colors hover:bg-destructive/30"
         >
           <Trash2 className="h-4 w-4" />
           Delete
@@ -157,32 +157,32 @@ export default function MyMeals() {
       {/* Header */}
       <div className="flex items-center justify-between mb-6">
         <div className="flex items-center gap-3">
-          <button onClick={handleBack} className="p-2 -ml-2 rounded-xl hover:bg-muted transition-colors">
-            <ArrowLeft className="h-5 w-5" />
+          <button onClick={handleBack} className="p-2 -ml-2 rounded-xl hover:bg-white/10 transition-colors">
+            <ArrowLeft className="h-5 w-5 text-white" />
           </button>
-          <h1 className="text-xl font-bold tracking-tight">My Meals</h1>
+          <h1 className="text-xl font-bold tracking-tight text-white">My Meals</h1>
         </div>
         
         <div className="flex items-center gap-1">
           {/* How it works */}
           <button
             onClick={() => navigate("/how-it-works")}
-            className="p-2 rounded-xl hover:bg-muted transition-colors"
+            className="p-2 rounded-xl hover:bg-white/10 transition-colors"
             aria-label="How it works"
           >
-            <HelpCircle className="h-5 w-5 text-muted-foreground" />
+            <HelpCircle className="h-5 w-5 text-white/70" />
           </button>
 
           {/* Reminders button */}
           <button
             onClick={() => setShowRemindersSettings(true)}
-            className="p-2 rounded-xl hover:bg-muted transition-colors"
+            className="p-2 rounded-xl hover:bg-white/10 transition-colors"
             aria-label="Meal Reminders"
           >
             {reminderSettings.enabled ? (
-              <Bell className="h-5 w-5 text-primary" />
+              <Bell className="h-5 w-5 text-white" />
             ) : (
-              <BellOff className="h-5 w-5 text-muted-foreground" />
+              <BellOff className="h-5 w-5 text-white/50" />
             )}
           </button>
           
@@ -190,7 +190,7 @@ export default function MyMeals() {
           {meals.length > 0 && (
             <button
               onClick={() => setShowClearConfirm(true)}
-              className="text-sm text-muted-foreground hover:text-destructive transition-colors px-2"
+              className="text-sm text-white/60 hover:text-white transition-colors px-2"
             >
               Clear
             </button>
@@ -210,9 +210,9 @@ export default function MyMeals() {
       {/* Today's Summary */}
       {todaysMeals.length > 0 && (
         <div className="result-card p-5 mt-4 text-center">
-          <p className="text-sm text-muted-foreground mb-1">Today</p>
-          <div className="text-3xl font-bold calorie-mid">{todaysCalories} <span className="text-lg font-normal text-muted-foreground">kcal</span></div>
-          <p className="text-sm text-muted-foreground mt-1">
+          <p className="text-sm text-white/70 mb-1">Today</p>
+          <div className="text-3xl font-bold text-white">{todaysCalories} <span className="text-lg font-normal text-white/60">kcal</span></div>
+          <p className="text-sm text-white/70 mt-1">
             {todaysMeals.length} meal{todaysMeals.length === 1 ? "" : "s"} logged
           </p>
         </div>
@@ -265,8 +265,8 @@ export default function MyMeals() {
       {!isLoading && isSupported && meals.length === 0 ? (
         <div className="text-center py-16">
           <div className="text-6xl mb-4">🍽️</div>
-          <p className="text-lg font-medium mb-2">No meals yet</p>
-          <p className="text-sm text-muted-foreground mb-6">
+          <p className="text-lg font-medium text-white mb-2">No meals yet</p>
+          <p className="text-sm text-white/60 mb-6">
             Scan your food to track calories
           </p>
           <button
@@ -292,7 +292,7 @@ export default function MyMeals() {
 
       {/* Privacy footer */}
       {isSupported && meals.length > 0 && (
-        <p className="text-xs text-muted-foreground/50 mt-6 text-center">
+        <p className="text-xs text-white/40 mt-6 text-center">
           All data saved locally on your device
         </p>
       )}
