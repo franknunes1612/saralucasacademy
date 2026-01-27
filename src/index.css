@@ -440,4 +440,31 @@
       opacity: 0.8;
     }
   }
+
+  /* Barcode scan line animation */
+  .animate-scan-line {
+    animation: scan-line 2s ease-in-out infinite;
+  }
+
+  @keyframes scan-line {
+    0% {
+      top: 0%;
+      opacity: 0;
+    }
+    10% {
+      opacity: 1;
+    }
+    90% {
+      opacity: 1;
+    }
+    100% {
+      top: 100%;
+      opacity: 0;
+    }
+  }
+
+  /* Border width for barcode scanner */
+  .border-3 {
+    border-width: 3px;
+  }
 }

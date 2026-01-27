@@ -12,7 +12,9 @@ import { MacrosBadge } from "@/components/MacrosBadge";
 import { ConfidenceBadge } from "@/components/ConfidenceBadge";
 import { SplashScreen } from "@/components/SplashScreen";
 import { PermissionDenied } from "@/components/PermissionDenied";
-import { History, Radio, Image } from "lucide-react";
+import { BarcodeScannerView } from "@/components/BarcodeScannerView";
+import { BarcodeResultCard } from "@/components/BarcodeResultCard";
+import { History, Radio, Image, ScanBarcode } from "lucide-react";
 import { preprocessImage, getBase64SizeKB } from "@/lib/imageProcessor";
 import { toast } from "sonner";
 import {
@@ -36,7 +38,17 @@ interface FoodResult {
   identifiedAt: string;
 }
 
-type AppState = "splash" | "permissionDenied" | "camera" | "liveScan" | "processing" | "result" | "error";
+type AppState = "splash" | "permissionDenied" | "camera" | "liveScan" | "barcodeScan" | "barcodeResult" | "processing" | "result" | "error";
+
+interface BarcodeProduct {
+  name: string;
+  brand: string | null;
+  servingSize: string | null;
+  calories: number | null;
+  caloriesPer100g: number | null;
+  macros: { protein: number; carbs: number; fat: number } | null;
+  imageUrl: string | null;
+}
 
 export default function Index() {
   const navigate = useNavigate();
@@ -50,12 +62,14 @@ export default function Index() {
   const [cameraError, setCameraError] = useState<string | null>(null);
   const [saveError, setSaveError] = useState<string | null>(null);
   const [loadingText, setLoadingText] = useState<string>("Scanning…");
+  const [barcodeProduct, setBarcodeProduct] = useState<BarcodeProduct | null>(null);
+  const [scannedBarcode, setScannedBarcode] = useState<string>("");
 
   const videoRef = useRef<HTMLVideoElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const streamRef = useRef<MediaStream | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const [scanSource, setScanSource] = useState<"camera" | "gallery">("camera");
+  const [scanSource, setScanSource] = useState<"camera" | "gallery" | "barcode">("camera");
   const cameraInitialized = useRef(false);
 
   // Live scan hook
@@ -405,6 +419,52 @@ export default function Index() {
     setAppState("camera");
   };
 
+  // Start barcode scanning
+  const handleStartBarcodeScan = () => {
+    setScanSource("barcode");
+    setAppState("barcodeScan");
+  };
+
+  // Stop barcode scanning
+  const handleStopBarcodeScan = () => {
+    setBarcodeProduct(null);
+    setScannedBarcode("");
+    setAppState("camera");
+  };
+
+  // Handle barcode product found
+  const handleBarcodeProductFound = (product: BarcodeProduct, barcode: string) => {
+    setBarcodeProduct(product);
+    setScannedBarcode(barcode);
+    setAppState("barcodeResult");
+  };
+
+  // Add barcode product to meals
+  const handleAddBarcodeToMeals = async () => {
+    if (!barcodeProduct) return;
+
+    const calories = barcodeProduct.calories || barcodeProduct.caloriesPer100g;
+    
+    const saved = await saveMeal({
+      items: [{
+        name: barcodeProduct.name,
+        portion: "medium",
+        estimatedCalories: calories ? Math.round(calories) : null,
+      }],
+      totalCalories: calories ? Math.round(calories) : null,
+      confidenceScore: 100, // Database lookup is reliable
+      macros: barcodeProduct.macros,
+      source: "camera",
+    });
+
+    if (saved) {
+      toast.success("Added to My Meals");
+      handleStopBarcodeScan();
+    } else {
+      toast.error("Could not save meal");
+    }
+  };
+
   // Lock live scan result and save it
   const handleLockResult = () => {
     const lockedResult = lockResult();
@@ -463,8 +523,8 @@ export default function Index() {
     return <PermissionDenied onRetry={handleRetryPermission} />;
   }
 
-  // Camera view
-  if (appState === "camera" || appState === "liveScan") {
+  // Camera view (includes barcode scanning)
+  if (appState === "camera" || appState === "liveScan" || appState === "barcodeScan") {
     return (
       <div className="min-h-screen bg-background flex flex-col">
         {/* Camera viewport with scan frame */}
@@ -514,18 +574,26 @@ export default function Index() {
         {appState === "camera" && (
           <div className="p-6 bg-background/95 backdrop-blur-lg border-t border-border/50">
             {/* Secondary actions */}
-            <div className="flex justify-center gap-4 mb-5">
+            <div className="flex justify-center gap-3 mb-5">
               <button
                 onClick={handleStartLiveScan}
                 disabled={!!cameraError}
-                className="flex items-center gap-2 px-4 py-2 glass-card rounded-xl text-sm font-medium transition-colors hover:bg-muted disabled:opacity-50"
+                className="flex items-center gap-2 px-3 py-2 glass-card rounded-xl text-sm font-medium transition-colors hover:bg-muted disabled:opacity-50"
               >
                 <Radio className="h-4 w-4 text-primary" />
                 Live
               </button>
               <button
+                onClick={handleStartBarcodeScan}
+                disabled={!!cameraError}
+                className="flex items-center gap-2 px-3 py-2 glass-card rounded-xl text-sm font-medium transition-colors hover:bg-muted disabled:opacity-50"
+              >
+                <ScanBarcode className="h-4 w-4 text-primary" />
+                Barcode
+              </button>
+              <button
                 onClick={openGalleryPicker}
-                className="flex items-center gap-2 px-4 py-2 glass-card rounded-xl text-sm font-medium transition-colors hover:bg-muted"
+                className="flex items-center gap-2 px-3 py-2 glass-card rounded-xl text-sm font-medium transition-colors hover:bg-muted"
               >
                 <Image className="h-4 w-4 text-primary" />
                 Upload
@@ -555,6 +623,29 @@ export default function Index() {
             onRescan={rescan}
           />
         )}
+
+        {/* Barcode scanner overlay */}
+        {appState === "barcodeScan" && (
+          <BarcodeScannerView
+            videoRef={videoRef}
+            onProductFound={handleBarcodeProductFound}
+            onClose={handleStopBarcodeScan}
+          />
+        )}
+      </div>
+    );
+  }
+
+  // Barcode result view
+  if (appState === "barcodeResult" && barcodeProduct) {
+    return (
+      <div className="min-h-screen bg-background px-4 py-5 safe-top safe-bottom">
+        <BarcodeResultCard
+          product={barcodeProduct}
+          barcode={scannedBarcode}
+          onAddToMeals={handleAddBarcodeToMeals}
+          onScanAgain={handleStopBarcodeScan}
+        />
       </div>
     );
   }
