@@ -15,6 +15,7 @@ import { PermissionDenied } from "@/components/PermissionDenied";
 import { BarcodeScannerView } from "@/components/BarcodeScannerView";
 import { BarcodeResultCard } from "@/components/BarcodeResultCard";
 import { PortionFeedback, PortionAdjustment } from "@/components/PortionFeedback";
+import { MealToneBadge } from "@/components/MealToneBadge";
 import { History, Radio, Image, ScanBarcode, HelpCircle } from "lucide-react";
 import { preprocessImage, getBase64SizeKB } from "@/lib/imageProcessor";
 import { toast } from "sonner";
@@ -261,7 +262,7 @@ export default function Index() {
       setAppState("result");
       markFinalRender();
 
-      // Non-blocking save
+      // Non-blocking save with image
       queueMicrotask(() => {
         saveMeal({
           items: foodResult.items,
@@ -269,6 +270,7 @@ export default function Index() {
           confidenceScore: foodResult.confidenceScore,
           macros: foodResult.macros,
           source,
+          imageData: rawImage, // Pass captured image for thumbnail
         }).then((saved) => {
           if (!saved) {
             setSaveError("Could not save meal to device.");
@@ -377,7 +379,7 @@ export default function Index() {
       setAppState("result");
       markFinalRender();
 
-      // Non-blocking save
+      // Non-blocking save with image
       queueMicrotask(() => {
         saveMeal({
           items: foodResult.items,
@@ -385,6 +387,7 @@ export default function Index() {
           confidenceScore: foodResult.confidenceScore,
           macros: foodResult.macros,
           source,
+          imageData: compressedImage, // Pass gallery image for thumbnail
         }).catch(() => setSaveError("Could not save meal to device."));
       });
     } catch (err) {
@@ -512,7 +515,7 @@ export default function Index() {
       stopCamera();
       setAppState("result");
       
-      // Save meal asynchronously
+      // Save meal asynchronously with captured frame
       queueMicrotask(() => {
         saveMeal({
           items: lockedResult.items,
@@ -520,6 +523,7 @@ export default function Index() {
           confidenceScore: lockedResult.confidenceScore,
           macros: lockedResult.macros,
           source: "camera",
+          imageData: frame || undefined, // Pass live scan frame for thumbnail
         }).then((saved) => {
           if (!saved) {
             setSaveError("Could not save meal to device.");
@@ -746,6 +750,13 @@ export default function Index() {
                   {result.items.length > 3 && ` +${result.items.length - 3}`}
                 </h1>
               </div>
+
+              {/* Meal tone badge */}
+              {hasValidCalories(result.totalCalories) && (
+                <div className="flex justify-center mb-4">
+                  <MealToneBadge calories={getCalorieValue(result.totalCalories)} compact />
+                </div>
+              )}
 
               {/* Calorie meter - Hero */}
               <div className="flex justify-center mb-6">

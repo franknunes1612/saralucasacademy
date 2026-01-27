@@ -17,30 +17,43 @@ export function MacroInfoTooltip() {
         </button>
       </PopoverTrigger>
       <PopoverContent 
-        className="w-64 p-4 glass-card text-sm"
+        className="w-72 p-4 glass-card text-sm"
         side="top"
         sideOffset={8}
       >
         <p className="text-xs text-muted-foreground font-medium mb-3">
-          What the colors mean
+          What are macros?
         </p>
         
-        <div className="space-y-2">
-          <div className="flex items-center gap-2">
-            <div className="w-2.5 h-2.5 rounded-full bg-[hsl(210,70%,58%)]" />
-            <span className="text-xs"><span className="macro-protein font-medium">Blue</span> = Protein</span>
+        <div className="space-y-3">
+          <div className="flex items-start gap-2">
+            <div className="w-2.5 h-2.5 rounded-full mt-1 bg-[hsl(210,70%,58%)]" />
+            <div>
+              <span className="text-xs font-medium macro-protein">Protein</span>
+              <p className="text-xs text-muted-foreground">Muscle repair & satiety</p>
+            </div>
           </div>
           
-          <div className="flex items-center gap-2">
-            <div className="w-2.5 h-2.5 rounded-full bg-[hsl(32,85%,55%)]" />
-            <span className="text-xs"><span className="macro-carbs font-medium">Orange</span> = Carbs</span>
+          <div className="flex items-start gap-2">
+            <div className="w-2.5 h-2.5 rounded-full mt-1 bg-[hsl(45,90%,55%)]" />
+            <div>
+              <span className="text-xs font-medium macro-carbs">Carbs</span>
+              <p className="text-xs text-muted-foreground">Energy for body & brain</p>
+            </div>
           </div>
           
-          <div className="flex items-center gap-2">
-            <div className="w-2.5 h-2.5 rounded-full bg-[hsl(320,55%,62%)]" />
-            <span className="text-xs"><span className="macro-fat font-medium">Pink</span> = Fat</span>
+          <div className="flex items-start gap-2">
+            <div className="w-2.5 h-2.5 rounded-full mt-1 bg-[hsl(280,60%,60%)]" />
+            <div>
+              <span className="text-xs font-medium macro-fat">Fat</span>
+              <p className="text-xs text-muted-foreground">Hormones & nutrient absorption</p>
+            </div>
           </div>
         </div>
+
+        <p className="text-xs text-muted-foreground/70 mt-3 pt-2 border-t border-border/50">
+          Values estimated from image analysis
+        </p>
       </PopoverContent>
     </Popover>
   );

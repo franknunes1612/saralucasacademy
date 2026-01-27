@@ -2,8 +2,10 @@ import { useState, useEffect, useCallback, useRef } from "react";
 
 const DB_NAME = "caloriespot_db";
 const STORE_NAME = "saved_meals";
-const DB_VERSION = 1;
+const DB_VERSION = 2; // Bumped for image storage
 const MAX_MEALS = 100;
+const MAX_THUMBNAIL_WIDTH = 400;
+const THUMBNAIL_QUALITY = 0.7;
 
 export interface FoodItem {
   name: string;
@@ -19,6 +21,7 @@ export interface SavedMeal {
   confidenceScore: number | null;
   macros: { protein: number; carbs: number; fat: number } | null;
   source?: "camera" | "gallery";
+  imageData?: string; // Base64 thumbnail (compressed)
 }
 
 interface UseSavedMealsReturn {
@@ -52,6 +55,51 @@ function isIndexedDBAvailable(): boolean {
   }
 }
 
+/**
+ * Compress an image to a small thumbnail for storage
+ */
+async function createThumbnail(base64Image: string): Promise<string> {
+  return new Promise((resolve) => {
+    try {
+      const img = new Image();
+      img.onload = () => {
+        const canvas = document.createElement("canvas");
+        const ctx = canvas.getContext("2d");
+        
+        if (!ctx) {
+          resolve("");
+          return;
+        }
+
+        // Calculate thumbnail dimensions (max 400px width)
+        const ratio = Math.min(MAX_THUMBNAIL_WIDTH / img.width, 1);
+        canvas.width = Math.round(img.width * ratio);
+        canvas.height = Math.round(img.height * ratio);
+
+        ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+        
+        // Return compressed JPEG without data URL prefix
+        const thumbnail = canvas.toDataURL("image/jpeg", THUMBNAIL_QUALITY);
+        const base64Only = thumbnail.replace(/^data:image\/jpeg;base64,/, "");
+        resolve(base64Only);
+      };
+      img.onerror = () => {
+        console.warn("[useSavedMeals] Failed to create thumbnail");
+        resolve("");
+      };
+      
+      // Handle both with and without data URL prefix
+      if (base64Image.startsWith("data:")) {
+        img.src = base64Image;
+      } else {
+        img.src = `data:image/jpeg;base64,${base64Image}`;
+      }
+    } catch {
+      resolve("");
+    }
+  });
+}
+
 function openDatabase(): Promise<IDBDatabase> {
   return new Promise((resolve, reject) => {
     const request = indexedDB.open(DB_NAME, DB_VERSION);
@@ -71,6 +119,8 @@ function openDatabase(): Promise<IDBDatabase> {
         const store = db.createObjectStore(STORE_NAME, { keyPath: "id" });
         store.createIndex("timestamp", "timestamp", { unique: false });
       }
+      // Note: existing data is preserved when upgrading version
+      // The new imageData field will just be undefined for old meals
     };
   });
 }
@@ -233,10 +283,22 @@ export function useSavedMeals(): UseSavedMealsReturn {
 
     setStorageError(null);
     
+    // Create thumbnail if image data is provided
+    let thumbnailData = mealData.imageData;
+    if (thumbnailData) {
+      try {
+        thumbnailData = await createThumbnail(thumbnailData);
+      } catch {
+        console.warn("[useSavedMeals] Thumbnail creation failed, proceeding without image");
+        thumbnailData = undefined;
+      }
+    }
+    
     const newMeal: SavedMeal = {
       id: generateId(),
       timestamp: new Date().toISOString(),
       ...mealData,
+      imageData: thumbnailData,
     };
 
     try {
