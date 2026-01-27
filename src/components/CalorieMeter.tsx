@@ -1,5 +1,5 @@
 import { cn } from "@/lib/utils";
-import { safeNumber, getCalorieValue, hasValidCalories } from "@/lib/nutritionUtils";
+import { safeNumber, getCalorieValue, hasValidCalories, isZeroCalorieResult, hasCalorieData } from "@/lib/nutritionUtils";
 
 interface CalorieMeterProps {
   calories: number | { min: number; max: number } | null;
@@ -7,7 +7,8 @@ interface CalorieMeterProps {
   animated?: boolean;
 }
 
-function getCalorieLabel(calories: number): string {
+function getCalorieLabel(calories: number, isZeroCal: boolean): string {
+  if (isZeroCal) return "Non-caloric beverage";
   const safe = safeNumber(calories, 0);
   if (safe >= 800) return "Rich meal";
   if (safe >= 600) return "Hearty meal";
@@ -17,27 +18,33 @@ function getCalorieLabel(calories: number): string {
   return "Estimate unavailable";
 }
 
-function formatCalorieDisplay(value: number, showEstimate: boolean = true): string {
+function formatCalorieDisplay(value: number, showEstimate: boolean = true, isZeroCal: boolean = false): string {
   const rounded = Math.round(safeNumber(value, 0));
-  if (rounded === 0) return "—";
+  // Zero-calorie items show exact "0", not "—"
+  if (isZeroCal || rounded === 0) {
+    return isZeroCal ? "0" : "—";
+  }
   return showEstimate ? `~${rounded}` : String(rounded);
 }
 
-function getCalorieTier(calories: number): "low" | "mid" | "high" {
+function getCalorieTier(calories: number): "low" | "mid" | "high" | "zero" {
   const safe = safeNumber(calories, 0);
+  if (safe === 0) return "zero";
   if (safe >= 600) return "high";
   if (safe >= 300) return "mid";
   return "low";
 }
 
 // For pink-first design, all calorie text is white
-function getTierColorClass(tier: "low" | "mid" | "high"): string {
+function getTierColorClass(tier: "low" | "mid" | "high" | "zero"): string {
   return "text-white";
 }
 
 export function CalorieMeter({ calories, size = "lg", animated = true }: CalorieMeterProps) {
-  // Early return for invalid data
-  if (!hasValidCalories(calories)) {
+  const isZeroCal = isZeroCalorieResult(calories);
+  
+  // Early return for truly invalid data (null/undefined, not explicit zero)
+  if (!hasCalorieData(calories)) {
     return (
       <div className="flex flex-col items-center gap-3">
         <div className="text-center">
@@ -51,11 +58,11 @@ export function CalorieMeter({ calories, size = "lg", animated = true }: Calorie
   const isRange = typeof calories === "object";
   const displayCalories = getCalorieValue(calories);
   const tier = getCalorieTier(displayCalories);
-  const label = getCalorieLabel(displayCalories);
+  const label = getCalorieLabel(displayCalories, isZeroCal);
   const colorClass = getTierColorClass(tier);
   
-  // Progress based on 1000 cal max for visual
-  const progress = Math.min(safeNumber(displayCalories, 0) / 1000, 1);
+  // Progress based on 1000 cal max for visual (zero = no progress ring)
+  const progress = isZeroCal ? 0 : Math.min(safeNumber(displayCalories, 0) / 1000, 1);
 
   const sizeConfig = {
     sm: { ring: 80, stroke: 6, fontSize: "text-xl", labelSize: "text-xs" },
@@ -69,7 +76,8 @@ export function CalorieMeter({ calories, size = "lg", animated = true }: Calorie
   const strokeDashoffset = circumference * (1 - progress);
 
   // White-based gradient colors for pink background
-  const gradientColors = {
+  const gradientColors: Record<"zero" | "low" | "mid" | "high", { start: string; end: string }> = {
+    zero: { start: "hsl(200 60% 70%)", end: "hsl(200 50% 60%)" },
     high: { start: "hsl(335 35% 58%)", end: "hsl(340 30% 50%)" },
     mid: { start: "hsl(0 0% 100%)", end: "hsl(340 55% 88%)" },
     low: { start: "hsl(155 45% 55%)", end: "hsl(160 40% 48%)" },
@@ -123,7 +131,11 @@ export function CalorieMeter({ calories, size = "lg", animated = true }: Calorie
 
         {/* Calorie number */}
         <div className="relative z-10 text-center">
-          {isRange ? (
+          {isZeroCal ? (
+            <span className={cn("font-bold", config.fontSize, colorClass)}>
+              0
+            </span>
+          ) : isRange ? (
             <span className={cn("font-bold", config.fontSize, colorClass)}>
               ~{formatCalorieDisplay(calories.min, false)}-{formatCalorieDisplay(calories.max, false)}
             </span>
@@ -140,9 +152,15 @@ export function CalorieMeter({ calories, size = "lg", animated = true }: Calorie
         <p className={cn("font-medium text-white", config.labelSize)}>
           {label}
         </p>
-        <p className="text-xs text-white/70 mt-0.5">
-          est. kcal
-        </p>
+        {isZeroCal ? (
+          <p className="text-xs text-white/70 mt-0.5">
+            Does not contribute to daily intake
+          </p>
+        ) : (
+          <p className="text-xs text-white/70 mt-0.5">
+            est. kcal
+          </p>
+        )}
       </div>
     </div>
   );
