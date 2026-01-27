@@ -17,6 +17,8 @@ import { BarcodeResultCard } from "@/components/BarcodeResultCard";
 import { PortionFeedback, PortionAdjustment } from "@/components/PortionFeedback";
 import { MealToneBadge } from "@/components/MealToneBadge";
 import { Onboarding } from "@/components/Onboarding";
+import { BookNutritionistButton } from "@/components/BookNutritionistButton";
+import { RecipeSuggestions } from "@/components/RecipeSuggestions";
 import { History, Radio, Image, ScanBarcode, HelpCircle } from "lucide-react";
 import { preprocessImage, getBase64SizeKB } from "@/lib/imageProcessor";
 import { toast } from "sonner";
@@ -968,6 +970,30 @@ export default function Index() {
                   </div>
                 </details>
               )}
+
+              {/* Section divider */}
+              <div className="section-divider mt-6" />
+
+              {/* Recipe Suggestions based on meal tone */}
+              {hasValidCalories(result.totalCalories) && (
+                <div className="mt-5">
+                  <RecipeSuggestions
+                    mealTone={
+                      getCalorieValue(result.totalCalories) < 300 ? "light" :
+                      getCalorieValue(result.totalCalories) <= 600 ? "balanced" : "rich"
+                    }
+                  />
+                </div>
+              )}
+
+              {/* Section divider */}
+              <div className="section-divider mt-6" />
+
+              {/* Book Nutritionist */}
+              <div className="mt-5 text-center">
+                <p className="text-xs text-white/60 mb-3">Want personalized guidance?</p>
+                <BookNutritionistButton variant="subtle" />
+              </div>
             </>
           ) : (
             <div className="text-center py-8">
