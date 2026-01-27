@@ -710,6 +710,15 @@ serve(async (req: Request) => {
     return new Response(null, { headers: corsHeaders });
   }
 
+  // Rate limiting
+  const clientId = getClientIdentifier(req);
+  const rateLimitResult = checkRateLimit(clientId, RATE_LIMIT_CONFIG);
+  
+  if (!rateLimitResult.allowed) {
+    console.log(`[identify-food] Rate limit exceeded for ${clientId}`);
+    return rateLimitResponse(rateLimitResult, corsHeaders);
+  }
+
   if (req.method !== "POST") {
     return new Response(
       JSON.stringify({ error: "Method not allowed", code: "METHOD_NOT_ALLOWED" }),
@@ -718,7 +727,7 @@ serve(async (req: Request) => {
   }
 
   try {
-    console.log(`[identify-food] Request received`);
+    console.log(`[identify-food] Request received from ${clientId}`);
 
     let body: unknown;
     try {
