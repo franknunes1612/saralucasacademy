@@ -12,7 +12,6 @@ export function SplashScreen({ onComplete, minDuration = 1200 }: SplashScreenPro
   useEffect(() => {
     const timer = setTimeout(() => {
       setIsExiting(true);
-      // Allow exit animation to complete
       setTimeout(onComplete, 300);
     }, minDuration);
 
@@ -40,17 +39,17 @@ export function SplashScreen({ onComplete, minDuration = 1200 }: SplashScreenPro
       <div className="relative z-10 flex flex-col items-center text-center px-8">
         {/* Logo / App Name */}
         <h1 className="text-5xl font-bold mb-3 tracking-tight">
-          <span className="bg-gradient-to-r from-primary via-accent to-[hsl(320,100%,65%)] bg-clip-text text-transparent">
-            SpotRare
+          <span className="bg-gradient-to-r from-primary via-accent to-[hsl(45,100%,50%)] bg-clip-text text-transparent">
+            CalorieSpot
           </span>
         </h1>
 
         {/* Tagline */}
         <p className="text-muted-foreground text-sm mb-10 animate-fade-in">
-          Scanning the streets for rare finds
+          Scan your food, know your calories
         </p>
 
-        {/* Neon loading ring */}
+        {/* Loading ring */}
         <div className="relative">
           <div className="w-16 h-16 rounded-full border-4 border-muted flex items-center justify-center">
             <div
