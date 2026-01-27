@@ -1,9 +1,8 @@
-import { cn } from "@/lib/utils";
-
 interface FoodItem {
   name: string;
   portion: "small" | "medium" | "large";
   estimatedCalories: number | null;
+  macros?: { protein: number; carbs: number; fat: number } | null;
 }
 
 interface FoodItemsListProps {
@@ -20,10 +19,20 @@ function getPortionIcon(portion: "small" | "medium" | "large"): string {
 
 function getPortionLabel(portion: "small" | "medium" | "large"): string {
   switch (portion) {
-    case "small": return "Small";
-    case "medium": return "Medium";
-    case "large": return "Large";
+    case "small": return "Pequena";
+    case "medium": return "Média";
+    case "large": return "Grande";
   }
+}
+
+function formatCalories(calories: number | null): string {
+  if (calories === null) return "—";
+  // Remove leading zeros by converting to number then string
+  return String(Math.round(calories));
+}
+
+function formatMacroValue(value: number): string {
+  return Number(value.toFixed(1)).toString();
 }
 
 export function FoodItemsList({ items }: FoodItemsListProps) {
@@ -32,29 +41,46 @@ export function FoodItemsList({ items }: FoodItemsListProps) {
   return (
     <div className="space-y-2">
       <p className="text-xs text-muted-foreground uppercase tracking-wide mb-3">
-        Detected Items
+        Itens Detetados
       </p>
       <div className="space-y-2">
         {items.map((item, index) => (
           <div
             key={index}
-            className="flex items-center justify-between p-3 glass-card rounded-xl"
+            className="p-3 glass-card rounded-xl space-y-2"
           >
-            <div className="flex items-center gap-3">
-              <span className="text-lg">{getPortionIcon(item.portion)}</span>
-              <div>
-                <p className="font-medium text-sm">{item.name}</p>
-                <p className="text-xs text-muted-foreground">
-                  {getPortionLabel(item.portion)} portion
-                </p>
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <span className="text-lg">{getPortionIcon(item.portion)}</span>
+                <div>
+                  <p className="font-medium text-sm">{item.name}</p>
+                  <p className="text-xs text-muted-foreground">
+                    Porção {getPortionLabel(item.portion).toLowerCase()}
+                  </p>
+                </div>
               </div>
+              {item.estimatedCalories !== null && (
+                <div className="text-right">
+                  <p className="font-semibold text-primary">
+                    {formatCalories(item.estimatedCalories)}
+                  </p>
+                  <p className="text-xs text-muted-foreground">cal</p>
+                </div>
+              )}
             </div>
-            {item.estimatedCalories !== null && (
-              <div className="text-right">
-                <p className="font-semibold text-primary">
-                  {item.estimatedCalories}
-                </p>
-                <p className="text-xs text-muted-foreground">cal</p>
+            
+            {/* Macros per item if available */}
+            {item.macros && (
+              <div className="flex gap-3 pt-1 pl-9 text-xs">
+                <span className="text-blue-400">
+                  P: {formatMacroValue(item.macros.protein)}g
+                </span>
+                <span className="text-amber-400">
+                  C: {formatMacroValue(item.macros.carbs)}g
+                </span>
+                <span className="text-rose-400">
+                  G: {formatMacroValue(item.macros.fat)}g
+                </span>
               </div>
             )}
           </div>

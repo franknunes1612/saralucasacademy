@@ -697,7 +697,7 @@ export default function Index() {
               {/* Meal summary */}
               <div className="text-center mb-6">
                 <span className="inline-block text-xs text-primary mb-2 uppercase tracking-widest font-medium">
-                  {result.items.length} item{result.items.length > 1 ? "s" : ""} detected
+                  {result.items.length} item{result.items.length > 1 ? "s" : ""} detetado{result.items.length > 1 ? "s" : ""}
                 </span>
                 <h1 className="text-xl font-bold tracking-tight">
                   {mealSummary}
@@ -752,14 +752,14 @@ export default function Index() {
 
               {/* Disclaimer */}
               <p className="text-xs text-muted-foreground/60 text-center mt-5">
-                {result.disclaimer}
+                Estimativa por IA. Valores podem variar conforme porção e preparação.
               </p>
 
               {/* Reasoning - collapsible */}
               {result.reasoning && (
                 <details className="mt-4">
                   <summary className="text-xs cursor-pointer text-muted-foreground hover:text-primary transition-colors text-center">
-                    How did we calculate this?
+                    Como calculámos isto?
                   </summary>
                   <div className="mt-3 p-3 glass-card rounded-xl text-sm">
                     <p className="text-muted-foreground">{result.reasoning}</p>
@@ -770,9 +770,9 @@ export default function Index() {
           ) : (
             <div className="text-center py-8">
               <div className="text-5xl mb-4">🍽️</div>
-              <h2 className="text-xl font-semibold mb-2">No Food Detected</h2>
+              <h2 className="text-xl font-semibold mb-2">Nenhum Alimento Detetado</h2>
               <p className="text-muted-foreground text-sm">
-                Try capturing a clearer image of your food
+                Tente capturar uma imagem mais nítida da sua comida
               </p>
             </div>
           )}
