@@ -7,11 +7,16 @@ interface CalorieMeterProps {
 }
 
 function getCalorieLabel(calories: number): string {
-  if (calories >= 800) return "Heavy Meal";
-  if (calories >= 500) return "Full Meal";
-  if (calories >= 300) return "Light Meal";
+  if (calories >= 800) return "Refeição Pesada";
+  if (calories >= 500) return "Refeição Completa";
+  if (calories >= 300) return "Refeição Leve";
   if (calories >= 150) return "Snack";
-  return "Light Bite";
+  return "Lanche Leve";
+}
+
+function formatCalorieDisplay(value: number): string {
+  // Ensure no leading zeros - always show clean numbers
+  return String(Math.round(value));
 }
 
 function getCalorieTier(calories: number): "low" | "mid" | "high" {
@@ -128,11 +133,11 @@ export function CalorieMeter({ calories, size = "lg", animated = true }: Calorie
         <div className="relative z-10 text-center">
           {isRange ? (
             <span className={cn("font-bold", config.fontSize, colorClass)}>
-              {calories.min}-{calories.max}
+              {formatCalorieDisplay(calories.min)}-{formatCalorieDisplay(calories.max)}
             </span>
           ) : (
             <span className={cn("font-bold", config.fontSize, colorClass)}>
-              {displayCalories}
+              {formatCalorieDisplay(displayCalories)}
             </span>
           )}
         </div>
@@ -144,7 +149,7 @@ export function CalorieMeter({ calories, size = "lg", animated = true }: Calorie
           {label}
         </p>
         <p className="text-xs text-muted-foreground mt-0.5">
-          {isRange ? "Est. Calories" : "Calories"}
+          {isRange ? "Calorias Est." : "Calorias"}
         </p>
       </div>
     </div>

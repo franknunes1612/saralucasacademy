@@ -33,28 +33,28 @@ export function LiveFoodOverlay({
           return (
             <div className="flex items-center gap-2 text-white/60">
               <Camera className="h-4 w-4" />
-              <span>Hold steady to scan…</span>
+              <span>Mantenha firme para digitalizar…</span>
             </div>
           );
         }
         return (
           <div className="flex items-center gap-2 text-yellow-400">
             <div className="w-2 h-2 bg-yellow-400 rounded-full animate-pulse" />
-            <span>Preparing…</span>
+            <span>A preparar…</span>
           </div>
         );
       case "scanning":
         return (
           <div className="flex items-center gap-2 text-blue-400">
             <div className="w-4 h-4 border-2 border-blue-400 border-t-transparent rounded-full animate-spin" />
-            <span>Analyzing food…</span>
+            <span>A analisar…</span>
           </div>
         );
       case "locked":
         return (
           <div className="flex items-center gap-2 text-green-400">
             <Lock className="h-4 w-4" />
-            <span>Result ready</span>
+            <span>Resultado pronto</span>
           </div>
         );
     }
@@ -62,15 +62,15 @@ export function LiveFoodOverlay({
 
   const formatCalories = (cal: number | { min: number; max: number } | null): string => {
     if (cal === null) return "—";
-    if (typeof cal === "object") return `${cal.min}-${cal.max}`;
-    return String(cal);
+    if (typeof cal === "object") return `${Math.round(cal.min)}-${Math.round(cal.max)}`;
+    return String(Math.round(cal));
   };
 
   const renderResult = () => {
     if (scanStatus === "waiting" && !liveResult) {
       return (
         <div className="text-center py-4">
-          <p className="text-white/60 text-sm">Point at your food and hold steady</p>
+          <p className="text-white/60 text-sm">Aponte para a comida e mantenha firme</p>
         </div>
       );
     }
@@ -78,7 +78,7 @@ export function LiveFoodOverlay({
     if (scanStatus === "scanning" && !liveResult) {
       return (
         <div className="text-center py-4">
-          <p className="text-white/60 text-sm">Identifying food…</p>
+          <p className="text-white/60 text-sm">A identificar…</p>
         </div>
       );
     }
@@ -92,7 +92,7 @@ export function LiveFoodOverlay({
         {foodDetected && items.length > 0 ? (
           <>
             <p className="text-xs text-white/60 uppercase tracking-wide">
-              {items.length} item{items.length > 1 ? "s" : ""} detected
+              {items.length} item{items.length > 1 ? "s" : ""} detetado{items.length > 1 ? "s" : ""}
             </p>
             
             <p className="text-2xl font-bold text-white">
@@ -115,12 +115,12 @@ export function LiveFoodOverlay({
 
             {confidenceScore !== null && (
               <p className={`text-xs ${getConfidenceClass(confidenceScore)}`}>
-                {confidenceScore}% confidence
+                {confidenceScore}% confiança
               </p>
             )}
           </>
         ) : (
-          <p className="text-lg text-white/60">No food detected</p>
+          <p className="text-lg text-white/60">Nenhum alimento detetado</p>
         )}
       </div>
     );
@@ -176,14 +176,14 @@ export function LiveFoodOverlay({
                 className="flex-1 py-3 px-4 bg-white/10 hover:bg-white/20 rounded-lg text-white flex items-center justify-center gap-2 transition-colors"
               >
                 <RotateCcw className="h-4 w-4" />
-                Scan Again
+                Digitalizar
               </button>
               <button
                 onClick={onLock}
                 className="flex-1 py-3 px-4 bg-primary text-primary-foreground hover:bg-primary/90 rounded-lg flex items-center justify-center gap-2 transition-colors"
               >
                 <Lock className="h-4 w-4" />
-                Save & Exit
+                Guardar
               </button>
             </>
           ) : (
@@ -192,7 +192,7 @@ export function LiveFoodOverlay({
               className="flex-1 py-3 px-4 bg-white/10 hover:bg-white/20 rounded-lg text-white flex items-center justify-center gap-2 transition-colors"
             >
               <X className="h-4 w-4" />
-              Cancel
+              Cancelar
             </button>
           )}
         </div>
