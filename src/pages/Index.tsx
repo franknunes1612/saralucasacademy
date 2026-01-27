@@ -14,7 +14,7 @@ import { SplashScreen } from "@/components/SplashScreen";
 import { PermissionDenied } from "@/components/PermissionDenied";
 import { BarcodeScannerView } from "@/components/BarcodeScannerView";
 import { BarcodeResultCard } from "@/components/BarcodeResultCard";
-import { History, Radio, Image, ScanBarcode } from "lucide-react";
+import { History, Radio, Image, ScanBarcode, HelpCircle } from "lucide-react";
 import { preprocessImage, getBase64SizeKB } from "@/lib/imageProcessor";
 import { toast } from "sonner";
 import {
@@ -679,9 +679,20 @@ export default function Index() {
 
     return (
       <div className="min-h-screen bg-background px-4 py-5 safe-top safe-bottom">
+        {/* Header with info button */}
+        <div className="flex justify-end mb-3">
+          <button
+            onClick={() => navigate("/how-it-works")}
+            className="p-2 rounded-xl hover:bg-muted transition-colors"
+            aria-label="How it works"
+          >
+            <HelpCircle className="h-5 w-5 text-muted-foreground" />
+          </button>
+        </div>
+
         {/* Captured image with rounded corners */}
         {capturedImage && (
-          <div className="mb-5 rounded-2xl overflow-hidden neon-border">
+          <div className="mb-5 rounded-2xl overflow-hidden soft-border">
             <img
               src={`data:image/jpeg;base64,${capturedImage}`}
               alt="Captured"

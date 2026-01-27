@@ -10,7 +10,7 @@ import { CalorieGoalEditor } from "@/components/CalorieGoalEditor";
 import { MealRemindersSettings } from "@/components/MealRemindersSettings";
 import { FoodItemsList } from "@/components/FoodItemsList";
 import { MacrosBadge } from "@/components/MacrosBadge";
-import { ArrowLeft, Trash2, Camera, Bell, BellOff } from "lucide-react";
+import { ArrowLeft, Trash2, Camera, Bell, BellOff, HelpCircle } from "lucide-react";
 
 function calculateTotalCalories(meals: SavedMeal[]): number {
   let total = 0;
@@ -146,7 +146,16 @@ export default function MyMeals() {
           <h1 className="text-xl font-bold tracking-tight">My Meals</h1>
         </div>
         
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-1">
+          {/* How it works */}
+          <button
+            onClick={() => navigate("/how-it-works")}
+            className="p-2 rounded-xl hover:bg-muted transition-colors"
+            aria-label="How it works"
+          >
+            <HelpCircle className="h-5 w-5 text-muted-foreground" />
+          </button>
+
           {/* Reminders button */}
           <button
             onClick={() => setShowRemindersSettings(true)}
