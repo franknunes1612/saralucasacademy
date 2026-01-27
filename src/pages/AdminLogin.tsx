@@ -117,7 +117,7 @@ export default function AdminLogin() {
 
           <button
             type="submit"
-            disabled={isSubmitting || authLoading}
+            disabled={isSubmitting}
             className="w-full py-4 btn-primary rounded-xl font-semibold flex items-center justify-center gap-2 disabled:opacity-50"
           >
             {isSignUp ? (
@@ -132,6 +132,12 @@ export default function AdminLogin() {
               </>
             )}
           </button>
+
+          {authLoading && (
+            <p className="text-xs text-white/60 text-center">
+              {t({ pt: "A preparar sessão...", en: "Preparing session..." })}
+            </p>
+          )}
         </form>
 
         <button
