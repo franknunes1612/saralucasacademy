@@ -65,11 +65,25 @@ interface BarcodeProduct {
   imageUrl: string | null;
 }
 
+const ONBOARDING_COMPLETE_KEY = "caloriespot_onboarding_complete";
+
 export default function Index() {
   const navigate = useNavigate();
   const { saveMeal, storageError } = useSavedMeals();
   
-  const [appState, setAppState] = useState<AppState>("splash");
+  // Check if onboarding was already completed - skip splash/onboarding if so
+  const getInitialAppState = (): AppState => {
+    try {
+      if (localStorage.getItem(ONBOARDING_COMPLETE_KEY) === "true") {
+        return "cameraInitializing";
+      }
+    } catch {
+      // localStorage not available, show onboarding
+    }
+    return "splash";
+  };
+  
+  const [appState, setAppState] = useState<AppState>(getInitialAppState);
   const [cameraLifecycle, setCameraLifecycle] = useState<CameraLifecycle>("idle");
   const [result, setResult] = useState<FoodResult | null>(null);
   const [capturedImage, setCapturedImage] = useState<string | null>(null);
@@ -82,7 +96,6 @@ export default function Index() {
   const [scannedBarcode, setScannedBarcode] = useState<string>("");
   const [adjustedCalories, setAdjustedCalories] = useState<number | null>(null);
   const [portionAdjustment, setPortionAdjustment] = useState<PortionAdjustment | null>(null);
-  // Onboarding always shows on app open - no localStorage check
 
   const videoRef = useRef<HTMLVideoElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -106,13 +119,18 @@ export default function Index() {
     setCanvasRef,
   } = useLiveFoodScan();
 
-  // Handle splash complete - always go to onboarding
+  // Handle splash complete - go to onboarding
   const handleSplashComplete = useCallback(() => {
     setAppState("onboarding");
   }, []);
 
-  // Handle onboarding complete - go to camera initialization
+  // Handle onboarding complete - persist and go to camera initialization
   const handleOnboardingComplete = useCallback(() => {
+    try {
+      localStorage.setItem(ONBOARDING_COMPLETE_KEY, "true");
+    } catch {
+      // Ignore storage errors
+    }
     setAppState("cameraInitializing");
   }, []);
 
