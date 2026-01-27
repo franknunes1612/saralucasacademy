@@ -5,16 +5,22 @@ export interface FoodItem {
   name: string;
   portion: "small" | "medium" | "large";
   estimatedCalories: number | null;
+  category?: string;
+  calorieRange?: { min: number; max: number };
 }
+
+export type PlateType = "single_item" | "half_plate" | "full_plate" | "mixed_dish" | "bowl" | "snack";
 
 export interface FoodIdentificationResult {
   foodDetected: boolean;
   items: FoodItem[];
   totalCalories: number | { min: number; max: number } | null;
+  calorieRange: { min: number; max: number } | null;
   confidenceScore: number | null;
   confidence: "high" | "medium" | "low" | null;
   reasoning: string | null;
   macros: { protein: number; carbs: number; fat: number } | null;
+  plateType: PlateType;
   disclaimer: string;
   identifiedAt: string;
 }
