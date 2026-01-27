@@ -62,8 +62,8 @@ export function LiveFoodOverlay({
 
   const formatCalories = (cal: number | { min: number; max: number } | null): string => {
     if (cal === null) return "—";
-    if (typeof cal === "object") return `${Math.round(cal.min)}-${Math.round(cal.max)}`;
-    return String(Math.round(cal));
+    if (typeof cal === "object") return `~${Math.round(cal.min)}-${Math.round(cal.max)}`;
+    return `~${Math.round(cal)}`;
   };
 
   const renderResult = () => {
