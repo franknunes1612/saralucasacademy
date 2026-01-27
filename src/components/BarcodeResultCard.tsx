@@ -25,7 +25,7 @@ export function BarcodeResultCard({
   onScanAgain 
 }: BarcodeResultCardProps) {
   const displayCalories = product.calories || product.caloriesPer100g;
-  const calorieLabel = product.calories ? "por dose" : "por 100g";
+  const calorieLabel = product.calories ? "per serving" : "per 100g";
   const formatCal = (val: number) => String(Math.round(val));
 
   return (
@@ -57,10 +57,10 @@ export function BarcodeResultCard({
       {displayCalories !== null && (
         <div className="text-center py-4">
           <div className="text-5xl font-bold calorie-mid">{formatCal(displayCalories)}</div>
-          <p className="text-sm text-muted-foreground mt-1">calorias {calorieLabel}</p>
+          <p className="text-sm text-muted-foreground mt-1">kcal {calorieLabel}</p>
           {product.servingSize && (
             <p className="text-xs text-muted-foreground/70 mt-1">
-              Dose: {product.servingSize}
+              Serving: {product.servingSize}
             </p>
           )}
         </div>
@@ -83,20 +83,20 @@ export function BarcodeResultCard({
           className="flex-1 py-3 btn-secondary rounded-xl flex items-center justify-center gap-2"
         >
           <RotateCcw className="h-4 w-4" />
-          Digitalizar
+          Scan again
         </button>
         <button
           onClick={onAddToMeals}
           className="flex-1 py-3 btn-primary rounded-xl flex items-center justify-center gap-2"
         >
           <Plus className="h-4 w-4" />
-          Adicionar
+          Add to meals
         </button>
       </div>
 
       {/* Disclaimer */}
       <p className="text-xs text-muted-foreground/50 text-center">
-        Dados do Open Food Facts · Podem não ser exatos
+        From Open Food Facts · Values may vary
       </p>
     </div>
   );

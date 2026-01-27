@@ -69,8 +69,8 @@ export function CalorieGoalProgress({
         />
         
         <div className="flex justify-between text-xs text-muted-foreground">
-          <span>{currentCalories} cal</span>
-          <span>{goalCalories} cal</span>
+          <span>{currentCalories} kcal</span>
+          <span>{goalCalories} kcal goal</span>
         </div>
       </div>
       
@@ -90,11 +90,11 @@ export function CalorieGoalProgress({
         <div className="text-right">
           {isOver ? (
             <span className="text-sm text-destructive font-medium">
-              +{Math.abs(remaining)} over
+              +{Math.abs(remaining)} kcal over
             </span>
           ) : (
             <span className="text-sm text-muted-foreground">
-              {remaining} remaining
+              {remaining} kcal to go
             </span>
           )}
         </div>

@@ -7,15 +7,14 @@ interface CalorieMeterProps {
 }
 
 function getCalorieLabel(calories: number): string {
-  if (calories >= 800) return "Refeição Pesada";
-  if (calories >= 500) return "Refeição Completa";
-  if (calories >= 300) return "Refeição Leve";
-  if (calories >= 150) return "Snack";
-  return "Lanche Leve";
+  if (calories >= 800) return "Energy-dense";
+  if (calories >= 500) return "Balanced meal";
+  if (calories >= 300) return "Light meal";
+  if (calories >= 150) return "Small bite";
+  return "Light bite";
 }
 
 function formatCalorieDisplay(value: number): string {
-  // Ensure no leading zeros - always show clean numbers
   return String(Math.round(value));
 }
 
@@ -56,6 +55,13 @@ export function CalorieMeter({ calories, size = "lg", animated = true }: Calorie
   const circumference = 2 * Math.PI * radius;
   const strokeDashoffset = circumference * (1 - progress);
 
+  // Softer gradient colors
+  const gradientColors = {
+    high: { start: "hsl(15 75% 55%)", end: "hsl(0 65% 52%)" },
+    mid: { start: "hsl(38 85% 52%)", end: "hsl(25 80% 50%)" },
+    low: { start: "hsl(152 55% 48%)", end: "hsl(172 50% 45%)" },
+  };
+
   return (
     <div className={cn("flex flex-col items-center gap-3", animated && "animate-score-reveal")}>
       {/* Circular meter */}
@@ -63,16 +69,6 @@ export function CalorieMeter({ calories, size = "lg", animated = true }: Calorie
         className="relative flex items-center justify-center"
         style={{ width: config.ring, height: config.ring }}
       >
-        {/* Glow effect for high calories */}
-        {tier === "high" && (
-          <div
-            className="absolute inset-0 rounded-full animate-glow-pulse"
-            style={{
-              background: "radial-gradient(circle, hsl(25 100% 50% / 0.2) 0%, transparent 70%)",
-            }}
-          />
-        )}
-
         {/* SVG Ring */}
         <svg
           className="absolute inset-0 -rotate-90"
@@ -86,30 +82,14 @@ export function CalorieMeter({ calories, size = "lg", animated = true }: Calorie
             cy={config.ring / 2}
             r={radius}
             fill="none"
-            stroke="hsl(230 15% 20%)"
+            stroke="hsl(220 15% 22%)"
             strokeWidth={config.stroke}
           />
           {/* Progress ring with gradient */}
           <defs>
             <linearGradient id={`calorieGradient-${tier}`} x1="0%" y1="0%" x2="100%" y2="0%">
-              {tier === "high" && (
-                <>
-                  <stop offset="0%" stopColor="hsl(25 100% 50%)" />
-                  <stop offset="100%" stopColor="hsl(0 85% 55%)" />
-                </>
-              )}
-              {tier === "mid" && (
-                <>
-                  <stop offset="0%" stopColor="hsl(45 100% 50%)" />
-                  <stop offset="100%" stopColor="hsl(25 100% 50%)" />
-                </>
-              )}
-              {tier === "low" && (
-                <>
-                  <stop offset="0%" stopColor="hsl(150 60% 45%)" />
-                  <stop offset="100%" stopColor="hsl(185 100% 50%)" />
-                </>
-              )}
+              <stop offset="0%" stopColor={gradientColors[tier].start} />
+              <stop offset="100%" stopColor={gradientColors[tier].end} />
             </linearGradient>
           </defs>
           <circle
@@ -124,7 +104,6 @@ export function CalorieMeter({ calories, size = "lg", animated = true }: Calorie
             strokeDashoffset={strokeDashoffset}
             style={{
               transition: animated ? "stroke-dashoffset 0.8s ease-out" : "none",
-              filter: tier !== "low" ? `drop-shadow(0 0 6px hsl(${tier === "high" ? "25 100% 50%" : "45 100% 50%"} / 0.5))` : "none",
             }}
           />
         </svg>
@@ -145,11 +124,11 @@ export function CalorieMeter({ calories, size = "lg", animated = true }: Calorie
 
       {/* Label */}
       <div className="text-center">
-        <p className={cn("font-semibold uppercase tracking-wider", config.labelSize, colorClass)}>
+        <p className={cn("font-medium", config.labelSize, colorClass)}>
           {label}
         </p>
         <p className="text-xs text-muted-foreground mt-0.5">
-          {isRange ? "Calorias Est." : "Calorias"}
+          {isRange ? "est. kcal" : "kcal"}
         </p>
       </div>
     </div>

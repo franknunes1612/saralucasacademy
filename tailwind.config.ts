@@ -57,6 +57,18 @@ export default {
           border: "hsl(var(--sidebar-border))",
           ring: "hsl(var(--sidebar-ring))",
         },
+        // Macro nutrient colors
+        macro: {
+          protein: "hsl(var(--macro-protein))",
+          carbs: "hsl(var(--macro-carbs))",
+          fat: "hsl(var(--macro-fat))",
+        },
+        // Calorie tier colors
+        calorie: {
+          low: "hsl(var(--calorie-low))",
+          mid: "hsl(var(--calorie-mid))",
+          high: "hsl(var(--calorie-high))",
+        },
       },
       borderRadius: {
         lg: "var(--radius)",

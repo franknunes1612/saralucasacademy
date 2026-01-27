@@ -33,28 +33,28 @@ export function LiveFoodOverlay({
           return (
             <div className="flex items-center gap-2 text-white/60">
               <Camera className="h-4 w-4" />
-              <span>Mantenha firme para digitalizar…</span>
+              <span>Hold steady to scan…</span>
             </div>
           );
         }
         return (
-          <div className="flex items-center gap-2 text-yellow-400">
-            <div className="w-2 h-2 bg-yellow-400 rounded-full animate-pulse" />
-            <span>A preparar…</span>
+          <div className="flex items-center gap-2 text-amber-400">
+            <div className="w-2 h-2 bg-amber-400 rounded-full animate-pulse" />
+            <span>Getting ready…</span>
           </div>
         );
       case "scanning":
         return (
-          <div className="flex items-center gap-2 text-blue-400">
-            <div className="w-4 h-4 border-2 border-blue-400 border-t-transparent rounded-full animate-spin" />
-            <span>A analisar…</span>
+          <div className="flex items-center gap-2 text-primary">
+            <div className="w-4 h-4 border-2 border-primary border-t-transparent rounded-full animate-spin" />
+            <span>Looking at your food…</span>
           </div>
         );
       case "locked":
         return (
-          <div className="flex items-center gap-2 text-green-400">
+          <div className="flex items-center gap-2 text-primary">
             <Lock className="h-4 w-4" />
-            <span>Resultado pronto</span>
+            <span>Ready to save</span>
           </div>
         );
     }
@@ -70,7 +70,7 @@ export function LiveFoodOverlay({
     if (scanStatus === "waiting" && !liveResult) {
       return (
         <div className="text-center py-4">
-          <p className="text-white/60 text-sm">Aponte para a comida e mantenha firme</p>
+          <p className="text-white/60 text-sm">Point at your food and hold steady</p>
         </div>
       );
     }
@@ -78,7 +78,7 @@ export function LiveFoodOverlay({
     if (scanStatus === "scanning" && !liveResult) {
       return (
         <div className="text-center py-4">
-          <p className="text-white/60 text-sm">A identificar…</p>
+          <p className="text-white/60 text-sm">Identifying…</p>
         </div>
       );
     }
@@ -91,13 +91,13 @@ export function LiveFoodOverlay({
       <div className="space-y-2">
         {foodDetected && items.length > 0 ? (
           <>
-            <p className="text-xs text-white/60 uppercase tracking-wide">
-              {items.length} item{items.length > 1 ? "s" : ""} detetado{items.length > 1 ? "s" : ""}
+            <p className="text-xs text-white/60">
+              {items.length} item{items.length > 1 ? "s" : ""} found
             </p>
             
             <p className="text-2xl font-bold text-white">
               {formatCalories(totalCalories)}
-              <span className="text-lg text-white/80 ml-2">cal</span>
+              <span className="text-lg text-white/80 ml-1">kcal</span>
             </p>
 
             <div className="flex flex-wrap gap-1">
@@ -113,14 +113,14 @@ export function LiveFoodOverlay({
               )}
             </div>
 
-            {confidenceScore !== null && (
-              <p className={`text-xs ${getConfidenceClass(confidenceScore)}`}>
-                {confidenceScore}% confiança
+            {confidenceScore !== null && confidenceScore >= 70 && (
+              <p className="text-xs text-primary/80">
+                Estimated from image
               </p>
             )}
           </>
         ) : (
-          <p className="text-lg text-white/60">Nenhum alimento detetado</p>
+          <p className="text-lg text-white/60">No food detected</p>
         )}
       </div>
     );
@@ -173,26 +173,26 @@ export function LiveFoodOverlay({
             <>
               <button
                 onClick={onRescan}
-                className="flex-1 py-3 px-4 bg-white/10 hover:bg-white/20 rounded-lg text-white flex items-center justify-center gap-2 transition-colors"
+                className="flex-1 py-3 px-4 bg-white/10 hover:bg-white/20 rounded-xl text-white flex items-center justify-center gap-2 transition-colors"
               >
                 <RotateCcw className="h-4 w-4" />
-                Digitalizar
+                Scan again
               </button>
               <button
                 onClick={onLock}
-                className="flex-1 py-3 px-4 bg-primary text-primary-foreground hover:bg-primary/90 rounded-lg flex items-center justify-center gap-2 transition-colors"
+                className="flex-1 py-3 px-4 bg-primary text-primary-foreground hover:bg-primary/90 rounded-xl flex items-center justify-center gap-2 transition-colors font-medium"
               >
                 <Lock className="h-4 w-4" />
-                Guardar
+                Save
               </button>
             </>
           ) : (
             <button
               onClick={onStop}
-              className="flex-1 py-3 px-4 bg-white/10 hover:bg-white/20 rounded-lg text-white flex items-center justify-center gap-2 transition-colors"
+              className="flex-1 py-3 px-4 bg-white/10 hover:bg-white/20 rounded-xl text-white flex items-center justify-center gap-2 transition-colors"
             >
               <X className="h-4 w-4" />
-              Cancelar
+              Cancel
             </button>
           )}
         </div>
