@@ -47,8 +47,6 @@ export default function AdminLogin() {
           toast.error(error.message);
         } else {
           toast.success(t({ pt: "Login efetuado!", en: "Logged in!" }));
-          // Small delay to allow auth state to update and role to bootstrap
-          await new Promise((resolve) => setTimeout(resolve, 500));
           navigate("/admin/dashboard");
         }
       }

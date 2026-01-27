@@ -53,51 +53,91 @@ export function useAuth() {
   }, []);
 
   useEffect(() => {
+    let isMounted = true;
+
+    // Helper to resolve admin status with timeout
+    const resolveAdminStatus = async (userId: string, email: string): Promise<boolean> => {
+      try {
+        // Add timeout to prevent hanging
+        const timeoutPromise = new Promise<boolean>((resolve) => {
+          setTimeout(() => resolve(false), 3000);
+        });
+
+        const adminCheckPromise = (async () => {
+          await bootstrapAdminRole(userId, email);
+          return await checkAdminRole(userId);
+        })();
+
+        return await Promise.race([adminCheckPromise, timeoutPromise]);
+      } catch (err) {
+        console.error("[Auth] Admin status check failed:", err);
+        return false;
+      }
+    };
+
     // Set up auth state listener BEFORE checking session
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       async (event, session) => {
+        if (!isMounted) return;
+
         const user = session?.user ?? null;
-        let isAdmin = false;
-
-        if (user && user.email) {
-          // First, try to bootstrap admin role based on email whitelist
-          await bootstrapAdminRole(user.id, user.email);
-          
-          // Then check if user has admin role
-          isAdmin = await checkAdminRole(user.id);
-        }
-
-        setState({
+        
+        // Immediately update with user info, loading done
+        setState(prev => ({
+          ...prev,
           user,
           session,
           isLoading: false,
-          isAdmin,
-        });
+        }));
+
+        // Then check admin role in background
+        if (user && user.email) {
+          const isAdmin = await resolveAdminStatus(user.id, user.email);
+          if (isMounted) {
+            setState(prev => ({
+              ...prev,
+              isAdmin,
+            }));
+          }
+        } else {
+          if (isMounted) {
+            setState(prev => ({
+              ...prev,
+              isAdmin: false,
+            }));
+          }
+        }
       }
     );
 
     // Check current session
     supabase.auth.getSession().then(async ({ data: { session } }) => {
+      if (!isMounted) return;
+
       const user = session?.user ?? null;
-      let isAdmin = false;
-
-      if (user && user.email) {
-        // First, try to bootstrap admin role based on email whitelist
-        await bootstrapAdminRole(user.id, user.email);
-        
-        // Then check if user has admin role
-        isAdmin = await checkAdminRole(user.id);
-      }
-
-      setState({
+      
+      // Immediately update with user info
+      setState(prev => ({
+        ...prev,
         user,
         session,
         isLoading: false,
-        isAdmin,
-      });
+      }));
+
+      // Then check admin role in background
+      if (user && user.email) {
+        const isAdmin = await resolveAdminStatus(user.id, user.email);
+        if (isMounted) {
+          setState(prev => ({
+            ...prev,
+            isAdmin,
+          }));
+        }
+      }
     });
 
     return () => {
+      isMounted = false;
       subscription.unsubscribe();
     };
   }, [checkAdminRole, bootstrapAdminRole]);
