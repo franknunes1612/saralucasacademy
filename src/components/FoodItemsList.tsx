@@ -19,20 +19,19 @@ function getPortionIcon(portion: "small" | "medium" | "large"): string {
 
 function getPortionLabel(portion: "small" | "medium" | "large"): string {
   switch (portion) {
-    case "small": return "Pequena";
-    case "medium": return "Média";
-    case "large": return "Grande";
+    case "small": return "Small";
+    case "medium": return "Medium";
+    case "large": return "Large";
   }
 }
 
 function formatCalories(calories: number | null): string {
   if (calories === null) return "—";
-  // Remove leading zeros by converting to number then string
   return String(Math.round(calories));
 }
 
 function formatMacroValue(value: number): string {
-  return Number(value.toFixed(1)).toString();
+  return String(Math.round(value * 10) / 10);
 }
 
 export function FoodItemsList({ items }: FoodItemsListProps) {
@@ -41,7 +40,7 @@ export function FoodItemsList({ items }: FoodItemsListProps) {
   return (
     <div className="space-y-2">
       <p className="text-xs text-muted-foreground uppercase tracking-wide mb-3">
-        Itens Detetados
+        What we found
       </p>
       <div className="space-y-2">
         {items.map((item, index) => (
@@ -55,7 +54,7 @@ export function FoodItemsList({ items }: FoodItemsListProps) {
                 <div>
                   <p className="font-medium text-sm">{item.name}</p>
                   <p className="text-xs text-muted-foreground">
-                    Porção {getPortionLabel(item.portion).toLowerCase()}
+                    {getPortionLabel(item.portion)} portion
                   </p>
                 </div>
               </div>
@@ -64,7 +63,7 @@ export function FoodItemsList({ items }: FoodItemsListProps) {
                   <p className="font-semibold text-primary">
                     {formatCalories(item.estimatedCalories)}
                   </p>
-                  <p className="text-xs text-muted-foreground">cal</p>
+                  <p className="text-xs text-muted-foreground">kcal</p>
                 </div>
               )}
             </div>
@@ -72,14 +71,14 @@ export function FoodItemsList({ items }: FoodItemsListProps) {
             {/* Macros per item if available */}
             {item.macros && (
               <div className="flex gap-3 pt-1 pl-9 text-xs">
-                <span className="text-blue-400">
-                  P: {formatMacroValue(item.macros.protein)}g
+                <span className="macro-protein">
+                  P {formatMacroValue(item.macros.protein)}g
                 </span>
-                <span className="text-amber-400">
-                  C: {formatMacroValue(item.macros.carbs)}g
+                <span className="macro-carbs">
+                  C {formatMacroValue(item.macros.carbs)}g
                 </span>
-                <span className="text-rose-400">
-                  G: {formatMacroValue(item.macros.fat)}g
+                <span className="macro-fat">
+                  F {formatMacroValue(item.macros.fat)}g
                 </span>
               </div>
             )}

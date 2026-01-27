@@ -1,5 +1,5 @@
 import { SavedMeal } from "@/hooks/useSavedMeals";
-import { cn } from "@/lib/utils";
+import { MacrosBadge } from "./MacrosBadge";
 
 interface SavedMealCardProps {
   meal: SavedMeal;
@@ -16,8 +16,10 @@ function getCalorieClass(calories: number | { min: number; max: number } | null)
 
 function formatCalories(calories: number | { min: number; max: number } | null): string {
   if (calories === null) return "—";
-  if (typeof calories === "object") return `${calories.min}-${calories.max}`;
-  return String(calories);
+  if (typeof calories === "object") {
+    return `${Math.round(calories.min)}-${Math.round(calories.max)}`;
+  }
+  return String(Math.round(calories));
 }
 
 export function SavedMealCard({ meal, onTap }: SavedMealCardProps) {
@@ -29,24 +31,31 @@ export function SavedMealCard({ meal, onTap }: SavedMealCardProps) {
 
   return (
     <div 
-      className="glass-card p-3 cursor-pointer active:scale-[0.98] transition-transform"
+      className="glass-card p-4 cursor-pointer active:scale-[0.98] transition-transform"
       onClick={onTap}
     >
       {/* Food icon placeholder */}
-      <div className="aspect-square rounded-xl bg-secondary/50 mb-3 flex items-center justify-center overflow-hidden">
+      <div className="aspect-square rounded-xl bg-secondary/60 mb-3 flex items-center justify-center overflow-hidden">
         <div className="text-3xl">🍽️</div>
       </div>
 
       {/* Meal name - truncated */}
-      <p className="font-semibold text-sm text-foreground truncate mb-1">
+      <p className="font-medium text-sm text-foreground truncate mb-1">
         {displayName}
         {hasMore && <span className="text-muted-foreground"> +{meal.items.length - 2}</span>}
       </p>
 
       {/* Calorie display */}
       {meal.totalCalories !== null && (
-        <div className={cn("text-lg font-bold", getCalorieClass(meal.totalCalories))}>
-          {formatCalories(meal.totalCalories)} <span className="text-xs font-normal">cal</span>
+        <div className={`text-lg font-bold ${getCalorieClass(meal.totalCalories)}`}>
+          {formatCalories(meal.totalCalories)} <span className="text-xs font-normal text-muted-foreground">kcal</span>
+        </div>
+      )}
+
+      {/* Compact macro breakdown */}
+      {meal.macros && (
+        <div className="mt-2 pt-2 border-t border-border/50">
+          <MacrosBadge macros={meal.macros} compact showInfoIcon={false} showDescription={false} />
         </div>
       )}
     </div>

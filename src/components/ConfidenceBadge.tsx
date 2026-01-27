@@ -5,10 +5,10 @@ interface ConfidenceBadgeProps {
 }
 
 function getLabel(score: number | null): string {
-  if (score === null) return "Low";
-  if (score >= 80) return "High";
-  if (score >= 60) return "Medium";
-  return "Low";
+  if (score === null) return "Rough estimate";
+  if (score >= 80) return "Estimated from image";
+  if (score >= 60) return "Best guess";
+  return "Rough estimate";
 }
 
 function getClass(score: number | null): string {
@@ -23,7 +23,7 @@ export function ConfidenceBadge({ score }: ConfidenceBadgeProps) {
   const className = getClass(score);
 
   return (
-    <span className={cn("inline-block px-3 py-1 text-xs font-medium rounded-full", className)}>
+    <span className={cn("inline-block px-3 py-1.5 text-xs font-medium rounded-full", className)}>
       {label}
     </span>
   );

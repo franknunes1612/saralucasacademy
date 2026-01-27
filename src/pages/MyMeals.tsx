@@ -63,8 +63,8 @@ export default function MyMeals() {
 
   const formatCalories = (cal: number | { min: number; max: number } | null): string => {
     if (cal === null) return "—";
-    if (typeof cal === "object") return `${cal.min}-${cal.max}`;
-    return String(cal);
+    if (typeof cal === "object") return `${Math.round(cal.min)}-${Math.round(cal.max)}`;
+    return String(Math.round(cal));
   };
 
   // Detail view
@@ -115,7 +115,7 @@ export default function MyMeals() {
           </p>
 
           <p className="text-xs text-muted-foreground/60">
-            Stored locally only
+            Saved on your device
           </p>
         </div>
 
@@ -184,10 +184,10 @@ export default function MyMeals() {
       {/* Today's Summary */}
       {todaysMeals.length > 0 && (
         <div className="result-card p-5 mt-4 text-center">
-          <p className="text-xs text-muted-foreground uppercase tracking-widest font-medium mb-2">Today</p>
-          <div className="text-4xl font-bold calorie-mid mb-1">{todaysCalories}</div>
-          <p className="text-sm text-muted-foreground">
-            from {todaysMeals.length} meal{todaysMeals.length === 1 ? "" : "s"}
+          <p className="text-sm text-muted-foreground mb-1">Today</p>
+          <div className="text-3xl font-bold calorie-mid">{todaysCalories} <span className="text-lg font-normal text-muted-foreground">kcal</span></div>
+          <p className="text-sm text-muted-foreground mt-1">
+            {todaysMeals.length} meal{todaysMeals.length === 1 ? "" : "s"} logged
           </p>
         </div>
       )}
@@ -267,7 +267,7 @@ export default function MyMeals() {
       {/* Privacy footer */}
       {isSupported && meals.length > 0 && (
         <p className="text-xs text-muted-foreground/50 mt-6 text-center">
-          Saved locally · Images never stored
+          Saved on your device · Images are never stored
         </p>
       )}
 
