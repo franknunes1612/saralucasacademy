@@ -67,7 +67,8 @@ export function MealFeedback({
 
       if (error) throw error;
       setState("done");
-      toast.success("Thanks for the feedback!");
+      // Toast with explicit duration to auto-dismiss
+      toast.success("Thanks for the feedback!", { duration: 2000 });
     } catch (err) {
       console.error("[MealFeedback]", err);
       toast.error("Couldn't save feedback");

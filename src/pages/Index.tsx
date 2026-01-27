@@ -33,7 +33,8 @@ import {
   resetMetrics,
 } from "@/lib/performanceLogger";
 
-// Onboarding now shows every time - no persistence key needed
+// Session-based onboarding key - resets on app close, persists during navigation
+const ONBOARDING_SESSION_KEY = "caloriespot_onboarding_session";
 
 type PlateType = "single_item" | "half_plate" | "full_plate" | "mixed_dish" | "bowl" | "snack";
 
@@ -65,23 +66,23 @@ interface BarcodeProduct {
   imageUrl: string | null;
 }
 
-const ONBOARDING_COMPLETE_KEY = "caloriespot_onboarding_complete";
+// Check if onboarding was completed THIS SESSION (not across app reopens)
+const getInitialAppState = (): AppState => {
+  try {
+    // Use sessionStorage: persists during page navigation, clears on app close/reopen
+    if (sessionStorage.getItem(ONBOARDING_SESSION_KEY) === "true") {
+      return "cameraInitializing";
+    }
+  } catch {
+    // sessionStorage not available
+  }
+  // Always start with splash on fresh app load
+  return "splash";
+};
 
 export default function Index() {
   const navigate = useNavigate();
   const { saveMeal, storageError } = useSavedMeals();
-  
-  // Check if onboarding was already completed - skip splash/onboarding if so
-  const getInitialAppState = (): AppState => {
-    try {
-      if (localStorage.getItem(ONBOARDING_COMPLETE_KEY) === "true") {
-        return "cameraInitializing";
-      }
-    } catch {
-      // localStorage not available, show onboarding
-    }
-    return "splash";
-  };
   
   const [appState, setAppState] = useState<AppState>(getInitialAppState);
   const [cameraLifecycle, setCameraLifecycle] = useState<CameraLifecycle>("idle");
@@ -124,10 +125,11 @@ export default function Index() {
     setAppState("onboarding");
   }, []);
 
-  // Handle onboarding complete - persist and go to camera initialization
+  // Handle onboarding complete - persist in sessionStorage and go to camera initialization
   const handleOnboardingComplete = useCallback(() => {
     try {
-      localStorage.setItem(ONBOARDING_COMPLETE_KEY, "true");
+      // Use sessionStorage so it persists during navigation but resets on app close
+      sessionStorage.setItem(ONBOARDING_SESSION_KEY, "true");
     } catch {
       // Ignore storage errors
     }
