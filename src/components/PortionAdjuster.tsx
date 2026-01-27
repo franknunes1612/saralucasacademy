@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Minus, Check, Plus } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { safeNumber } from "@/lib/nutritionUtils";
 
 interface PortionAdjusterProps {
   originalCalories: number;
@@ -29,7 +30,8 @@ export function PortionAdjuster({
     
     setSelected(adjustment);
     const factor = ADJUSTMENT_FACTORS[adjustment];
-    const adjustedCalories = Math.round(originalCalories * factor / 10) * 10; // Round to nearest 10
+    const safeOriginal = safeNumber(originalCalories, 0);
+    const adjustedCalories = Math.round(safeOriginal * factor / 10) * 10; // Round to nearest 10
     
     // Auto-confirm after a short delay
     setTimeout(() => {

@@ -67,9 +67,92 @@ interface VisionAnalysisResult {
 // ============================================
 
 function getConfidenceLabel(score: number): "high" | "medium" | "low" {
-  if (score >= CONFIDENCE_THRESHOLD_HIGH * 100) return "high";
-  if (score >= CONFIDENCE_THRESHOLD_MEDIUM * 100) return "medium";
+  const safeScore = safeNumber(score, 0);
+  if (safeScore >= CONFIDENCE_THRESHOLD_HIGH * 100) return "high";
+  if (safeScore >= CONFIDENCE_THRESHOLD_MEDIUM * 100) return "medium";
   return "low";
+}
+
+/**
+ * Safe number conversion - prevents NaN values
+ */
+function safeNumber(value: unknown, fallback: number = 0): number {
+  if (value === null || value === undefined) return fallback;
+  const num = Number(value);
+  return Number.isFinite(num) ? num : fallback;
+}
+
+/**
+ * Sanitize food item to ensure all values are valid
+ */
+function sanitizeFoodItem(item: Partial<FoodItem>): FoodItem {
+  const validPortions = ["small", "medium", "large"] as const;
+  const portion = validPortions.includes(item.portion as typeof validPortions[number]) 
+    ? item.portion as "small" | "medium" | "large"
+    : "medium"; // Default to medium if missing or invalid
+  
+  return {
+    name: item.name || "Unknown item",
+    portion,
+    estimatedCalories: safeNumber(item.estimatedCalories, null as unknown as number) || null,
+  };
+}
+
+/**
+ * Sanitize macros to ensure all values are valid numbers
+ */
+function sanitizeMacros(macros: { protein?: number; carbs?: number; fat?: number } | null | undefined): { protein: number; carbs: number; fat: number } | null {
+  if (!macros) return null;
+  
+  const protein = safeNumber(macros.protein, 0);
+  const carbs = safeNumber(macros.carbs, 0);
+  const fat = safeNumber(macros.fat, 0);
+  
+  // If all macros are 0, return null instead
+  if (protein === 0 && carbs === 0 && fat === 0) return null;
+  
+  return { protein, carbs, fat };
+}
+
+/**
+ * Sanitize total calories - handle both number and range formats
+ */
+function sanitizeTotalCalories(calories: number | { min: number; max: number } | null | undefined): number | { min: number; max: number } | null {
+  if (calories === null || calories === undefined) return null;
+  
+  if (typeof calories === "object" && calories !== null) {
+    const min = safeNumber(calories.min, 0);
+    const max = safeNumber(calories.max, 0);
+    if (min === 0 && max === 0) return null;
+    return { min, max };
+  }
+  
+  const num = safeNumber(calories, 0);
+  return num > 0 ? num : null;
+}
+
+/**
+ * Apply fallback calorie estimates for items with missing data
+ */
+function applyFallbackEstimates(items: FoodItem[]): FoodItem[] {
+  return items.map(item => {
+    // If item already has valid calories, keep it
+    if (item.estimatedCalories && Number.isFinite(item.estimatedCalories) && item.estimatedCalories > 0) {
+      return item;
+    }
+    
+    // Apply conservative fallback based on portion size
+    const portionMultiplier = item.portion === "small" ? 0.7 : item.portion === "large" ? 1.4 : 1.0;
+    const baseFallback = 80; // Conservative base estimate
+    const fallbackCalories = Math.round(baseFallback * portionMultiplier);
+    
+    console.log(`[identify-food] Applied fallback calories for "${item.name}": ${fallbackCalories} kcal`);
+    
+    return {
+      ...item,
+      estimatedCalories: fallbackCalories,
+    };
+  });
 }
 
 function validateRequest(body: unknown): { valid: true; data: FoodIdentificationRequest } | { valid: false; error: ErrorResponse } {
@@ -319,7 +402,17 @@ OUTPUT RULES:
       throw new Error("Invalid response from Vision API");
     }
 
-    const result = JSON.parse(toolCall.function.arguments) as VisionAnalysisResult;
+    const rawResult = JSON.parse(toolCall.function.arguments) as VisionAnalysisResult;
+    
+    // Sanitize all values to prevent NaN
+    const result: VisionAnalysisResult = {
+      foodDetected: Boolean(rawResult.foodDetected),
+      items: (rawResult.items || []).map(sanitizeFoodItem),
+      totalCalories: sanitizeTotalCalories(rawResult.totalCalories),
+      confidenceScore: safeNumber(rawResult.confidenceScore, 50),
+      reasoning: rawResult.reasoning || "Food identified from image.",
+      macros: sanitizeMacros(rawResult.macros),
+    };
     
     // Clamp confidence
     result.confidenceScore = Math.round(Math.max(0, Math.min(100, result.confidenceScore)));
@@ -404,7 +497,7 @@ serve(async (req: Request) => {
       );
     }
 
-    const { foodDetected, items, totalCalories, confidenceScore, reasoning, macros } = visionResult;
+    let { foodDetected, items, totalCalories, confidenceScore, reasoning, macros } = visionResult;
 
     // No food detected
     if (!foodDetected) {
@@ -412,7 +505,7 @@ serve(async (req: Request) => {
         foodDetected: false,
         items: [],
         totalCalories: null,
-        confidenceScore: Math.min(confidenceScore, 50),
+        confidenceScore: safeNumber(Math.min(confidenceScore, 50), 30),
         confidence: "low",
         reasoning: reasoning || "No food detected in the image.",
         macros: null,
@@ -427,22 +520,39 @@ serve(async (req: Request) => {
       );
     }
 
-    // Only include macros if confidence >= 70
-    const finalMacros = confidenceScore >= 70 ? macros : null;
+    // Apply fallback estimates for items missing calories
+    const sanitizedItems = applyFallbackEstimates(items);
 
+    // Calculate total calories from items if missing
+    let finalTotalCalories = sanitizeTotalCalories(totalCalories);
+    if (finalTotalCalories === null && sanitizedItems.length > 0) {
+      const sum = sanitizedItems.reduce((acc, item) => acc + safeNumber(item.estimatedCalories, 0), 0);
+      if (sum > 0) {
+        finalTotalCalories = Math.round(sum);
+        console.log(`[identify-food] Calculated total calories from items: ${finalTotalCalories}`);
+      }
+    }
+
+    // Sanitize confidence score
+    const finalConfidence = safeNumber(confidenceScore, 50);
+
+    // Only include macros if confidence >= 70 and macros are valid
+    const finalMacros = finalConfidence >= 70 ? sanitizeMacros(macros) : null;
+
+    // Final sanity check - ensure all values are valid
     const response: FoodIdentificationResponse = {
       foodDetected: true,
-      items: items,
-      totalCalories: totalCalories,
-      confidenceScore: confidenceScore,
-      confidence: getConfidenceLabel(confidenceScore),
-      reasoning: reasoning,
+      items: sanitizedItems,
+      totalCalories: finalTotalCalories,
+      confidenceScore: finalConfidence,
+      confidence: getConfidenceLabel(finalConfidence),
+      reasoning: reasoning || "Food identified from image.",
       macros: finalMacros,
       disclaimer: DISCLAIMER,
       identifiedAt: new Date().toISOString(),
     };
     
-    console.log(`[identify-food] Result: ${items.length} items, calories=${JSON.stringify(totalCalories)}, confidence=${confidenceScore}%`);
+    console.log(`[identify-food] Final result: ${sanitizedItems.length} items, calories=${JSON.stringify(finalTotalCalories)}, macros=${JSON.stringify(finalMacros)}, confidence=${finalConfidence}%`);
     return new Response(
       JSON.stringify(response),
       { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } }

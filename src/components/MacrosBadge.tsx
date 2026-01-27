@@ -1,4 +1,5 @@
 import { MacroInfoTooltip } from "./MacroInfoTooltip";
+import { safeNumber, formatMacroSafe, sanitizeMacros } from "@/lib/nutritionUtils";
 
 interface MacrosBadgeProps {
   macros: { protein: number; carbs: number; fat: number } | null;
@@ -7,10 +8,8 @@ interface MacrosBadgeProps {
   compact?: boolean;
 }
 
-function formatMacroValue(value: number): string {
-  // Remove leading zeros and format properly
-  const rounded = Math.round(value * 10) / 10;
-  return String(rounded);
+function formatMacroValue(value: number | undefined): string {
+  return formatMacroSafe(value);
 }
 
 export function MacrosBadge({ 

@@ -11,17 +11,15 @@ import { MealRemindersSettings } from "@/components/MealRemindersSettings";
 import { FoodItemsList } from "@/components/FoodItemsList";
 import { MacrosBadge } from "@/components/MacrosBadge";
 import { ArrowLeft, Trash2, Camera, Bell, BellOff, HelpCircle } from "lucide-react";
+import { safeNumber, getCalorieValue } from "@/lib/nutritionUtils";
 
 function calculateTotalCalories(meals: SavedMeal[]): number {
   let total = 0;
   for (const meal of meals) {
-    if (meal.totalCalories === null) continue;
-    const cal = typeof meal.totalCalories === "object" 
-      ? Math.round((meal.totalCalories.min + meal.totalCalories.max) / 2)
-      : meal.totalCalories;
-    total += cal;
+    const cal = getCalorieValue(meal.totalCalories);
+    total += safeNumber(cal, 0);
   }
-  return total;
+  return Math.round(total);
 }
 
 export default function MyMeals() {

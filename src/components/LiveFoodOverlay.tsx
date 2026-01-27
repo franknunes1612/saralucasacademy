@@ -1,5 +1,6 @@
 import { X, Lock, RotateCcw, Camera } from "lucide-react";
 import { LiveFoodResult } from "@/hooks/useLiveFoodScan";
+import { safeNumber, hasValidCalories, getCalorieValue } from "@/lib/nutritionUtils";
 
 interface LiveFoodOverlayProps {
   liveResult: LiveFoodResult | null;
@@ -19,10 +20,10 @@ export function LiveFoodOverlay({
   onRescan,
 }: LiveFoodOverlayProps) {
   const getConfidenceClass = (score: number | null): string => {
-    if (score === null) return "text-muted-foreground";
-    if (score >= 85) return "text-green-500";
-    if (score >= 70) return "text-yellow-500";
-    if (score >= 60) return "text-orange-500";
+    const safe = safeNumber(score, 0);
+    if (safe >= 85) return "text-primary";
+    if (safe >= 70) return "text-primary/80";
+    if (safe >= 60) return "text-muted-foreground";
     return "text-muted-foreground";
   };
 
@@ -61,9 +62,13 @@ export function LiveFoodOverlay({
   };
 
   const formatCalories = (cal: number | { min: number; max: number } | null): string => {
-    if (cal === null) return "—";
-    if (typeof cal === "object") return `~${Math.round(cal.min)}-${Math.round(cal.max)}`;
-    return `~${Math.round(cal)}`;
+    if (!hasValidCalories(cal)) return "—";
+    if (typeof cal === "object") {
+      const min = safeNumber(cal.min, 0);
+      const max = safeNumber(cal.max, 0);
+      return `~${Math.round(min)}-${Math.round(max)}`;
+    }
+    return `~${Math.round(safeNumber(cal, 0))}`;
   };
 
   const renderResult = () => {
