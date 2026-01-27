@@ -1,4 +1,10 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
+import { 
+  checkRateLimit, 
+  getClientIdentifier, 
+  rateLimitResponse,
+  type RateLimitConfig 
+} from "../_shared/rateLimit.ts";
 
 // ============================================
 // CONSTANTS
@@ -13,6 +19,13 @@ const DISCLAIMER = "AI-based estimate, not medical advice. Actual calories may v
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
+};
+
+// Rate limit: 20 requests per minute per IP (more restrictive due to AI costs)
+const RATE_LIMIT_CONFIG: RateLimitConfig = {
+  maxRequests: 20,
+  windowMs: 60 * 1000, // 1 minute
+  keyPrefix: "identify-food",
 };
 
 // ============================================
