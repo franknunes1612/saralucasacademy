@@ -1,5 +1,6 @@
 import { SavedMeal } from "@/hooks/useSavedMeals";
 import { MacrosBadge } from "./MacrosBadge";
+import { safeNumber, getCalorieValue, hasValidCalories } from "@/lib/nutritionUtils";
 
 interface SavedMealCardProps {
   meal: SavedMeal;
@@ -7,19 +8,26 @@ interface SavedMealCardProps {
 }
 
 function getCalorieClass(calories: number | { min: number; max: number } | null): string {
-  if (calories === null) return "";
-  const cal = typeof calories === "object" ? (calories.min + calories.max) / 2 : calories;
+  if (!hasValidCalories(calories)) return "";
+  const cal = getCalorieValue(calories);
   if (cal >= 600) return "calorie-high";
   if (cal >= 300) return "calorie-mid";
   return "calorie-low";
 }
 
 function formatCalories(calories: number | { min: number; max: number } | null): string {
-  if (calories === null) return "—";
-  if (typeof calories === "object") {
-    return `~${Math.round(calories.min)}-${Math.round(calories.max)}`;
+  if (!hasValidCalories(calories)) return "—";
+  
+  if (typeof calories === "object" && calories !== null) {
+    const min = safeNumber(calories.min, 0);
+    const max = safeNumber(calories.max, 0);
+    if (min === 0 && max === 0) return "—";
+    return `~${Math.round(min)}-${Math.round(max)}`;
   }
-  return `~${Math.round(calories)}`;
+  
+  const num = safeNumber(calories, 0);
+  if (num === 0) return "—";
+  return `~${Math.round(num)}`;
 }
 
 export function SavedMealCard({ meal, onTap }: SavedMealCardProps) {

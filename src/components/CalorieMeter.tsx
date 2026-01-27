@@ -1,4 +1,5 @@
 import { cn } from "@/lib/utils";
+import { safeNumber, getCalorieValue, hasValidCalories } from "@/lib/nutritionUtils";
 
 interface CalorieMeterProps {
   calories: number | { min: number; max: number } | null;
@@ -7,21 +8,25 @@ interface CalorieMeterProps {
 }
 
 function getCalorieLabel(calories: number): string {
-  if (calories >= 800) return "Rich meal";
-  if (calories >= 600) return "Hearty meal";
-  if (calories >= 300) return "Balanced meal";
-  if (calories >= 150) return "Light meal";
-  return "Light bite";
+  const safe = safeNumber(calories, 0);
+  if (safe >= 800) return "Rich meal";
+  if (safe >= 600) return "Hearty meal";
+  if (safe >= 300) return "Balanced meal";
+  if (safe >= 150) return "Light meal";
+  if (safe > 0) return "Light bite";
+  return "Estimate unavailable";
 }
 
 function formatCalorieDisplay(value: number, showEstimate: boolean = true): string {
-  const rounded = Math.round(value);
+  const rounded = Math.round(safeNumber(value, 0));
+  if (rounded === 0) return "—";
   return showEstimate ? `~${rounded}` : String(rounded);
 }
 
 function getCalorieTier(calories: number): "low" | "mid" | "high" {
-  if (calories >= 600) return "high";
-  if (calories >= 300) return "mid";
+  const safe = safeNumber(calories, 0);
+  if (safe >= 600) return "high";
+  if (safe >= 300) return "mid";
   return "low";
 }
 
@@ -34,16 +39,26 @@ function getTierColorClass(tier: "low" | "mid" | "high"): string {
 }
 
 export function CalorieMeter({ calories, size = "lg", animated = true }: CalorieMeterProps) {
-  if (calories === null) return null;
+  // Early return for invalid data
+  if (!hasValidCalories(calories)) {
+    return (
+      <div className="flex flex-col items-center gap-3">
+        <div className="text-center">
+          <p className="text-2xl font-bold text-muted-foreground">—</p>
+          <p className="text-sm text-muted-foreground mt-1">Estimate unavailable</p>
+        </div>
+      </div>
+    );
+  }
 
   const isRange = typeof calories === "object";
-  const displayCalories = isRange ? Math.round((calories.min + calories.max) / 2) : calories;
+  const displayCalories = getCalorieValue(calories);
   const tier = getCalorieTier(displayCalories);
   const label = getCalorieLabel(displayCalories);
   const colorClass = getTierColorClass(tier);
   
   // Progress based on 1000 cal max for visual
-  const progress = Math.min(displayCalories / 1000, 1);
+  const progress = Math.min(safeNumber(displayCalories, 0) / 1000, 1);
 
   const sizeConfig = {
     sm: { ring: 80, stroke: 6, fontSize: "text-xl", labelSize: "text-xs" },

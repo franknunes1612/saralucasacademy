@@ -1,3 +1,5 @@
+import { safeNumber, formatMacroSafe } from "@/lib/nutritionUtils";
+
 interface FoodItem {
   name: string;
   portion: "small" | "medium" | "large";
@@ -9,29 +11,33 @@ interface FoodItemsListProps {
   items: FoodItem[];
 }
 
-function getPortionIcon(portion: "small" | "medium" | "large"): string {
+function getPortionIcon(portion: "small" | "medium" | "large" | undefined): string {
   switch (portion) {
     case "small": return "🥄";
     case "medium": return "🍽️";
     case "large": return "🍲";
+    default: return "🍽️"; // Default to medium icon
   }
 }
 
-function getPortionLabel(portion: "small" | "medium" | "large"): string {
+function getPortionLabel(portion: "small" | "medium" | "large" | undefined): string {
   switch (portion) {
     case "small": return "Small";
     case "medium": return "Medium";
     case "large": return "Large";
+    default: return "Medium"; // Default to medium label
   }
 }
 
-function formatCalories(calories: number | null): string {
-  if (calories === null) return "—";
-  return `~${Math.round(calories)}`;
+function formatCalories(calories: number | null | undefined): string {
+  if (calories === null || calories === undefined) return "—";
+  const safe = safeNumber(calories, 0);
+  if (safe === 0) return "—";
+  return `~${Math.round(safe)}`;
 }
 
-function formatMacroValue(value: number): string {
-  return String(Math.round(value * 10) / 10);
+function formatMacroValue(value: number | undefined): string {
+  return formatMacroSafe(value);
 }
 
 export function FoodItemsList({ items }: FoodItemsListProps) {

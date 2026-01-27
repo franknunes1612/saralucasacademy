@@ -18,6 +18,7 @@ import { PortionAdjuster, PortionAdjustment } from "@/components/PortionAdjuster
 import { History, Radio, Image, ScanBarcode, HelpCircle } from "lucide-react";
 import { preprocessImage, getBase64SizeKB } from "@/lib/imageProcessor";
 import { toast } from "sonner";
+import { safeNumber, getCalorieValue, hasValidCalories } from "@/lib/nutritionUtils";
 import {
   startScanMetrics,
   markUIResponse,
@@ -690,7 +691,7 @@ export default function Index() {
 
     // Calculate displayed calories (original or adjusted)
     const getDisplayCalories = (): number | { min: number; max: number } | null => {
-      if (adjustedCalories !== null) {
+      if (adjustedCalories !== null && Number.isFinite(adjustedCalories)) {
         return adjustedCalories;
       }
       return result.totalCalories;
@@ -698,12 +699,7 @@ export default function Index() {
 
     // Get original calorie value for adjustment calculations
     const getOriginalCalorieValue = (): number => {
-      if (typeof result.totalCalories === "number") {
-        return result.totalCalories;
-      } else if (result.totalCalories && typeof result.totalCalories === "object") {
-        return Math.round((result.totalCalories.min + result.totalCalories.max) / 2);
-      }
-      return 0;
+      return getCalorieValue(result.totalCalories);
     };
 
     return (
