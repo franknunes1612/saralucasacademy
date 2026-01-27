@@ -8,6 +8,8 @@ import MyMeals from "./pages/MyMeals";
 import HowItWorks from "./pages/HowItWorks";
 import FitRecipes from "./pages/FitRecipes";
 import RecipeDetail from "./pages/RecipeDetail";
+import AdminLogin from "./pages/AdminLogin";
+import AdminRecipes from "./pages/AdminRecipes";
 import NotFound from "./pages/NotFound";
 import { NutritionistFAB } from "./components/NutritionistFAB";
 
@@ -39,6 +41,8 @@ const App = () => (
           <Route path="/how-it-works" element={<HowItWorks />} />
           <Route path="/recipes" element={<FitRecipes />} />
           <Route path="/recipes/:recipeId" element={<RecipeDetail />} />
+          <Route path="/admin" element={<AdminLogin />} />
+          <Route path="/admin/recipes" element={<AdminRecipes />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>

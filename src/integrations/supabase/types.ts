@@ -14,6 +14,87 @@ export type Database = {
   }
   public: {
     Tables: {
+      recipes: {
+        Row: {
+          calories: number
+          carbs: number
+          category: string
+          created_at: string
+          created_by: string | null
+          description_en: string | null
+          description_pt: string | null
+          fat: number
+          id: string
+          image_emoji: string | null
+          image_url: string | null
+          ingredients_en: string[]
+          ingredients_pt: string[]
+          is_active: boolean
+          meal_type: string | null
+          name_en: string
+          name_pt: string
+          portion_en: string | null
+          portion_pt: string | null
+          prep_time: number | null
+          protein: number
+          steps_en: string[]
+          steps_pt: string[]
+          updated_at: string
+        }
+        Insert: {
+          calories: number
+          carbs?: number
+          category: string
+          created_at?: string
+          created_by?: string | null
+          description_en?: string | null
+          description_pt?: string | null
+          fat?: number
+          id?: string
+          image_emoji?: string | null
+          image_url?: string | null
+          ingredients_en?: string[]
+          ingredients_pt?: string[]
+          is_active?: boolean
+          meal_type?: string | null
+          name_en: string
+          name_pt: string
+          portion_en?: string | null
+          portion_pt?: string | null
+          prep_time?: number | null
+          protein?: number
+          steps_en?: string[]
+          steps_pt?: string[]
+          updated_at?: string
+        }
+        Update: {
+          calories?: number
+          carbs?: number
+          category?: string
+          created_at?: string
+          created_by?: string | null
+          description_en?: string | null
+          description_pt?: string | null
+          fat?: number
+          id?: string
+          image_emoji?: string | null
+          image_url?: string | null
+          ingredients_en?: string[]
+          ingredients_pt?: string[]
+          is_active?: boolean
+          meal_type?: string | null
+          name_en?: string
+          name_pt?: string
+          portion_en?: string | null
+          portion_pt?: string | null
+          prep_time?: number | null
+          protein?: number
+          steps_en?: string[]
+          steps_pt?: string[]
+          updated_at?: string
+        }
+        Relationships: []
+      }
       scan_feedback: {
         Row: {
           confidence_score: number | null
@@ -68,15 +149,42 @@ export type Database = {
         }
         Relationships: []
       }
+      user_roles: {
+        Row: {
+          created_at: string
+          id: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          role?: Database["public"]["Enums"]["app_role"]
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      has_role: {
+        Args: {
+          _role: Database["public"]["Enums"]["app_role"]
+          _user_id: string
+        }
+        Returns: boolean
+      }
     }
     Enums: {
-      [_ in never]: never
+      app_role: "admin" | "user"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -203,6 +311,8 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      app_role: ["admin", "user"],
+    },
   },
 } as const

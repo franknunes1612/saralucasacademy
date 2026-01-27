@@ -1,10 +1,14 @@
 import { Clock, Plus } from "lucide-react";
 import { useNavigate } from "react-router-dom";
-import { Recipe } from "@/data/recipes";
+import { Recipe as DbRecipe } from "@/hooks/useRecipes";
+import { Recipe as StaticRecipe } from "@/data/recipes";
 import { useLanguage } from "@/hooks/useLanguage";
 import { useSavedMeals } from "@/hooks/useSavedMeals";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
+
+// Support both DB recipes and static recipes
+type Recipe = DbRecipe | (StaticRecipe & { imageUrl?: string | null; steps?: { pt: string[]; en: string[] } });
 
 interface RecipeCardProps {
   recipe: Recipe;
@@ -57,14 +61,24 @@ export function RecipeCard({ recipe, compact = false }: RecipeCardProps) {
     handleAddToMeals();
   };
 
+  // Get image URL if available (DB recipes)
+  const imageUrl = "imageUrl" in recipe ? recipe.imageUrl : null;
+  
+  // Get prep time (handle both formats)
+  const prepTime = "prepTime" in recipe ? recipe.prepTime : 15;
+
   if (compact) {
     return (
       <div 
         onClick={handleNavigateToDetail}
         className="result-card p-3 flex items-center gap-3 cursor-pointer hover:bg-white/5 active:scale-[0.98] transition-all"
       >
-        <div className="w-12 h-12 rounded-xl bg-white/10 flex items-center justify-center text-2xl shrink-0">
-          {recipe.imageEmoji}
+        <div className="w-12 h-12 rounded-xl bg-white/10 flex items-center justify-center text-2xl shrink-0 overflow-hidden">
+          {imageUrl ? (
+            <img src={imageUrl} alt={recipe.name[language]} className="w-full h-full object-cover" />
+          ) : (
+            recipe.imageEmoji
+          )}
         </div>
         <div className="flex-1 min-w-0">
           <p className="font-medium text-white text-sm truncate">{recipe.name[language]}</p>
@@ -90,11 +104,15 @@ export function RecipeCard({ recipe, compact = false }: RecipeCardProps) {
       onClick={handleNavigateToDetail}
       className="result-card overflow-hidden cursor-pointer hover:bg-white/5 active:scale-[0.99] transition-all"
     >
-      {/* Header with emoji and category */}
+      {/* Header with emoji/image and category */}
       <div className="p-4 pb-3 flex items-start justify-between">
         <div className="flex items-center gap-3">
-          <div className="w-14 h-14 rounded-xl bg-white/10 flex items-center justify-center text-3xl">
-            {recipe.imageEmoji}
+          <div className="w-14 h-14 rounded-xl bg-white/10 flex items-center justify-center text-3xl overflow-hidden">
+            {imageUrl ? (
+              <img src={imageUrl} alt={recipe.name[language]} className="w-full h-full object-cover" />
+            ) : (
+              recipe.imageEmoji
+            )}
           </div>
           <div>
             <h3 className="font-semibold text-white">{recipe.name[language]}</h3>
@@ -135,7 +153,7 @@ export function RecipeCard({ recipe, compact = false }: RecipeCardProps) {
       <div className="px-4 pb-3 flex items-center gap-4 text-xs text-white/60">
         <div className="flex items-center gap-1">
           <Clock className="h-3.5 w-3.5" />
-          <span>{recipe.prepTime} min</span>
+          <span>{prepTime} min</span>
         </div>
         <span>{recipe.portion[language]}</span>
       </div>

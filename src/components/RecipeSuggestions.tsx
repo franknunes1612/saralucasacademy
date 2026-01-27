@@ -1,6 +1,7 @@
 import { ChefHat, ChevronRight } from "lucide-react";
 import { useNavigate } from "react-router-dom";
-import { Recipe, getSuggestedRecipes } from "@/data/recipes";
+import { useRecipes, Recipe } from "@/hooks/useRecipes";
+import { getSuggestedRecipes as getStaticSuggestions, recipes as staticRecipes } from "@/data/recipes";
 import { RecipeCard } from "./RecipeCard";
 import { useLanguage } from "@/hooks/useLanguage";
 
@@ -11,8 +12,17 @@ interface RecipeSuggestionsProps {
 export function RecipeSuggestions({ mealTone }: RecipeSuggestionsProps) {
   const navigate = useNavigate();
   const { t } = useLanguage();
+  const { recipes: dbRecipes, getSuggestedRecipes } = useRecipes();
 
-  const suggestions = getSuggestedRecipes(mealTone, 2);
+  // Use DB recipes if available, otherwise use static data
+  const hasDbRecipes = dbRecipes.length > 0;
+  const suggestions = hasDbRecipes 
+    ? getSuggestedRecipes(mealTone, 2)
+    : getStaticSuggestions(mealTone, 2).map(r => ({
+        ...r,
+        imageUrl: null,
+        steps: { pt: [], en: [] },
+      }));
 
   const getContextMessage = () => {
     if (mealTone === "rich") {
@@ -32,6 +42,10 @@ export function RecipeSuggestions({ mealTone }: RecipeSuggestionsProps) {
       en: "More ideas for your meals",
     });
   };
+
+  if (suggestions.length === 0) {
+    return null;
+  }
 
   return (
     <div className="space-y-4">
