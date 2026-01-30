@@ -6,6 +6,7 @@ import { AcademyCard } from "@/components/academy/AcademyCard";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useAuth } from "@/hooks/useAuth";
 import { SaraLucasLogo } from "@/components/brand/SaraLucasLogo";
+import saraPortrait from "@/assets/sara-lucas-portrait.png";
 
 export default function Home() {
   const navigate = useNavigate();
@@ -42,34 +43,44 @@ export default function Home() {
         )}
       </div>
 
-      {/* Hero Card */}
-      <div className="result-card p-6 mb-6">
-        <div className="flex items-center gap-4 mb-4">
-          <div className="w-14 h-14 rounded-full bg-gradient-to-br from-primary to-secondary flex items-center justify-center">
-            <GraduationCap className="h-7 w-7 text-white" />
+      {/* Hero Card with Sara's Photo */}
+      <div className="result-card p-6 mb-6 overflow-hidden">
+        <div className="flex gap-4">
+          {/* Portrait */}
+          <div className="flex-shrink-0 w-24 h-28 rounded-2xl overflow-hidden bg-gradient-to-br from-primary/20 to-secondary/20">
+            <img
+              src={saraPortrait}
+              alt="Sara Lucas - Nutricionista"
+              className="w-full h-full object-cover object-top"
+            />
           </div>
-          <div>
-            <h2 className="text-lg font-bold text-white">
-              {t({ pt: "Aprende Nutrição com a Sara Lucas", en: "Learn Nutrition with Sara Lucas" })}
+          
+          {/* Content */}
+          <div className="flex-1 min-w-0">
+            <h2 className="text-lg font-bold text-white leading-tight mb-1">
+              {t({ pt: "Olá, sou a Sara Lucas", en: "Hi, I'm Sara Lucas" })}
             </h2>
-            <p className="text-sm text-white/70">
+            <p className="text-sm text-white/70 mb-2">
               {t({ pt: "Nutricionista Certificada", en: "Certified Nutritionist" })}
+            </p>
+            <p className="text-xs text-white/60 line-clamp-2">
+              {t({
+                pt: "Ajudo-te a transformar a tua alimentação e alcançar os teus objetivos.",
+                en: "I help you transform your nutrition and reach your goals.",
+              })}
             </p>
           </div>
         </div>
-        <p className="text-sm text-white/80 mb-4">
-          {t({
-            pt: "Cursos, ebooks e programas personalizados para transformar a tua alimentação e treino.",
-            en: "Courses, ebooks and personalized programs to transform your nutrition and training.",
-          })}
-        </p>
-        <button
-          onClick={() => navigate("/learn")}
-          className="btn-primary w-full py-3 flex items-center justify-center gap-2"
-        >
-          {t({ pt: "Explorar Academia", en: "Explore Academy" })}
-          <ChevronRight className="h-4 w-4" />
-        </button>
+        
+        <div className="mt-4 pt-4 border-t border-white/10">
+          <button
+            onClick={() => navigate("/learn")}
+            className="btn-primary w-full py-3 flex items-center justify-center gap-2"
+          >
+            {t({ pt: "Explorar Academia", en: "Explore Academy" })}
+            <ChevronRight className="h-4 w-4" />
+          </button>
+        </div>
       </div>
 
       {/* Quick Actions */}
