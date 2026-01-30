@@ -1,5 +1,5 @@
 import { useNavigate } from "react-router-dom";
-import { GraduationCap, Utensils, MessageCircle, ChevronRight, Sparkles, BookOpen, Users } from "lucide-react";
+import { GraduationCap, Utensils, MessageCircle, ChevronRight, Sparkles, BookOpen, Users, Instagram } from "lucide-react";
 import { useLanguage } from "@/hooks/useLanguage";
 import { useFeaturedAcademyItems } from "@/hooks/useAcademyItems";
 import { AcademyCard } from "@/components/academy/AcademyCard";
@@ -8,6 +8,8 @@ import { useAuth } from "@/hooks/useAuth";
 import { SaraLucasLogo } from "@/components/brand/SaraLucasLogo";
 import { RecommendedProductsSection } from "@/components/home/RecommendedProductsSection";
 import saraPortrait from "@/assets/sara-lucas-portrait.png";
+
+const INSTAGRAM_URL = "https://www.instagram.com/saralucas_pt_nutricionista/";
 
 export default function Home() {
   const navigate = useNavigate();
@@ -33,15 +35,26 @@ export default function Home() {
             {t({ pt: "Academia de Nutrição & Treino", en: "Nutrition & Training Academy" })}
           </p>
         </div>
-        {isAdmin && (
-          <button
-            onClick={() => navigate("/admin/dashboard")}
+        <div className="flex items-center gap-1">
+          <a
+            href={INSTAGRAM_URL}
+            target="_blank"
+            rel="noopener noreferrer"
             className="p-2 rounded-xl hover:bg-white/10 transition-colors"
-            aria-label="Admin"
+            aria-label="Instagram"
           >
-            <Sparkles className="h-5 w-5 text-white/60" />
-          </button>
-        )}
+            <Instagram className="h-5 w-5 text-white/70 hover:text-white transition-colors" />
+          </a>
+          {isAdmin && (
+            <button
+              onClick={() => navigate("/admin/dashboard")}
+              className="p-2 rounded-xl hover:bg-white/10 transition-colors"
+              aria-label="Admin"
+            >
+              <Sparkles className="h-5 w-5 text-white/60" />
+            </button>
+          )}
+        </div>
       </div>
 
       {/* Hero Card with Sara's Photo */}
