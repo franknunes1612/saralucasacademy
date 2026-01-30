@@ -15,18 +15,18 @@ export default function AdminDashboard() {
 
   const adminSections = [
     {
+      title: { pt: "Academia", en: "Academy" },
+      description: { pt: "Ebooks, cursos e programas", en: "Ebooks, courses and programs" },
+      icon: Sparkles,
+      path: "/admin/academy",
+      color: "bg-purple-500/20 text-purple-400",
+    },
+    {
       title: { pt: "Receitas", en: "Recipes" },
       description: { pt: "Gerir receitas da aplicação", en: "Manage app recipes" },
       icon: ChefHat,
       path: "/admin/recipes",
       color: "bg-orange-500/20 text-orange-400",
-    },
-    {
-      title: { pt: "Ofertas Premium", en: "Premium Offers" },
-      description: { pt: "Gerir planos e preços", en: "Manage plans and pricing" },
-      icon: Sparkles,
-      path: "/admin/premium",
-      color: "bg-purple-500/20 text-purple-400",
     },
     {
       title: { pt: "Loja / Produtos", en: "Store / Products" },
