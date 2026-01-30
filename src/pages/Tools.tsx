@@ -22,7 +22,7 @@ export default function Tools() {
       title: { pt: "Scanner de Alimentos", en: "Food Scanner" },
       description: { pt: "Analisa calorias e macros com a câmara", en: "Analyze calories and macros with camera" },
       color: "bg-success/20 text-success",
-      action: () => navigate("/scan"),
+      action: () => navigate("/scan?direct=1"),
     },
     {
       id: "barcode-scan",

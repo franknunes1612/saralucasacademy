@@ -14,7 +14,11 @@ export default function Home() {
   const { data: featuredItems, isLoading } = useFeaturedAcademyItems();
 
   const handleWhatsApp = () => {
-    window.open("https://wa.me/351939535077", "_blank", "noopener,noreferrer");
+    const message = language === "pt" 
+      ? "Olá, sou utilizador da app Sara Lucas e gostaria de agendar uma consulta."
+      : "Hi, I'm a Sara Lucas app user and I'd like to book a consultation.";
+    const encodedMessage = encodeURIComponent(message);
+    window.open(`https://wa.me/351939535077?text=${encodedMessage}`, "_blank", "noopener,noreferrer");
   };
 
   return (

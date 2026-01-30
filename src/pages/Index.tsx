@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef, useCallback } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useSavedMeals, FoodItem } from "@/hooks/useSavedMeals";
 import { useLiveFoodScan, LiveFoodResult } from "@/hooks/useLiveFoodScan";
@@ -77,9 +77,31 @@ interface BarcodeProduct {
   imageUrl: string | null;
 }
 
+// Check if user is coming from internal navigation (skip splash/onboarding)
+const isInternalNavigation = (): boolean => {
+  try {
+    // Check URL params for direct access indicator
+    const params = new URLSearchParams(window.location.search);
+    if (params.has('mode') || params.has('direct')) {
+      return true;
+    }
+    // Check referrer - if from same origin, it's internal navigation
+    if (document.referrer && document.referrer.includes(window.location.origin)) {
+      return true;
+    }
+  } catch {
+    // Ignore errors
+  }
+  return false;
+};
+
 // Check if onboarding was completed THIS SESSION (not across app reopens)
 const getInitialAppState = (): AppState => {
   try {
+    // Skip splash/onboarding for internal navigation (from Tools page)
+    if (isInternalNavigation()) {
+      return "camera";
+    }
     // Use sessionStorage: persists during page navigation, clears on app close/reopen
     if (sessionStorage.getItem(ONBOARDING_SESSION_KEY) === "true") {
       return "camera"; // Go directly to camera view (lifecycle handles initialization)
@@ -94,7 +116,7 @@ const getInitialAppState = (): AppState => {
 // Get initial camera lifecycle based on app state
 const getInitialCameraLifecycle = (): CameraLifecycle => {
   try {
-    if (sessionStorage.getItem(ONBOARDING_SESSION_KEY) === "true") {
+    if (isInternalNavigation() || sessionStorage.getItem(ONBOARDING_SESSION_KEY) === "true") {
       return "checking_permissions"; // Start permission check immediately
     }
   } catch {
