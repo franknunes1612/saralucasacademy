@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { ArrowLeft, Plus, Pencil, Trash2, Eye, EyeOff, ExternalLink } from "lucide-react";
 import { AdminAuthGuard } from "@/components/admin/AdminAuthGuard";
+import { ProductImageUpload } from "@/components/admin/ProductImageUpload";
 import { useRecommendedProducts, useRecommendedProductMutations, type RecommendedProduct } from "@/hooks/useRecommendedProducts";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -19,8 +20,6 @@ const CATEGORIES = [
   { value: "fitness", label: "Fitness" },
   { value: "other", label: "Outro" },
 ];
-
-const EMOJI_OPTIONS = ["📦", "🥛", "💪", "⚖️", "🍶", "🌾", "🥗", "🍎", "🏋️", "🎯"];
 
 type ProductFormData = Omit<RecommendedProduct, "id" | "created_at" | "updated_at">;
 
@@ -135,34 +134,22 @@ function ProductForm({
         />
       </div>
 
-      <div className="grid grid-cols-2 gap-3">
-        <div>
-          <label className="text-xs text-white/60 mb-1 block">Emoji</label>
-          <div className="flex flex-wrap gap-2">
-            {EMOJI_OPTIONS.map((emoji) => (
-              <button
-                key={emoji}
-                onClick={() => setForm({ ...form, image_emoji: emoji })}
-                className={`w-10 h-10 rounded-lg text-xl flex items-center justify-center transition-colors ${
-                  form.image_emoji === emoji
-                    ? "bg-primary text-primary-foreground"
-                    : "bg-white/10 hover:bg-white/20"
-                }`}
-              >
-                {emoji}
-              </button>
-            ))}
-          </div>
-        </div>
-        <div>
-          <label className="text-xs text-white/60 mb-1 block">Ordem</label>
-          <Input
-            type="number"
-            value={form.display_order}
-            onChange={(e) => setForm({ ...form, display_order: parseInt(e.target.value) || 0 })}
-            className="bg-white/5 border-white/10"
-          />
-        </div>
+      {/* Image upload */}
+      <ProductImageUpload
+        currentImageUrl={form.image_url}
+        currentEmoji={form.image_emoji}
+        onImageChange={(url) => setForm({ ...form, image_url: url })}
+        onEmojiChange={(emoji) => setForm({ ...form, image_emoji: emoji })}
+      />
+
+      <div>
+        <label className="text-xs text-white/60 mb-1 block">Ordem de exibição</label>
+        <Input
+          type="number"
+          value={form.display_order}
+          onChange={(e) => setForm({ ...form, display_order: parseInt(e.target.value) || 0 })}
+          className="bg-white/5 border-white/10 w-24"
+        />
       </div>
 
       <div className="flex gap-2 pt-2">
