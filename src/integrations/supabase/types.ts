@@ -14,6 +14,84 @@ export type Database = {
   }
   public: {
     Tables: {
+      academy_items: {
+        Row: {
+          badge_en: string | null
+          badge_pt: string | null
+          category: string
+          cover_emoji: string | null
+          cover_image_url: string | null
+          created_at: string
+          currency: string
+          description_en: string | null
+          description_pt: string | null
+          display_order: number
+          duration_label: string | null
+          id: string
+          is_active: boolean
+          is_featured: boolean
+          item_type: string
+          original_price: number | null
+          price: number
+          purchase_link: string | null
+          subtitle_en: string | null
+          subtitle_pt: string | null
+          title_en: string
+          title_pt: string
+          updated_at: string
+        }
+        Insert: {
+          badge_en?: string | null
+          badge_pt?: string | null
+          category?: string
+          cover_emoji?: string | null
+          cover_image_url?: string | null
+          created_at?: string
+          currency?: string
+          description_en?: string | null
+          description_pt?: string | null
+          display_order?: number
+          duration_label?: string | null
+          id?: string
+          is_active?: boolean
+          is_featured?: boolean
+          item_type: string
+          original_price?: number | null
+          price?: number
+          purchase_link?: string | null
+          subtitle_en?: string | null
+          subtitle_pt?: string | null
+          title_en: string
+          title_pt: string
+          updated_at?: string
+        }
+        Update: {
+          badge_en?: string | null
+          badge_pt?: string | null
+          category?: string
+          cover_emoji?: string | null
+          cover_image_url?: string | null
+          created_at?: string
+          currency?: string
+          description_en?: string | null
+          description_pt?: string | null
+          display_order?: number
+          duration_label?: string | null
+          id?: string
+          is_active?: boolean
+          is_featured?: boolean
+          item_type?: string
+          original_price?: number | null
+          price?: number
+          purchase_link?: string | null
+          subtitle_en?: string | null
+          subtitle_pt?: string | null
+          title_en?: string
+          title_pt?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       cms_content: {
         Row: {
           category: string
