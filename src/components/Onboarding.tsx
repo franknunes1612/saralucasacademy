@@ -105,28 +105,28 @@ const NutritionistIllustration = () => (
   </div>
 );
 
-// Localized content for onboarding steps
+// Localized content for onboarding steps - Sara Lucas Academy brand
 const getLocalizedSteps = (language: "pt" | "en"): OnboardingStep[] => {
   if (language === "pt") {
     return [
       {
-        title: "Analise as Suas Refeições",
-        description: "Aponte a câmara para qualquer prato e obtenha estimativas de calorias e macros instantaneamente.",
-        icon: <Camera className="h-6 w-6" />,
-        illustration: <ScanIllustration />,
-      },
-      {
-        title: "Agende com uma Nutricionista",
-        description: "Marque uma consulta com uma nutricionista certificada diretamente pelo WhatsApp. Um serviço profissional, personalizado e adaptado aos seus objetivos.",
-        note: "Disponível em Português ou Inglês.",
-        icon: <MessageCircle className="h-6 w-6" />,
+        title: "Bem-vindo à Sara Lucas Academy",
+        description: "A tua academia de nutrição e treino. Cursos, ebooks e programas criados por uma nutricionista certificada para transformar a tua saúde.",
+        icon: <BookOpen className="h-6 w-6" />,
         illustration: <NutritionistIllustration />,
       },
       {
-        title: "Descubra Receitas Fit",
-        description: "Explore receitas selecionadas com informações de calorias e macros. Guarde as suas favoritas para acompanhar.",
-        icon: <BookOpen className="h-6 w-6" />,
+        title: "Consulta de Nutrição",
+        description: "Agenda uma consulta personalizada comigo. Um serviço profissional e pago, adaptado aos teus objetivos específicos.",
+        note: "Disponível em Português ou Inglês via WhatsApp.",
+        icon: <MessageCircle className="h-6 w-6" />,
         illustration: <TrackIllustration />,
+      },
+      {
+        title: "Ferramentas de Apoio",
+        description: "Usa o scanner de alimentos e outras ferramentas para apoiar a tua jornada. Complementos práticos para a tua aprendizagem.",
+        icon: <Camera className="h-6 w-6" />,
+        illustration: <ScanIllustration />,
       },
     ];
   }
@@ -134,23 +134,23 @@ const getLocalizedSteps = (language: "pt" | "en"): OnboardingStep[] => {
   // English (default)
   return [
     {
-      title: "Scan Your Meals Instantly",
-      description: "Point your camera at any plate and get instant calorie and macro estimates.",
-      icon: <Camera className="h-6 w-6" />,
-      illustration: <ScanIllustration />,
-    },
-    {
-      title: "Book a Nutritionist",
-      description: "Book a consultation with a certified nutritionist via WhatsApp. A professional, personalized nutrition service.",
-      note: "Available in Portuguese or English.",
-      icon: <MessageCircle className="h-6 w-6" />,
+      title: "Welcome to Sara Lucas Academy",
+      description: "Your nutrition and training academy. Courses, ebooks and programs created by a certified nutritionist to transform your health.",
+      icon: <BookOpen className="h-6 w-6" />,
       illustration: <NutritionistIllustration />,
     },
     {
-      title: "Discover Fit Recipes",
-      description: "Browse curated recipes with calorie and macro info. Save your favorites to track later.",
-      icon: <BookOpen className="h-6 w-6" />,
+      title: "Nutrition Consultation",
+      description: "Book a personalized consultation with me. A professional, paid service tailored to your specific goals.",
+      note: "Available in Portuguese or English via WhatsApp.",
+      icon: <MessageCircle className="h-6 w-6" />,
       illustration: <TrackIllustration />,
+    },
+    {
+      title: "Support Tools",
+      description: "Use the food scanner and other tools to support your journey. Practical add-ons for your learning experience.",
+      icon: <Camera className="h-6 w-6" />,
+      illustration: <ScanIllustration />,
     },
   ];
 };
