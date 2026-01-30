@@ -2,6 +2,7 @@ import { useState, useRef } from "react";
 import { Upload, X, Loader2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
+import { preprocessImage } from "@/lib/imageProcessor";
 
 interface ProductImageUploadProps {
   currentImageUrl: string | null;
@@ -40,16 +41,31 @@ export function ProductImageUpload({
     setIsUploading(true);
 
     try {
-      // Generate unique filename
-      const fileExt = file.name.split(".").pop();
-      const fileName = `${crypto.randomUUID()}.${fileExt}`;
+      // Compress image before upload (max 600KB, optimized dimensions)
+      console.log(`[ProductImageUpload] Original size: ${(file.size / 1024).toFixed(0)}KB`);
+      const compressedBase64 = await preprocessImage(file);
+      
+      // Convert base64 back to blob for upload
+      const byteCharacters = atob(compressedBase64);
+      const byteNumbers = new Array(byteCharacters.length);
+      for (let i = 0; i < byteCharacters.length; i++) {
+        byteNumbers[i] = byteCharacters.charCodeAt(i);
+      }
+      const byteArray = new Uint8Array(byteNumbers);
+      const compressedBlob = new Blob([byteArray], { type: "image/jpeg" });
+      
+      console.log(`[ProductImageUpload] Compressed size: ${(compressedBlob.size / 1024).toFixed(0)}KB`);
+
+      // Generate unique filename (always .jpg after compression)
+      const fileName = `${crypto.randomUUID()}.jpg`;
 
       // Upload to Supabase Storage
       const { error: uploadError } = await supabase.storage
         .from("product-images")
-        .upload(fileName, file, {
+        .upload(fileName, compressedBlob, {
           cacheControl: "3600",
           upsert: false,
+          contentType: "image/jpeg",
         });
 
       if (uploadError) throw uploadError;
