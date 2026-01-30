@@ -6,6 +6,7 @@ import { AcademyCard } from "@/components/academy/AcademyCard";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useAuth } from "@/hooks/useAuth";
 import { SaraLucasLogo } from "@/components/brand/SaraLucasLogo";
+import { RecommendedProductsSection } from "@/components/home/RecommendedProductsSection";
 import saraPortrait from "@/assets/sara-lucas-portrait.png";
 
 export default function Home() {
@@ -147,6 +148,9 @@ export default function Home() {
           </div>
         </section>
       )}
+
+      {/* Recommended Products Section */}
+      <RecommendedProductsSection />
 
       {/* Categories Preview */}
       <section className="mb-6">
