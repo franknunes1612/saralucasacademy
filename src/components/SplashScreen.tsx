@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import splashImage from "@/assets/splash-screen.png";
+import { SaraLucasLogo } from "@/components/brand/SaraLucasLogo";
 
 interface SplashScreenProps {
   onComplete: () => void;
@@ -33,7 +34,7 @@ export function SplashScreen({ onComplete, minDuration = 5000 }: SplashScreenPro
       {/* Full-screen splash image with entrance animation */}
       <img
         src={splashImage}
-        alt="CalorieSpot by Sara Lucas"
+        alt="Sara Lucas - Nutrition & Training Academy"
         className="absolute inset-0 w-full h-full object-cover object-center transition-all ease-out"
         style={{
           minWidth: "100%",
@@ -43,6 +44,19 @@ export function SplashScreen({ onComplete, minDuration = 5000 }: SplashScreenPro
           opacity: isEntered ? 1 : 0,
         }}
       />
+      
+      {/* Signature logo overlay - centered */}
+      <div
+        className="absolute inset-0 flex items-center justify-center z-10 transition-all ease-out"
+        style={{
+          transitionDuration: "800ms",
+          transitionDelay: "200ms",
+          opacity: isEntered ? 1 : 0,
+          transform: isEntered ? "translateY(0) scale(1)" : "translateY(20px) scale(0.95)",
+        }}
+      >
+        <SaraLucasLogo size="xl" className="drop-shadow-2xl" />
+      </div>
     </div>
   );
 }

@@ -497,7 +497,7 @@ function getMockedResponse(): FoodIdentificationResponse {
  * Call Vision API via Lovable AI Gateway for food identification
  */
 async function callVisionAPI(imageBase64: string, apiKey: string): Promise<VisionAnalysisResult> {
-  const systemPrompt = `You are CalorieSpot, an expert nutritionist AI analyzing food photos to estimate calories and macronutrients.
+  const systemPrompt = `You are a food nutrition AI analyst, part of the Sara Lucas Nutrition Academy. You analyze food photos to estimate calories and macronutrients.
 
 CORE PRINCIPLES:
 - Prioritize visual consistency over absolute precision

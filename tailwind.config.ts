@@ -140,6 +140,11 @@ export default {
   				'Liberation Mono',
   				'Courier New',
   				'monospace'
+  			],
+  			signature: [
+  				'Dancing Script',
+  				'Pacifico',
+  				'cursive'
   			]
   		}
   	}

@@ -18,7 +18,7 @@ export function PermissionDenied({ onRetry }: PermissionDeniedProps) {
 
         {/* Explanation */}
         <p className="text-muted-foreground text-sm mb-8 leading-relaxed">
-          CalorieSpot uses your camera to identify food and estimate calories. 
+          This app uses your camera to identify food and estimate calories. 
           No images are stored or uploaded.
         </p>
 

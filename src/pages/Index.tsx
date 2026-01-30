@@ -21,6 +21,7 @@ import { MealToneBadge } from "@/components/MealToneBadge";
 import { ZeroCalorieBadge, ZeroMacrosBadge } from "@/components/ZeroCalorieBadge";
 import { EstimationLabel, EstimationType } from "@/components/EstimationLabel";
 import { Onboarding } from "@/components/Onboarding";
+import { SaraLucasLogo } from "@/components/brand/SaraLucasLogo";
 
 import { RecipeSuggestions } from "@/components/RecipeSuggestions";
 import { History, Radio, Image, ScanBarcode, HelpCircle, Settings, Sparkles } from "lucide-react";
@@ -37,7 +38,7 @@ import {
 } from "@/lib/performanceLogger";
 
 // Session-based onboarding key - resets on app close, persists during navigation
-const ONBOARDING_SESSION_KEY = "caloriespot_onboarding_session";
+const ONBOARDING_SESSION_KEY = "saralucas_onboarding_session";
 
 // Stabilization delay for iOS/Safari camera initialization (ms)
 const CAMERA_STABILIZATION_DELAY = 200;
@@ -941,9 +942,7 @@ export default function Index() {
           {/* Header - app title and action buttons */}
           {appState === "camera" && !isInitializing && (
             <div className="absolute top-5 left-5 right-5 z-10 flex items-center justify-between">
-              <h1 className="text-lg font-semibold text-white drop-shadow-lg tracking-tight">
-                CalorieSpot
-              </h1>
+              <SaraLucasLogo size="md" className="drop-shadow-lg" />
               <div className="flex items-center gap-2">
                 {isAdmin && (
                   <button
@@ -1128,9 +1127,7 @@ export default function Index() {
       <div className="min-h-screen bg-background px-4 py-5 safe-top safe-bottom">
         {/* Header with app title, premium, and info button */}
         <div className="flex items-center justify-between mb-4">
-          <h1 className="text-xl font-semibold text-white tracking-tight">
-            CalorieSpot
-          </h1>
+          <SaraLucasLogo size="md" />
           <div className="flex items-center gap-1">
             <button
               onClick={() => navigate("/premium")}

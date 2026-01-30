@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback, useRef } from "react";
 
-const DB_NAME = "caloriespot_db";
+const DB_NAME = "saralucas_db";
 const STORE_NAME = "saved_meals";
 const DB_VERSION = 2; // Bumped for image storage
 const MAX_MEALS = 100;
