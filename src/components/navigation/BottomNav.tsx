@@ -37,8 +37,8 @@ export function BottomNav() {
   const navigate = useNavigate();
   const { t } = useLanguage();
 
-  // Hide on admin pages
-  if (location.pathname.startsWith("/admin")) {
+  // Hide on admin pages and scan/camera mode
+  if (location.pathname.startsWith("/admin") || location.pathname.startsWith("/scan")) {
     return null;
   }
 
