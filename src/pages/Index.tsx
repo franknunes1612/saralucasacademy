@@ -24,7 +24,7 @@ import { Onboarding } from "@/components/Onboarding";
 import { SaraLucasLogo } from "@/components/brand/SaraLucasLogo";
 
 import { RecipeSuggestions } from "@/components/RecipeSuggestions";
-import { History, Radio, Image, ScanBarcode, HelpCircle, Settings, Sparkles } from "lucide-react";
+import { History, Radio, Image, ScanBarcode, HelpCircle, Settings, Sparkles, X } from "lucide-react";
 import { preprocessImage, getBase64SizeKB } from "@/lib/imageProcessor";
 import { toast } from "sonner";
 import { safeNumber, getCalorieValue, hasValidCalories, isZeroCalorieResult, hasCalorieData, ensureMacros } from "@/lib/nutritionUtils";
@@ -961,10 +961,18 @@ export default function Index() {
             </div>
           )}
 
-          {/* Header - app title and action buttons */}
+          {/* Header - close button and action buttons */}
           {appState === "camera" && !isInitializing && (
-            <div className="absolute top-5 left-5 right-5 z-10 flex items-center justify-between">
-              <SaraLucasLogo size="md" className="drop-shadow-lg" />
+            <div className="absolute top-5 left-5 right-5 z-10 flex items-center justify-between safe-top">
+              {/* Close button */}
+              <button
+                onClick={() => navigate("/tools")}
+                className="p-3 glass-card rounded-xl"
+                aria-label="Close scanner"
+              >
+                <X className="h-5 w-5 text-white" />
+              </button>
+              
               <div className="flex items-center gap-2">
                 {isAdmin && (
                   <button
