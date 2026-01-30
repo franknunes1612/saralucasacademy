@@ -4,11 +4,11 @@ import { useLanguage } from "@/hooks/useLanguage";
 import { cn } from "@/lib/utils";
 
 const WHATSAPP_NUMBER = "351939535077";
-const TOOLTIP_SHOWN_KEY = "caloriespot_nutritionist_tooltip_shown";
+const TOOLTIP_SHOWN_KEY = "saralucas_nutritionist_tooltip_shown";
 
 const MESSAGES = {
-  pt: "Olá! Sou utilizador do CalorieSpot e tenho interesse em agendar uma consulta.",
-  en: "Hi! I'm a CalorieSpot user and I'd like to book a nutrition consultation.",
+  pt: "Olá! Sou utilizador da app Sara Lucas e tenho interesse em agendar uma consulta.",
+  en: "Hi! I'm a Sara Lucas app user and I'd like to book a nutrition consultation.",
 };
 
 const TOOLTIPS = {

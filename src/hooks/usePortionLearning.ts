@@ -11,7 +11,7 @@ interface PortionAdjustment {
   timestamp: number;
 }
 
-const STORAGE_KEY = "caloriespot_portion_learning";
+const STORAGE_KEY = "saralucas_portion_learning";
 const MAX_ENTRIES = 100; // Keep last 100 adjustments
 
 /**

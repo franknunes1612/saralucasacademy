@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback, useRef } from "react";
 
-const STORAGE_KEY = "caloriespot_reminders";
+const STORAGE_KEY = "saralucas_reminders";
 
 export interface ReminderSettings {
   enabled: boolean;

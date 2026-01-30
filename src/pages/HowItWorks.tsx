@@ -15,7 +15,7 @@ export default function HowItWorks() {
         >
           <ArrowLeft className="h-5 w-5" />
         </button>
-        <h1 className="text-xl font-bold tracking-tight">How CalorieSpot Works</h1>
+        <h1 className="text-xl font-bold tracking-tight">How the Scanner Works</h1>
       </div>
 
       <div className="space-y-8">
@@ -25,7 +25,7 @@ export default function HowItWorks() {
             <div className="p-2 rounded-xl bg-primary/15">
               <Camera className="h-5 w-5 text-primary" />
             </div>
-            <h2 className="font-semibold">What CalorieSpot does</h2>
+            <h2 className="font-semibold">What the food scanner does</h2>
           </div>
           <p className="text-sm text-muted-foreground leading-relaxed">
             Take a photo of your meal, and we'll estimate the calories and macronutrients 
@@ -175,14 +175,14 @@ export default function HowItWorks() {
             <h2 className="font-semibold">Need a refresher?</h2>
           </div>
           <p className="text-sm text-muted-foreground leading-relaxed">
-            View the welcome tutorial again to learn how CalorieSpot works.
+            View the welcome tutorial again to learn how the app works.
           </p>
           <button
             onClick={() => {
               // Clear session onboarding state so splash + onboarding shows again
-              sessionStorage.removeItem("caloriespot_onboarding_session");
+              sessionStorage.removeItem("saralucas_onboarding_session");
               // Also clear legacy localStorage key if present
-              localStorage.removeItem("caloriespot_onboarding_complete");
+              localStorage.removeItem("saralucas_onboarding_complete");
               navigate("/");
             }}
             className="w-full py-3 btn-secondary rounded-xl font-medium flex items-center justify-center gap-2"

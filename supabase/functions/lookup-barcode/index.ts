@@ -96,7 +96,7 @@ serve(async (req) => {
       `https://world.openfoodfacts.org/api/v2/product/${cleanBarcode}.json`,
       {
         headers: {
-          "User-Agent": "CalorieSpot/1.0 - Food calorie tracking app",
+          "User-Agent": "SaraLucasApp/1.0 - Food calorie tracking app",
         },
       }
     );

@@ -146,7 +146,7 @@ export default function Profile() {
       {/* App Info */}
       <div className="mt-8 text-center">
         <p className="text-xs text-white/40">
-          CalorieSpot Academy v1.0
+          Sara Lucas Academy v1.0
         </p>
         <p className="text-xs text-white/30 mt-1">
           {t({ pt: "Uma produção Sara Lucas Nutrição", en: "A Sara Lucas Nutrition production" })}

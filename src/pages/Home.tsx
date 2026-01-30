@@ -5,6 +5,7 @@ import { useFeaturedAcademyItems } from "@/hooks/useAcademyItems";
 import { AcademyCard } from "@/components/academy/AcademyCard";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useAuth } from "@/hooks/useAuth";
+import { SaraLucasLogo } from "@/components/brand/SaraLucasLogo";
 
 export default function Home() {
   const navigate = useNavigate();
@@ -21,8 +22,8 @@ export default function Home() {
       {/* Header */}
       <div className="flex items-center justify-between mb-6">
         <div>
-          <h1 className="text-2xl font-bold text-white tracking-tight">CalorieSpot</h1>
-          <p className="text-sm text-white/70">
+          <SaraLucasLogo size="lg" />
+          <p className="text-sm text-white/70 mt-0.5">
             {t({ pt: "Academia de Nutrição & Treino", en: "Nutrition & Training Academy" })}
           </p>
         </div>
@@ -180,7 +181,7 @@ export default function Home() {
       {/* Value Proposition */}
       <section className="result-card p-5">
         <h3 className="font-semibold text-white mb-3">
-          {t({ pt: "Porque a CalorieSpot Academy?", en: "Why CalorieSpot Academy?" })}
+          {t({ pt: "Porque a Sara Lucas Academy?", en: "Why Sara Lucas Academy?" })}
         </h3>
         <ul className="space-y-2">
           <li className="flex items-start gap-2 text-sm text-white/80">

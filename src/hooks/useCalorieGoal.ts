@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from "react";
 
-const STORAGE_KEY = "caloriespot_daily_goal";
+const STORAGE_KEY = "saralucas_daily_goal";
 const DEFAULT_GOAL = 2000;
 
 interface CalorieGoalData {
