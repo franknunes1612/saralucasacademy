@@ -39,6 +39,7 @@ import GiftPlan from "./pages/GiftPlan";
 import TermsOfUse from "./pages/TermsOfUse";
 import Support from "./pages/Support";
 import AdminSupport from "./pages/AdminSupport";
+import AdminOnboarding from "./pages/AdminOnboarding";
 import NotFound from "./pages/NotFound";
 import { NutritionistFAB } from "./components/NutritionistFAB";
 
@@ -249,6 +250,7 @@ const App = () => (
                   <AdminSupport />
                 </AdminAuthGuard>
               } />
+              <Route path="/admin/onboarding" element={<AdminOnboarding />} />
               
               {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
               <Route path="*" element={<NotFound />} />
