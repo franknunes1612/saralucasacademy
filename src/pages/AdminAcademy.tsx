@@ -1,10 +1,12 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { ArrowLeft, Plus, Pencil, Trash2, BookOpen, PlayCircle, Calendar, Package, Search, Eye, EyeOff, Star } from "lucide-react";
+import { ArrowLeft, Plus, Pencil, Trash2, BookOpen, PlayCircle, Calendar, Package, Search, Eye, EyeOff, Star, Video, ChevronRight } from "lucide-react";
 import { useLanguage } from "@/hooks/useLanguage";
 import { useAdminAcademyItems, AcademyItem, AcademyItemType } from "@/hooks/useAcademyItems";
+import { useAdminCourseLessons, CourseLesson } from "@/hooks/useCourseLessons";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 
@@ -15,8 +17,45 @@ const TYPE_CONFIG: Record<AcademyItemType, { icon: typeof BookOpen; label: strin
   bundle: { icon: Package, label: "Bundle", color: "bg-orange-500/20 text-orange-300" },
 };
 
-const EMPTY_ITEM: Omit<AcademyItem, "id" | "created_at" | "updated_at"> = {
-  item_type: "ebook",
+const DIFFICULTY_OPTIONS = [
+  { value: "beginner", label: "Beginner" },
+  { value: "intermediate", label: "Intermediate" },
+  { value: "advanced", label: "Advanced" },
+];
+
+interface ExtendedFormData {
+  item_type: AcademyItemType;
+  category: string;
+  title_pt: string;
+  title_en: string;
+  subtitle_pt: string | null;
+  subtitle_en: string | null;
+  description_pt: string | null;
+  description_en: string | null;
+  cover_image_url: string | null;
+  cover_emoji: string | null;
+  price: number;
+  currency: string;
+  original_price: number | null;
+  purchase_link: string | null;
+  is_active: boolean;
+  is_featured: boolean;
+  display_order: number;
+  duration_label: string | null;
+  badge_pt: string | null;
+  badge_en: string | null;
+  // Course-specific fields
+  instructor_name: string;
+  total_duration_minutes: number;
+  total_lessons: number;
+  difficulty_level: string;
+  what_you_learn_pt: string[];
+  what_you_learn_en: string[];
+  video_preview_url: string | null;
+}
+
+const EMPTY_ITEM: ExtendedFormData = {
+  item_type: "course",
   category: "nutrition",
   title_pt: "",
   title_en: "",
@@ -25,7 +64,7 @@ const EMPTY_ITEM: Omit<AcademyItem, "id" | "created_at" | "updated_at"> = {
   description_pt: null,
   description_en: null,
   cover_image_url: null,
-  cover_emoji: "📚",
+  cover_emoji: "🎓",
   price: 0,
   currency: "EUR",
   original_price: null,
@@ -36,6 +75,13 @@ const EMPTY_ITEM: Omit<AcademyItem, "id" | "created_at" | "updated_at"> = {
   duration_label: null,
   badge_pt: null,
   badge_en: null,
+  instructor_name: "Sara Lucas",
+  total_duration_minutes: 0,
+  total_lessons: 0,
+  difficulty_level: "beginner",
+  what_you_learn_pt: [],
+  what_you_learn_en: [],
+  video_preview_url: null,
 };
 
 export default function AdminAcademy() {
@@ -45,9 +91,14 @@ export default function AdminAcademy() {
   
   const [editingItem, setEditingItem] = useState<AcademyItem | null>(null);
   const [isCreatingNew, setIsCreatingNew] = useState(false);
-  const [formData, setFormData] = useState<Omit<AcademyItem, "id" | "created_at" | "updated_at">>(EMPTY_ITEM);
+  const [formData, setFormData] = useState<ExtendedFormData>(EMPTY_ITEM);
   const [searchQuery, setSearchQuery] = useState("");
   const [filterType, setFilterType] = useState<AcademyItemType | "all">("all");
+  const [managingLessonsFor, setManagingLessonsFor] = useState<string | null>(null);
+
+  // What you'll learn input state
+  const [newLearnItemPt, setNewLearnItemPt] = useState("");
+  const [newLearnItemEn, setNewLearnItemEn] = useState("");
 
   const filteredItems = items?.filter((item) => {
     const matchesType = filterType === "all" || item.item_type === filterType;
@@ -80,6 +131,13 @@ export default function AdminAcademy() {
       duration_label: item.duration_label,
       badge_pt: item.badge_pt,
       badge_en: item.badge_en,
+      instructor_name: item.instructor_name || "Sara Lucas",
+      total_duration_minutes: item.total_duration_minutes || 0,
+      total_lessons: item.total_lessons || 0,
+      difficulty_level: item.difficulty_level || "beginner",
+      what_you_learn_pt: item.what_you_learn_pt || [],
+      what_you_learn_en: item.what_you_learn_en || [],
+      video_preview_url: item.video_preview_url || null,
     });
     setIsCreatingNew(false);
   };
@@ -93,10 +151,10 @@ export default function AdminAcademy() {
   const handleSave = async () => {
     try {
       if (isCreatingNew) {
-        await createItem(formData);
+        await createItem(formData as any);
         toast.success(t({ pt: "Item criado com sucesso", en: "Item created successfully" }));
       } else if (editingItem) {
-        await updateItem({ id: editingItem.id, ...formData });
+        await updateItem({ id: editingItem.id, ...formData } as any);
         toast.success(t({ pt: "Item atualizado com sucesso", en: "Item updated successfully" }));
       }
       setEditingItem(null);
@@ -145,10 +203,42 @@ export default function AdminAcademy() {
     setIsCreatingNew(false);
   };
 
+  const addLearnItem = () => {
+    if (newLearnItemPt && newLearnItemEn) {
+      setFormData({
+        ...formData,
+        what_you_learn_pt: [...formData.what_you_learn_pt, newLearnItemPt],
+        what_you_learn_en: [...formData.what_you_learn_en, newLearnItemEn],
+      });
+      setNewLearnItemPt("");
+      setNewLearnItemEn("");
+    }
+  };
+
+  const removeLearnItem = (index: number) => {
+    setFormData({
+      ...formData,
+      what_you_learn_pt: formData.what_you_learn_pt.filter((_, i) => i !== index),
+      what_you_learn_en: formData.what_you_learn_en.filter((_, i) => i !== index),
+    });
+  };
+
   const showForm = editingItem || isCreatingNew;
+  const isCourse = formData.item_type === "course";
+
+  // If managing lessons, show that view
+  if (managingLessonsFor) {
+    return (
+      <LessonManager
+        courseId={managingLessonsFor}
+        courseName={items?.find(i => i.id === managingLessonsFor)?.title_en || "Course"}
+        onBack={() => setManagingLessonsFor(null)}
+      />
+    );
+  }
 
   return (
-    <div className="min-h-screen bg-background px-4 py-5 safe-top safe-bottom">
+    <div className="min-h-screen bg-background px-4 py-5 safe-top safe-bottom pb-24">
       {/* Header */}
       <div className="flex items-center justify-between mb-6">
         <div className="flex items-center gap-3">
@@ -193,7 +283,7 @@ export default function AdminAcademy() {
               {t({ pt: "Tipo", en: "Type" })}
             </label>
             <div className="flex gap-2 flex-wrap">
-              {(["ebook", "course", "program", "bundle"] as AcademyItemType[]).map((type) => (
+              {(["course", "ebook", "program", "bundle"] as AcademyItemType[]).map((type) => (
                 <button
                   key={type}
                   onClick={() => setFormData({ ...formData, item_type: type })}
@@ -249,6 +339,134 @@ export default function AdminAcademy() {
               />
             </div>
           </div>
+
+          {/* Description */}
+          <div className="grid grid-cols-2 gap-3">
+            <div>
+              <label className="text-sm text-white/70 mb-1 block">Descrição PT</label>
+              <Textarea
+                value={formData.description_pt || ""}
+                onChange={(e) => setFormData({ ...formData, description_pt: e.target.value || null })}
+                placeholder="Descrição do curso..."
+                rows={3}
+              />
+            </div>
+            <div>
+              <label className="text-sm text-white/70 mb-1 block">Description EN</label>
+              <Textarea
+                value={formData.description_en || ""}
+                onChange={(e) => setFormData({ ...formData, description_en: e.target.value || null })}
+                placeholder="Course description..."
+                rows={3}
+              />
+            </div>
+          </div>
+
+          {/* Course-specific fields */}
+          {isCourse && (
+            <>
+              {/* Instructor & Difficulty */}
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="text-sm text-white/70 mb-1 block">Instructor</label>
+                  <Input
+                    value={formData.instructor_name}
+                    onChange={(e) => setFormData({ ...formData, instructor_name: e.target.value })}
+                    placeholder="Sara Lucas"
+                  />
+                </div>
+                <div>
+                  <label className="text-sm text-white/70 mb-1 block">Difficulty</label>
+                  <select
+                    value={formData.difficulty_level}
+                    onChange={(e) => setFormData({ ...formData, difficulty_level: e.target.value })}
+                    className="w-full h-10 rounded-md border border-input bg-background px-3 text-sm"
+                  >
+                    {DIFFICULTY_OPTIONS.map((opt) => (
+                      <option key={opt.value} value={opt.value}>{opt.label}</option>
+                    ))}
+                  </select>
+                </div>
+              </div>
+
+              {/* Duration & Lessons */}
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="text-sm text-white/70 mb-1 block">Total Duration (minutes)</label>
+                  <Input
+                    type="number"
+                    min="0"
+                    value={formData.total_duration_minutes}
+                    onChange={(e) => setFormData({ ...formData, total_duration_minutes: parseInt(e.target.value) || 0 })}
+                  />
+                </div>
+                <div>
+                  <label className="text-sm text-white/70 mb-1 block">Total Lessons</label>
+                  <Input
+                    type="number"
+                    min="0"
+                    value={formData.total_lessons}
+                    onChange={(e) => setFormData({ ...formData, total_lessons: parseInt(e.target.value) || 0 })}
+                  />
+                </div>
+              </div>
+
+              {/* Video Preview URL */}
+              <div>
+                <label className="text-sm text-white/70 mb-1 block">Video Preview URL</label>
+                <Input
+                  value={formData.video_preview_url || ""}
+                  onChange={(e) => setFormData({ ...formData, video_preview_url: e.target.value || null })}
+                  placeholder="https://..."
+                />
+              </div>
+
+              {/* What you'll learn */}
+              <div>
+                <label className="text-sm text-white/70 mb-2 block">
+                  {t({ pt: "O que vais aprender", en: "What you'll learn" })}
+                </label>
+                
+                {formData.what_you_learn_pt.length > 0 && (
+                  <div className="space-y-2 mb-3">
+                    {formData.what_you_learn_pt.map((item, index) => (
+                      <div key={index} className="flex items-center gap-2 bg-white/5 p-2 rounded-lg">
+                        <span className="text-xs text-white/70 flex-1">{item}</span>
+                        <button
+                          onClick={() => removeLearnItem(index)}
+                          className="p-1 rounded hover:bg-destructive/20 text-destructive/60"
+                        >
+                          <Trash2 className="h-3 w-3" />
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                )}
+
+                <div className="grid grid-cols-2 gap-2">
+                  <Input
+                    value={newLearnItemPt}
+                    onChange={(e) => setNewLearnItemPt(e.target.value)}
+                    placeholder="Item PT"
+                    className="text-xs"
+                  />
+                  <Input
+                    value={newLearnItemEn}
+                    onChange={(e) => setNewLearnItemEn(e.target.value)}
+                    placeholder="Item EN"
+                    className="text-xs"
+                  />
+                </div>
+                <button
+                  onClick={addLearnItem}
+                  disabled={!newLearnItemPt || !newLearnItemEn}
+                  className="mt-2 text-xs text-white/60 hover:text-white disabled:opacity-50"
+                >
+                  + Add item
+                </button>
+              </div>
+            </>
+          )}
 
           {/* Price & Currency */}
           <div className="grid grid-cols-3 gap-3">
@@ -322,21 +540,9 @@ export default function AdminAcademy() {
               <Input
                 value={formData.cover_emoji || ""}
                 onChange={(e) => setFormData({ ...formData, cover_emoji: e.target.value || null })}
-                placeholder="📚"
+                placeholder="🎓"
               />
             </div>
-          </div>
-
-          {/* Duration Label */}
-          <div>
-            <label className="text-sm text-white/70 mb-1 block">
-              {t({ pt: "Duração/Tamanho", en: "Duration/Size" })}
-            </label>
-            <Input
-              value={formData.duration_label || ""}
-              onChange={(e) => setFormData({ ...formData, duration_label: e.target.value || null })}
-              placeholder="e.g., 4 weeks, 50 pages, 2h video"
-            />
           </div>
 
           {/* Display Order */}
@@ -413,7 +619,7 @@ export default function AdminAcademy() {
           </div>
 
           <div className="flex gap-2 mb-5 overflow-x-auto pb-2">
-            {(["all", "ebook", "course", "program", "bundle"] as const).map((type) => (
+            {(["all", "course", "ebook", "program", "bundle"] as const).map((type) => (
               <button
                 key={type}
                 onClick={() => setFilterType(type)}
@@ -469,6 +675,16 @@ export default function AdminAcademy() {
                     </p>
                   </div>
                   <div className="flex items-center gap-1">
+                    {/* Manage Lessons (for courses) */}
+                    {item.item_type === "course" && (
+                      <button
+                        onClick={() => setManagingLessonsFor(item.id)}
+                        className="p-2 rounded-lg hover:bg-white/10 text-white/60"
+                        title="Manage Lessons"
+                      >
+                        <Video className="h-4 w-4" />
+                      </button>
+                    )}
                     <button
                       onClick={() => handleToggleFeatured(item)}
                       className={cn(
@@ -514,6 +730,254 @@ export default function AdminAcademy() {
                 className="mt-4 btn-primary px-6 py-2 rounded-xl"
               >
                 {t({ pt: "Criar Primeiro Item", en: "Create First Item" })}
+              </button>
+            </div>
+          )}
+        </div>
+      )}
+    </div>
+  );
+}
+
+// Lesson Manager Component
+function LessonManager({ courseId, courseName, onBack }: { courseId: string; courseName: string; onBack: () => void }) {
+  const { t } = useLanguage();
+  const { data: lessons, isLoading, createLesson, updateLesson, deleteLesson, isCreating, isUpdating } = useAdminCourseLessons(courseId);
+  
+  const [editingLesson, setEditingLesson] = useState<CourseLesson | null>(null);
+  const [isCreatingNew, setIsCreatingNew] = useState(false);
+  const [formData, setFormData] = useState({
+    title_pt: "",
+    title_en: "",
+    description_pt: "",
+    description_en: "",
+    video_url: "",
+    thumbnail_url: "",
+    duration_seconds: 0,
+    display_order: 0,
+    is_preview: false,
+    is_active: true,
+  });
+
+  const handleCreate = () => {
+    setEditingLesson(null);
+    setFormData({
+      title_pt: "",
+      title_en: "",
+      description_pt: "",
+      description_en: "",
+      video_url: "",
+      thumbnail_url: "",
+      duration_seconds: 0,
+      display_order: lessons?.length || 0,
+      is_preview: false,
+      is_active: true,
+    });
+    setIsCreatingNew(true);
+  };
+
+  const handleEdit = (lesson: CourseLesson) => {
+    setEditingLesson(lesson);
+    setFormData({
+      title_pt: lesson.title_pt,
+      title_en: lesson.title_en,
+      description_pt: lesson.description_pt || "",
+      description_en: lesson.description_en || "",
+      video_url: lesson.video_url || "",
+      thumbnail_url: lesson.thumbnail_url || "",
+      duration_seconds: lesson.duration_seconds,
+      display_order: lesson.display_order,
+      is_preview: lesson.is_preview,
+      is_active: lesson.is_active,
+    });
+    setIsCreatingNew(false);
+  };
+
+  const handleSave = async () => {
+    try {
+      const data = {
+        ...formData,
+        course_id: courseId,
+        description_pt: formData.description_pt || null,
+        description_en: formData.description_en || null,
+        video_url: formData.video_url || null,
+        thumbnail_url: formData.thumbnail_url || null,
+      };
+
+      if (isCreatingNew) {
+        await createLesson(data as any);
+        toast.success(t({ pt: "Aula criada", en: "Lesson created" }));
+      } else if (editingLesson) {
+        await updateLesson({ id: editingLesson.id, ...data } as any);
+        toast.success(t({ pt: "Aula atualizada", en: "Lesson updated" }));
+      }
+      setEditingLesson(null);
+      setIsCreatingNew(false);
+    } catch {
+      toast.error(t({ pt: "Erro ao guardar", en: "Error saving" }));
+    }
+  };
+
+  const handleDelete = async (id: string) => {
+    if (!confirm(t({ pt: "Apagar esta aula?", en: "Delete this lesson?" }))) return;
+    try {
+      await deleteLesson(id);
+      toast.success(t({ pt: "Aula apagada", en: "Lesson deleted" }));
+    } catch {
+      toast.error(t({ pt: "Erro ao apagar", en: "Error deleting" }));
+    }
+  };
+
+  const showForm = editingLesson || isCreatingNew;
+
+  return (
+    <div className="min-h-screen bg-background px-4 py-5 safe-top safe-bottom pb-24">
+      {/* Header */}
+      <div className="flex items-center justify-between mb-6">
+        <div className="flex items-center gap-3">
+          <button onClick={onBack} className="p-2 -ml-2 rounded-xl hover:bg-white/10 transition-colors">
+            <ArrowLeft className="h-5 w-5 text-white" />
+          </button>
+          <div>
+            <h1 className="text-xl font-bold text-white tracking-tight">
+              {t({ pt: "Aulas", en: "Lessons" })}
+            </h1>
+            <p className="text-xs text-white/60">{courseName}</p>
+          </div>
+        </div>
+        {!showForm && (
+          <button onClick={handleCreate} className="p-2 rounded-xl bg-primary text-primary-foreground">
+            <Plus className="h-5 w-5" />
+          </button>
+        )}
+      </div>
+
+      {/* Form */}
+      {showForm && (
+        <div className="result-card p-5 mb-6 space-y-4">
+          <h2 className="font-semibold text-white">
+            {isCreatingNew ? t({ pt: "Nova Aula", en: "New Lesson" }) : t({ pt: "Editar Aula", en: "Edit Lesson" })}
+          </h2>
+
+          <div className="grid grid-cols-2 gap-3">
+            <div>
+              <label className="text-sm text-white/70 mb-1 block">Título PT</label>
+              <Input
+                value={formData.title_pt}
+                onChange={(e) => setFormData({ ...formData, title_pt: e.target.value })}
+              />
+            </div>
+            <div>
+              <label className="text-sm text-white/70 mb-1 block">Title EN</label>
+              <Input
+                value={formData.title_en}
+                onChange={(e) => setFormData({ ...formData, title_en: e.target.value })}
+              />
+            </div>
+          </div>
+
+          <div>
+            <label className="text-sm text-white/70 mb-1 block">Video URL</label>
+            <Input
+              value={formData.video_url}
+              onChange={(e) => setFormData({ ...formData, video_url: e.target.value })}
+              placeholder="https://..."
+            />
+          </div>
+
+          <div className="grid grid-cols-2 gap-3">
+            <div>
+              <label className="text-sm text-white/70 mb-1 block">Duration (seconds)</label>
+              <Input
+                type="number"
+                min="0"
+                value={formData.duration_seconds}
+                onChange={(e) => setFormData({ ...formData, duration_seconds: parseInt(e.target.value) || 0 })}
+              />
+            </div>
+            <div>
+              <label className="text-sm text-white/70 mb-1 block">Order</label>
+              <Input
+                type="number"
+                value={formData.display_order}
+                onChange={(e) => setFormData({ ...formData, display_order: parseInt(e.target.value) || 0 })}
+              />
+            </div>
+          </div>
+
+          <div className="flex gap-4">
+            <label className="flex items-center gap-2">
+              <input
+                type="checkbox"
+                checked={formData.is_preview}
+                onChange={(e) => setFormData({ ...formData, is_preview: e.target.checked })}
+                className="rounded"
+              />
+              <span className="text-sm text-white/80">Free Preview</span>
+            </label>
+            <label className="flex items-center gap-2">
+              <input
+                type="checkbox"
+                checked={formData.is_active}
+                onChange={(e) => setFormData({ ...formData, is_active: e.target.checked })}
+                className="rounded"
+              />
+              <span className="text-sm text-white/80">Active</span>
+            </label>
+          </div>
+
+          <div className="flex gap-3 pt-2">
+            <button
+              onClick={() => { setEditingLesson(null); setIsCreatingNew(false); }}
+              className="flex-1 py-2.5 btn-secondary rounded-xl"
+            >
+              {t({ pt: "Cancelar", en: "Cancel" })}
+            </button>
+            <button
+              onClick={handleSave}
+              disabled={isCreating || isUpdating || !formData.title_en || !formData.title_pt}
+              className="flex-1 py-2.5 btn-primary rounded-xl disabled:opacity-50"
+            >
+              {t({ pt: "Guardar", en: "Save" })}
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* Lessons List */}
+      {!showForm && (
+        <div className="space-y-3">
+          {isLoading ? (
+            <Skeleton className="h-16 rounded-2xl" />
+          ) : lessons && lessons.length > 0 ? (
+            lessons.map((lesson, index) => (
+              <div key={lesson.id} className="result-card p-4 flex items-center gap-3">
+                <div className="w-8 h-8 rounded-full bg-white/10 flex items-center justify-center text-sm font-medium text-white/70">
+                  {index + 1}
+                </div>
+                <div className="flex-1 min-w-0">
+                  <h3 className="font-medium text-white text-sm truncate">{lesson.title_en}</h3>
+                  <p className="text-xs text-white/50">
+                    {Math.floor(lesson.duration_seconds / 60)}m
+                    {lesson.is_preview && " · Preview"}
+                  </p>
+                </div>
+                <div className="flex items-center gap-1">
+                  <button onClick={() => handleEdit(lesson)} className="p-2 rounded-lg hover:bg-white/10 text-white/60">
+                    <Pencil className="h-4 w-4" />
+                  </button>
+                  <button onClick={() => handleDelete(lesson.id)} className="p-2 rounded-lg hover:bg-destructive/20 text-destructive/60">
+                    <Trash2 className="h-4 w-4" />
+                  </button>
+                </div>
+              </div>
+            ))
+          ) : (
+            <div className="text-center py-12">
+              <Video className="h-12 w-12 text-white/20 mx-auto mb-3" />
+              <p className="text-white/60">{t({ pt: "Sem aulas ainda", en: "No lessons yet" })}</p>
+              <button onClick={handleCreate} className="mt-4 btn-primary px-6 py-2 rounded-xl">
+                {t({ pt: "Adicionar Primeira Aula", en: "Add First Lesson" })}
               </button>
             </div>
           )}

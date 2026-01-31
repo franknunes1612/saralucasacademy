@@ -25,9 +25,11 @@ export type Database = {
           currency: string
           description_en: string | null
           description_pt: string | null
+          difficulty_level: string | null
           display_order: number
           duration_label: string | null
           id: string
+          instructor_name: string | null
           is_active: boolean
           is_featured: boolean
           item_type: string
@@ -38,7 +40,12 @@ export type Database = {
           subtitle_pt: string | null
           title_en: string
           title_pt: string
+          total_duration_minutes: number | null
+          total_lessons: number | null
           updated_at: string
+          video_preview_url: string | null
+          what_you_learn_en: string[] | null
+          what_you_learn_pt: string[] | null
         }
         Insert: {
           badge_en?: string | null
@@ -50,9 +57,11 @@ export type Database = {
           currency?: string
           description_en?: string | null
           description_pt?: string | null
+          difficulty_level?: string | null
           display_order?: number
           duration_label?: string | null
           id?: string
+          instructor_name?: string | null
           is_active?: boolean
           is_featured?: boolean
           item_type: string
@@ -63,7 +72,12 @@ export type Database = {
           subtitle_pt?: string | null
           title_en: string
           title_pt: string
+          total_duration_minutes?: number | null
+          total_lessons?: number | null
           updated_at?: string
+          video_preview_url?: string | null
+          what_you_learn_en?: string[] | null
+          what_you_learn_pt?: string[] | null
         }
         Update: {
           badge_en?: string | null
@@ -75,9 +89,11 @@ export type Database = {
           currency?: string
           description_en?: string | null
           description_pt?: string | null
+          difficulty_level?: string | null
           display_order?: number
           duration_label?: string | null
           id?: string
+          instructor_name?: string | null
           is_active?: boolean
           is_featured?: boolean
           item_type?: string
@@ -88,7 +104,12 @@ export type Database = {
           subtitle_pt?: string | null
           title_en?: string
           title_pt?: string
+          total_duration_minutes?: number | null
+          total_lessons?: number | null
           updated_at?: string
+          video_preview_url?: string | null
+          what_you_learn_en?: string[] | null
+          what_you_learn_pt?: string[] | null
         }
         Relationships: []
       }
@@ -127,6 +148,65 @@ export type Database = {
           value_pt?: string
         }
         Relationships: []
+      }
+      course_lessons: {
+        Row: {
+          course_id: string
+          created_at: string
+          description_en: string | null
+          description_pt: string | null
+          display_order: number
+          duration_seconds: number | null
+          id: string
+          is_active: boolean
+          is_preview: boolean
+          thumbnail_url: string | null
+          title_en: string
+          title_pt: string
+          updated_at: string
+          video_url: string | null
+        }
+        Insert: {
+          course_id: string
+          created_at?: string
+          description_en?: string | null
+          description_pt?: string | null
+          display_order?: number
+          duration_seconds?: number | null
+          id?: string
+          is_active?: boolean
+          is_preview?: boolean
+          thumbnail_url?: string | null
+          title_en: string
+          title_pt: string
+          updated_at?: string
+          video_url?: string | null
+        }
+        Update: {
+          course_id?: string
+          created_at?: string
+          description_en?: string | null
+          description_pt?: string | null
+          display_order?: number
+          duration_seconds?: number | null
+          id?: string
+          is_active?: boolean
+          is_preview?: boolean
+          thumbnail_url?: string | null
+          title_en?: string
+          title_pt?: string
+          updated_at?: string
+          video_url?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "course_lessons_course_id_fkey"
+            columns: ["course_id"]
+            isOneToOne: false
+            referencedRelation: "academy_items"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       premium_offers: {
         Row: {

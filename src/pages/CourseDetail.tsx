@@ -1,0 +1,324 @@
+import { useState, useMemo } from "react";
+import { useParams, useNavigate } from "react-router-dom";
+import { motion } from "framer-motion";
+import { ArrowLeft, Clock, BookOpen, Award, User, Play, ShoppingCart, Check, Share2 } from "lucide-react";
+import { useLanguage } from "@/hooks/useLanguage";
+import { useAcademyItems, AcademyItem } from "@/hooks/useAcademyItems";
+import { useCourseLessons, CourseLesson, formatTotalDuration } from "@/hooks/useCourseLessons";
+import { VideoPlayer } from "@/components/academy/VideoPlayer";
+import { LessonList } from "@/components/academy/LessonList";
+import { Skeleton } from "@/components/ui/skeleton";
+import { cn } from "@/lib/utils";
+
+const DIFFICULTY_LABELS: Record<string, { pt: string; en: string }> = {
+  beginner: { pt: "Iniciante", en: "Beginner" },
+  intermediate: { pt: "Intermédio", en: "Intermediate" },
+  advanced: { pt: "Avançado", en: "Advanced" },
+};
+
+type ExtendedAcademyItem = AcademyItem & {
+  instructor_name?: string;
+  total_duration_minutes?: number;
+  total_lessons?: number;
+  difficulty_level?: string;
+  what_you_learn_pt?: string[];
+  what_you_learn_en?: string[];
+  video_preview_url?: string;
+};
+
+export default function CourseDetail() {
+  const { courseId } = useParams<{ courseId: string }>();
+  const navigate = useNavigate();
+  const { language, t } = useLanguage();
+  
+  const [currentLesson, setCurrentLesson] = useState<CourseLesson | null>(null);
+  const [isPurchased] = useState(false); // TODO: Implement purchase check
+  const [completedLessons] = useState<string[]>([]); // TODO: Track progress
+
+  // Fetch course details
+  const { data: allItems, isLoading: isLoadingCourse } = useAcademyItems("course");
+  const course = useMemo(() => {
+    return allItems?.find((item) => item.id === courseId) as ExtendedAcademyItem | undefined;
+  }, [allItems, courseId]);
+
+  // Fetch lessons
+  const { data: lessons, isLoading: isLoadingLessons } = useCourseLessons(courseId);
+
+  if (isLoadingCourse || isLoadingLessons) {
+    return (
+      <div className="min-h-screen bg-background px-4 pt-5 pb-24 safe-top">
+        <Skeleton className="h-8 w-32 mb-4" />
+        <Skeleton className="h-48 rounded-2xl mb-4" />
+        <Skeleton className="h-6 w-3/4 mb-2" />
+        <Skeleton className="h-4 w-1/2 mb-6" />
+        <Skeleton className="h-32 rounded-2xl" />
+      </div>
+    );
+  }
+
+  if (!course) {
+    return (
+      <div className="min-h-screen bg-background px-4 pt-5 pb-24 safe-top flex items-center justify-center">
+        <div className="text-center">
+          <p className="text-white/60 mb-4">
+            {t({ pt: "Curso não encontrado", en: "Course not found" })}
+          </p>
+          <button
+            onClick={() => navigate("/learn")}
+            className="px-4 py-2 rounded-xl bg-white text-[hsl(340_45%_45%)] font-medium"
+          >
+            {t({ pt: "Voltar à Academia", en: "Back to Academy" })}
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  const title = language === "pt" ? course.title_pt : course.title_en;
+  const subtitle = language === "pt" ? course.subtitle_pt : course.subtitle_en;
+  const description = language === "pt" ? course.description_pt : course.description_en;
+  const whatYouLearn = language === "pt" ? course.what_you_learn_pt : course.what_you_learn_en;
+  const difficulty = DIFFICULTY_LABELS[course.difficulty_level || "beginner"];
+
+  const formatPrice = (price: number) => {
+    const symbol = course.currency === "EUR" ? "€" : course.currency === "USD" ? "$" : "£";
+    return `${symbol}${price.toFixed(2)}`;
+  };
+
+  const handleLessonSelect = (lesson: CourseLesson) => {
+    setCurrentLesson(lesson);
+  };
+
+  const handlePurchase = () => {
+    if (course.purchase_link) {
+      window.open(course.purchase_link, "_blank", "noopener,noreferrer");
+    }
+  };
+
+  const handleShare = async () => {
+    const shareData = {
+      title,
+      text: subtitle || description || "",
+      url: window.location.href,
+    };
+
+    try {
+      if (navigator.share) {
+        await navigator.share(shareData);
+      } else {
+        await navigator.clipboard.writeText(window.location.href);
+      }
+    } catch (error) {
+      console.error("Share error:", error);
+    }
+  };
+
+  // Get video to show (current lesson or preview)
+  const videoUrl = currentLesson?.video_url || course.video_preview_url;
+  const videoTitle = currentLesson
+    ? language === "pt"
+      ? currentLesson.title_pt
+      : currentLesson.title_en
+    : t({ pt: "Prévia do curso", en: "Course preview" });
+
+  return (
+    <div className="min-h-screen bg-background pb-32 safe-top">
+      {/* Header */}
+      <div className="sticky top-0 z-20 bg-background/80 backdrop-blur-md px-4 py-3 flex items-center gap-3 border-b border-white/10">
+        <button
+          onClick={() => navigate("/learn")}
+          className="p-2 -ml-2 rounded-xl hover:bg-white/10 transition-colors"
+          aria-label="Go back"
+        >
+          <ArrowLeft className="h-5 w-5 text-white" />
+        </button>
+        
+        <div className="flex-1 min-w-0">
+          <h1 className="font-semibold text-white truncate">{title}</h1>
+        </div>
+
+        <button
+          onClick={handleShare}
+          className="p-2 rounded-xl hover:bg-white/10 transition-colors"
+          aria-label="Share"
+        >
+          <Share2 className="h-5 w-5 text-white/70" />
+        </button>
+      </div>
+
+      {/* Video Player */}
+      <motion.div
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        className="px-4 pt-4"
+      >
+        {videoUrl ? (
+          <VideoPlayer
+            src={videoUrl}
+            poster={course.cover_image_url || undefined}
+            title={videoTitle}
+          />
+        ) : (
+          <div className="aspect-video rounded-2xl bg-gradient-to-br from-[hsl(340_40%_65%)] to-[hsl(30_40%_70%)] flex items-center justify-center">
+            {course.cover_image_url ? (
+              <img
+                src={course.cover_image_url}
+                alt={title}
+                className="w-full h-full object-cover rounded-2xl"
+              />
+            ) : (
+              <span className="text-8xl">{course.cover_emoji || "🎓"}</span>
+            )}
+          </div>
+        )}
+      </motion.div>
+
+      {/* Course Info */}
+      <div className="px-4 pt-5 space-y-5">
+        {/* Title & Meta */}
+        <motion.div
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.1 }}
+        >
+          <h2 className="text-xl font-bold text-white mb-2">{title}</h2>
+          
+          {subtitle && (
+            <p className="text-sm text-white/70 mb-3">{subtitle}</p>
+          )}
+
+          {/* Metadata chips */}
+          <div className="flex flex-wrap gap-2">
+            <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-white/10 text-xs text-white/70">
+              <User className="h-3.5 w-3.5" />
+              <span>{course.instructor_name || "Sara Lucas"}</span>
+            </div>
+            
+            {course.total_duration_minutes && course.total_duration_minutes > 0 && (
+              <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-white/10 text-xs text-white/70">
+                <Clock className="h-3.5 w-3.5" />
+                <span>{formatTotalDuration(course.total_duration_minutes)}</span>
+              </div>
+            )}
+            
+            {lessons && lessons.length > 0 && (
+              <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-white/10 text-xs text-white/70">
+                <BookOpen className="h-3.5 w-3.5" />
+                <span>
+                  {lessons.length} {t({ pt: "aulas", en: "lessons" })}
+                </span>
+              </div>
+            )}
+            
+            <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-white/10 text-xs text-white/70">
+              <Award className="h-3.5 w-3.5" />
+              <span>{t(difficulty)}</span>
+            </div>
+          </div>
+        </motion.div>
+
+        {/* Description */}
+        {description && (
+          <motion.div
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.15 }}
+            className="rounded-2xl bg-white/5 border border-white/10 p-4"
+          >
+            <h3 className="font-semibold text-white text-sm mb-2">
+              {t({ pt: "Sobre o curso", en: "About this course" })}
+            </h3>
+            <p className="text-sm text-white/70 leading-relaxed">{description}</p>
+          </motion.div>
+        )}
+
+        {/* What you'll learn */}
+        {whatYouLearn && whatYouLearn.length > 0 && (
+          <motion.div
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.2 }}
+            className="rounded-2xl bg-white/5 border border-white/10 p-4"
+          >
+            <h3 className="font-semibold text-white text-sm mb-3">
+              {t({ pt: "O que vais aprender", en: "What you'll learn" })}
+            </h3>
+            <ul className="space-y-2">
+              {whatYouLearn.map((item, index) => (
+                <li key={index} className="flex items-start gap-2">
+                  <Check className="h-4 w-4 text-[hsl(155_40%_55%)] flex-shrink-0 mt-0.5" />
+                  <span className="text-sm text-white/70">{item}</span>
+                </li>
+              ))}
+            </ul>
+          </motion.div>
+        )}
+
+        {/* Lesson List */}
+        {lessons && lessons.length > 0 && (
+          <motion.div
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.25 }}
+          >
+            <LessonList
+              lessons={lessons}
+              currentLessonId={currentLesson?.id}
+              onLessonSelect={handleLessonSelect}
+              isPurchased={isPurchased}
+              completedLessons={completedLessons}
+            />
+          </motion.div>
+        )}
+
+        {/* Info Banner */}
+        <div className="p-4 rounded-xl bg-white/5 border border-white/10">
+          <p className="text-xs text-white/50 text-center">
+            {t({
+              pt: "Acesso vitalício após a compra. Compras processadas externamente com segurança.",
+              en: "Lifetime access after purchase. Purchases processed securely externally.",
+            })}
+          </p>
+        </div>
+      </div>
+
+      {/* Fixed Bottom CTA */}
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.3 }}
+        className="fixed bottom-20 left-0 right-0 p-4 bg-gradient-to-t from-background via-background to-transparent"
+      >
+        <div className="flex items-center justify-between gap-4 p-4 rounded-2xl bg-white/10 backdrop-blur-md border border-white/10">
+          <div>
+            <div className="flex items-center gap-2">
+              <span className="text-2xl font-bold text-white">
+                {formatPrice(course.price)}
+              </span>
+              {course.original_price && course.original_price > course.price && (
+                <span className="text-sm text-white/50 line-through">
+                  {formatPrice(course.original_price)}
+                </span>
+              )}
+            </div>
+            <p className="text-xs text-white/50">
+              {t({ pt: "Acesso vitalício", en: "Lifetime access" })}
+            </p>
+          </div>
+
+          <button
+            onClick={handlePurchase}
+            className="flex items-center gap-2 px-6 py-3 rounded-xl bg-white text-[hsl(340_45%_45%)] font-semibold shadow-lg hover:bg-white/90 transition-colors"
+          >
+            <ShoppingCart className="h-5 w-5" />
+            <span>
+              {isPurchased
+                ? t({ pt: "Continuar", en: "Continue" })
+                : t({ pt: "Comprar", en: "Buy now" })}
+            </span>
+          </button>
+        </div>
+      </motion.div>
+    </div>
+  );
+}

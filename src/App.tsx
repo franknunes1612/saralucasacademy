@@ -13,6 +13,7 @@ import { Onboarding } from "@/components/Onboarding";
 // Pages
 import Home from "./pages/Home";
 import Learn from "./pages/Learn";
+import CourseDetail from "./pages/CourseDetail";
 import Tools from "./pages/Tools";
 import Profile from "./pages/Profile";
 import Scanner from "./pages/Index"; // Renamed from Index - the scanner page
@@ -118,6 +119,7 @@ const App = () => (
               {/* Main navigation routes */}
               <Route path="/" element={<Home />} />
               <Route path="/learn" element={<Learn />} />
+              <Route path="/learn/course/:courseId" element={<CourseDetail />} />
               <Route path="/tools" element={<Tools />} />
               <Route path="/profile" element={<Profile />} />
               
