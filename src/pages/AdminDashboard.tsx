@@ -1,5 +1,5 @@
 import { useNavigate, Link } from "react-router-dom";
-import { ArrowLeft, LogOut, ChefHat, FileText, Sparkles, ShoppingBag, Heart, CreditCard, MessageCircle } from "lucide-react";
+import { ArrowLeft, LogOut, ChefHat, FileText, Sparkles, ShoppingBag, Heart, CreditCard, MessageCircle, Play } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { useLanguage } from "@/hooks/useLanguage";
 
@@ -62,6 +62,13 @@ export default function AdminDashboard() {
       icon: MessageCircle,
       path: "/admin/support",
       color: "bg-cyan-500/20 text-cyan-400",
+    },
+    {
+      title: { pt: "Onboarding", en: "Onboarding" },
+      description: { pt: "Gerir slides de boas-vindas", en: "Manage welcome slides" },
+      icon: Play,
+      path: "/admin/onboarding",
+      color: "bg-amber-500/20 text-amber-400",
     },
   ];
 

@@ -208,6 +208,45 @@ export type Database = {
           },
         ]
       }
+      onboarding_slides: {
+        Row: {
+          created_at: string
+          display_order: number
+          icon: string
+          id: string
+          is_active: boolean
+          text_en: string
+          text_pt: string
+          title_en: string
+          title_pt: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          display_order?: number
+          icon?: string
+          id?: string
+          is_active?: boolean
+          text_en: string
+          text_pt: string
+          title_en: string
+          title_pt: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          display_order?: number
+          icon?: string
+          id?: string
+          is_active?: boolean
+          text_en?: string
+          text_pt?: string
+          title_en?: string
+          title_pt?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       premium_offers: {
         Row: {
           accent_color: string | null

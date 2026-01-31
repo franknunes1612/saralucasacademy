@@ -16,6 +16,7 @@ import {
 import { cn } from "@/lib/utils";
 import { useLanguage } from "@/hooks/useLanguage";
 import { useCmsContent } from "@/hooks/useCmsContent";
+import { useOnboardingSlides } from "@/hooks/useOnboardingSlides";
 
 interface OnboardingProps {
   onComplete: () => void;
@@ -33,43 +34,6 @@ const ICON_MAP: Record<string, LucideIcon> = {
   "book-open": BookOpen,
   "play": Play,
   "shopping-bag": ShoppingBag,
-};
-
-// Slide configuration
-const SLIDE_KEYS = [1, 2, 3, 4, 5, 6];
-
-// Default fallbacks
-const SLIDE_FALLBACKS: Record<number, { icon: string; title: { pt: string; en: string }; text: { pt: string; en: string } }> = {
-  1: {
-    icon: "camera",
-    title: { pt: "Scan Alimentar & Código de Barras", en: "Food & Barcode Scanner" },
-    text: { pt: "Fotografa a tua refeição ou produto e obtém informação nutricional instantânea.", en: "Photograph your meal or product and get instant nutritional information." },
-  },
-  2: {
-    icon: "graduation-cap",
-    title: { pt: "Academy Completa", en: "Complete Academy" },
-    text: { pt: "Cursos, programas, ebooks e bundles para transformar a tua saúde.", en: "Courses, programs, ebooks and bundles to transform your health." },
-  },
-  3: {
-    icon: "message-circle",
-    title: { pt: "Fala com Nutricionista", en: "Talk to Nutritionist" },
-    text: { pt: "Acompanhamento profissional, consultas e planos personalizados.", en: "Professional guidance, consultations and personalized plans." },
-  },
-  4: {
-    icon: "dumbbell",
-    title: { pt: "Programas de Treino", en: "Training Programs" },
-    text: { pt: "Treinos guiados e programas de nutrição para atingir os teus objetivos.", en: "Guided workouts and nutrition programs to reach your goals." },
-  },
-  5: {
-    icon: "utensils",
-    title: { pt: "Receitas & Refeições", en: "Recipes & Meals" },
-    text: { pt: "Receitas fit, acompanhamento de refeições e sugestões inteligentes.", en: "Fit recipes, meal tracking and smart suggestions." },
-  },
-  6: {
-    icon: "heart-handshake",
-    title: { pt: "Suporte & Contacto", en: "Support & Contact" },
-    text: { pt: "Estamos aqui para ajudar. Contacta-nos quando precisares.", en: "We are here to help. Contact us whenever you need." },
-  },
 };
 
 // Slide illustration based on icon
@@ -135,6 +99,7 @@ function SlideIllustration({ iconName, index }: { iconName: string; index: numbe
 export function Onboarding({ onComplete }: OnboardingProps) {
   const { language } = useLanguage();
   const cms = useCmsContent();
+  const { slides, isLoading } = useOnboardingSlides();
   const [currentSlide, setCurrentSlide] = useState(0);
 
   // Get CMS settings
@@ -142,22 +107,14 @@ export function Onboarding({ onComplete }: OnboardingProps) {
   const slideDurationStr = cms.get("app.onboarding.slideDuration", { pt: "3000", en: "3000" });
   const slideDuration = parseInt(slideDurationStr, 10) || 3000;
 
-  // Get slide content from CMS
-  const getSlideContent = useCallback((slideNum: number) => {
-    const fallback = SLIDE_FALLBACKS[slideNum];
-    const iconName = cms.get(`onboarding.slide${slideNum}.icon`, { pt: fallback.icon, en: fallback.icon });
-    const title = cms.get(`onboarding.slide${slideNum}.title`, fallback.title);
-    const text = cms.get(`onboarding.slide${slideNum}.text`, fallback.text);
-    
-    return { iconName, title, text };
-  }, [cms]);
-
-  const slideContent = getSlideContent(SLIDE_KEYS[currentSlide]);
-  const isLast = currentSlide === SLIDE_KEYS.length - 1;
+  // Current slide data
+  const currentSlideData = slides[currentSlide];
+  const totalSlides = slides.length;
+  const isLast = currentSlide === totalSlides - 1;
 
   // Auto-advance slides
   useEffect(() => {
-    if (!autoPlay) return;
+    if (!autoPlay || isLoading || totalSlides === 0) return;
 
     const timer = setTimeout(() => {
       if (isLast) {
@@ -168,7 +125,7 @@ export function Onboarding({ onComplete }: OnboardingProps) {
     }, slideDuration);
 
     return () => clearTimeout(timer);
-  }, [currentSlide, isLast, autoPlay, slideDuration, onComplete]);
+  }, [currentSlide, isLast, autoPlay, slideDuration, onComplete, isLoading, totalSlides]);
 
   // Manual skip
   const handleSkip = () => {
@@ -181,6 +138,29 @@ export function Onboarding({ onComplete }: OnboardingProps) {
   };
 
   const skipLabel = language === "pt" ? "Saltar" : "Skip";
+
+  // Show loading state briefly
+  if (isLoading) {
+    return (
+      <div 
+        className="fixed inset-0 z-50 flex items-center justify-center"
+        style={{
+          background: `linear-gradient(
+            165deg,
+            hsl(340 50% 78%) 0%,
+            hsl(340 45% 72%) 40%,
+            hsl(30 40% 75%) 100%
+          )`,
+        }}
+      />
+    );
+  }
+
+  // If no slides, skip onboarding
+  if (totalSlides === 0) {
+    onComplete();
+    return null;
+  }
 
   return (
     <div 
@@ -226,7 +206,7 @@ export function Onboarding({ onComplete }: OnboardingProps) {
             {/* Illustration */}
             <div className="mb-10">
               <SlideIllustration 
-                iconName={slideContent.iconName} 
+                iconName={currentSlideData?.icon || "sparkles"} 
                 index={currentSlide} 
               />
             </div>
@@ -239,7 +219,7 @@ export function Onboarding({ onComplete }: OnboardingProps) {
                 transition={{ delay: 0.2, duration: 0.4 }}
                 className="text-2xl font-bold text-white mb-4 tracking-tight drop-shadow-sm"
               >
-                {slideContent.title}
+                {currentSlideData?.title || ""}
               </motion.h1>
               <motion.p 
                 initial={{ opacity: 0, y: 10 }}
@@ -247,7 +227,7 @@ export function Onboarding({ onComplete }: OnboardingProps) {
                 transition={{ delay: 0.3, duration: 0.4 }}
                 className="text-white/80 text-base leading-relaxed"
               >
-                {slideContent.text}
+                {currentSlideData?.text || ""}
               </motion.p>
             </div>
           </motion.div>
@@ -258,7 +238,7 @@ export function Onboarding({ onComplete }: OnboardingProps) {
       <div className="px-6 pb-10 safe-bottom relative z-10">
         {/* Progress dots */}
         <div className="flex justify-center gap-2 mb-4">
-          {SLIDE_KEYS.map((_, index) => (
+          {slides.map((_, index) => (
             <button
               key={index}
               onClick={() => handleDotClick(index)}
