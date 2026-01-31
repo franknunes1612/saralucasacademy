@@ -125,7 +125,7 @@ export default function Profile() {
       id: "terms",
       icon: FileText,
       title: { pt: "Termos de Uso", en: "Terms of Use" },
-      action: () => window.open("https://saralucasnutricao.pt/termos-de-uso", "_blank", "noopener,noreferrer"),
+      action: () => navigate("/terms"),
     },
   ];
 
