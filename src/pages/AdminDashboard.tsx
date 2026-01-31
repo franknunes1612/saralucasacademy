@@ -1,5 +1,5 @@
 import { useNavigate, Link } from "react-router-dom";
-import { ArrowLeft, LogOut, ChefHat, FileText, Sparkles, ShoppingBag, Heart, CreditCard } from "lucide-react";
+import { ArrowLeft, LogOut, ChefHat, FileText, Sparkles, ShoppingBag, Heart, CreditCard, MessageCircle } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { useLanguage } from "@/hooks/useLanguage";
 
@@ -55,6 +55,13 @@ export default function AdminDashboard() {
       icon: FileText,
       path: "/admin/cms",
       color: "bg-blue-500/20 text-blue-400",
+    },
+    {
+      title: { pt: "Suporte", en: "Support" },
+      description: { pt: "Ver mensagens de suporte", en: "View support messages" },
+      icon: MessageCircle,
+      path: "/admin/support",
+      color: "bg-cyan-500/20 text-cyan-400",
     },
   ];
 

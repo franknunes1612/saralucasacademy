@@ -7,6 +7,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { useAuth } from "@/hooks/useAuth";
 import { SaraLucasLogo } from "@/components/brand/SaraLucasLogo";
 import { RecommendedProductsSection } from "@/components/home/RecommendedProductsSection";
+import { LanguageToggle } from "@/components/LanguageToggle";
 import saraPortrait from "@/assets/sara-lucas-portrait.png";
 
 const INSTAGRAM_URL = "https://www.instagram.com/saralucas_pt_nutricionista/";
@@ -35,7 +36,8 @@ export default function Home() {
             {t({ pt: "Academia de Nutrição & Treino", en: "Nutrition & Training Academy" })}
           </p>
         </div>
-        <div className="flex items-center gap-1">
+        <div className="flex items-center gap-2">
+          <LanguageToggle />
           <a
             href={INSTAGRAM_URL}
             target="_blank"
