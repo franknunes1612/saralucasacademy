@@ -1,14 +1,13 @@
 import { useEffect, useState } from "react";
 import { useCmsContent } from "@/hooks/useCmsContent";
 import { useLanguage } from "@/hooks/useLanguage";
-import saraSplashPortrait from "@/assets/sara-splash-portrait-nobg.png";
 
 interface SplashScreenProps {
   onComplete: () => void;
 }
 
 /**
- * Premium splash screen with gradient background, signature logo, and portrait
+ * Premium splash screen with gradient background and signature logo
  * All content and duration controlled via CMS
  */
 export function SplashScreen({ onComplete }: SplashScreenProps) {
@@ -23,8 +22,8 @@ export function SplashScreen({ onComplete }: SplashScreenProps) {
     pt: "Nutrição & Training Academy", 
     en: "Nutrition & Training Academy" 
   });
-  const durationStr = cms.get("app.splash.duration", { pt: "2500", en: "2500" });
-  const duration = parseInt(durationStr, 10) || 2500;
+  const durationStr = cms.get("app.splash.duration", { pt: "2000", en: "2000" });
+  const duration = parseInt(durationStr, 10) || 2000;
 
   useEffect(() => {
     // Trigger entrance animation after mount
@@ -46,7 +45,7 @@ export function SplashScreen({ onComplete }: SplashScreenProps) {
 
   return (
     <div
-      className={`fixed inset-0 z-50 flex flex-col items-center justify-center transition-opacity duration-500 overflow-hidden ${
+      className={`fixed inset-0 z-50 flex flex-col items-center justify-center transition-opacity duration-500 ${
         isExiting ? "opacity-0" : "opacity-100"
       }`}
       style={{
@@ -78,9 +77,9 @@ export function SplashScreen({ onComplete }: SplashScreenProps) {
         }}
       />
 
-      {/* Logo container - centered like before */}
+      {/* Logo container with entrance animation */}
       <div
-        className="relative z-20 flex flex-col items-center transition-all ease-out"
+        className="relative z-10 flex flex-col items-center transition-all ease-out"
         style={{
           transitionDuration: "800ms",
           opacity: isEntered ? 1 : 0,
@@ -111,37 +110,13 @@ export function SplashScreen({ onComplete }: SplashScreenProps) {
         </p>
       </div>
 
-      {/* Sara portrait - positioned to the right side, going off screen at the bottom */}
-      <div
-        className="absolute bottom-0 right-0 z-10 transition-all ease-out"
-        style={{
-          transitionDuration: "1000ms",
-          transitionDelay: "300ms",
-          opacity: isEntered ? 1 : 0,
-          transform: isEntered 
-            ? "translateX(10%) translateY(12%)" 
-            : "translateX(20%) translateY(25%)",
-        }}
-      >
-        <img
-          src={saraSplashPortrait}
-          alt="Sara Lucas"
-          className="w-auto max-w-none h-[75vh] sm:h-[80vh] object-contain object-bottom select-none pointer-events-none"
-          style={{
-            filter: "drop-shadow(-10px 0 40px rgba(0,0,0,0.15))",
-            // Blend white edges with background using mix-blend-mode
-            mixBlendMode: "multiply",
-          }}
-        />
-      </div>
-
       {/* Decorative bottom gradient */}
       <div 
-        className="absolute bottom-0 left-0 right-0 h-32 pointer-events-none z-20"
+        className="absolute bottom-0 left-0 right-0 h-32 pointer-events-none"
         style={{
           background: `linear-gradient(
             to top,
-            hsl(340 45% 72%) 0%,
+            hsl(340 40% 65% / 0.5) 0%,
             transparent 100%
           )`,
         }}
