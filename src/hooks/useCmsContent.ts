@@ -70,9 +70,7 @@ const FALLBACK_CONTENT: Record<string, { pt: string; en: string }> = {
   "academy.hero.cta.tertiary.label": { pt: "Academia Completa", en: "Full Academy" },
   "academy.hero.cta.tertiary.link": { pt: "/learn", en: "/learn" },
   "academy.hero.cta.tertiary.enabled": { pt: "true", en: "true" },
-  "academy.hero.layout": { pt: "featured-course", en: "featured-course" },
-  "academy.hero.video.url": { pt: "", en: "" },
-  "academy.hero.image.url": { pt: "", en: "" },
+  "academy.hero.layout": { pt: "static", en: "static" },
   "academy.hero.animations.enabled": { pt: "true", en: "true" },
   // Academy Hero - Feature Tags
   "academy.hero.tags.enabled": { pt: "true", en: "true" },
