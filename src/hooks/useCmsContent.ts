@@ -28,7 +28,7 @@ const FALLBACK_CONTENT: Record<string, { pt: string; en: string }> = {
   "app.splash.subtitle": { pt: "Nutrição & Training Academy", en: "Nutrition & Training Academy" },
   // App Settings - Onboarding
   "app.onboarding.enabled": { pt: "true", en: "true" },
-  "app.onboarding.showMode": { pt: "always", en: "always" },
+  "app.onboarding.showMode": { pt: "first-visit", en: "first-visit" },
   "app.onboarding.slideDuration": { pt: "3000", en: "3000" },
   "app.onboarding.autoPlay": { pt: "true", en: "true" },
   // Onboarding Slides

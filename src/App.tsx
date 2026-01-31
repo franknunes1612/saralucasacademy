@@ -70,10 +70,13 @@ function AppEntryFlow({ children }: { children: React.ReactNode }) {
   const [showOnboarding, setShowOnboarding] = useState(false);
   const [isReady, setIsReady] = useState(false);
 
-  // Check if this is a direct scan access (skip splash/onboarding)
+  // Check if this is a direct scan access or OAuth callback (skip splash/onboarding)
   const isDirectAccess = location.search.includes("direct=1");
   const isScanRoute = location.pathname === "/scan";
   const isAdminRoute = location.pathname.startsWith("/admin");
+  const isOAuthCallback = location.search.includes("code=") || 
+                          location.hash.includes("access_token=") ||
+                          location.search.includes("access_token=");
 
   // Get CMS settings
   const splashEnabled = cms.isFeatureEnabled("app.splash.enabled");
@@ -83,8 +86,8 @@ function AppEntryFlow({ children }: { children: React.ReactNode }) {
 
   // Initialize flow based on settings
   useEffect(() => {
-    // Skip for direct scan access or admin routes
-    if (isDirectAccess || isScanRoute || isAdminRoute) {
+    // Skip for direct scan access, admin routes, or OAuth callbacks
+    if (isDirectAccess || isScanRoute || isAdminRoute || isOAuthCallback) {
       setShowSplash(false);
       setShowOnboarding(false);
       setIsReady(true);
@@ -111,7 +114,7 @@ function AppEntryFlow({ children }: { children: React.ReactNode }) {
     }
 
     setIsReady(true);
-  }, [isDirectAccess, isScanRoute, isAdminRoute, cms.isLoading, splashEnabled, onboardingEnabled, showMode]);
+  }, [isDirectAccess, isScanRoute, isAdminRoute, isOAuthCallback, cms.isLoading, splashEnabled, onboardingEnabled, showMode]);
 
   const handleSplashComplete = useCallback(() => {
     setShowSplash(false);
@@ -138,8 +141,8 @@ function AppEntryFlow({ children }: { children: React.ReactNode }) {
     setShowOnboarding(false);
   }, [showMode]);
 
-  // Skip entry flow for direct scan access or admin routes
-  if (isDirectAccess || (isScanRoute && !showSplash) || isAdminRoute) {
+  // Skip entry flow for direct scan access, admin routes, or OAuth callbacks
+  if (isDirectAccess || (isScanRoute && !showSplash) || isAdminRoute || isOAuthCallback) {
     return <>{children}</>;
   }
 
