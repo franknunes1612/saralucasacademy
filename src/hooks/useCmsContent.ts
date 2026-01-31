@@ -29,32 +29,47 @@ const FALLBACK_CONTENT: Record<string, { pt: string; en: string }> = {
   "nutritionist.cta.label": { pt: "Falar com nutricionista", en: "Talk to nutritionist" },
   "disclaimer.aiEstimate": { pt: "Estimativa visual por IA. Valores podem variar.", en: "AI visual estimate. Values may vary." },
   "recipes.section.title": { pt: "Receitas Fit", en: "Fit Recipes" },
-  // Academy
+  // Academy - Page Header
   "academy.hero.title": { pt: "Academy", en: "Academy" },
   "academy.hero.subtitle": { pt: "Cursos, programas e aulas gravadas para transformar a sua saúde", en: "Courses, programs and recorded classes to transform your health" },
+  // Academy - Hero Section
   "academy.hero.headline": { pt: "Transforma a tua relação com a alimentação", en: "Transform your relationship with food" },
   "academy.hero.subheadline": { pt: "Para quem quer aprender a comer bem, com autonomia e sem dietas restritivas. Guiado por uma nutricionista certificada.", en: "For those who want to learn to eat well, with autonomy and without restrictive diets. Guided by a certified nutritionist." },
+  "academy.hero.badge.label": { pt: "Nutricionista Certificada", en: "Certified Nutritionist" },
+  "academy.hero.cta.primary.label": { pt: "Explorar Cursos", en: "Explore Courses" },
+  "academy.hero.cta.primary.link": { pt: "/learn?type=course", en: "/learn?type=course" },
+  "academy.hero.cta.secondary.label": { pt: "Ver Programas", en: "View Programs" },
+  "academy.hero.cta.secondary.link": { pt: "/learn?type=program", en: "/learn?type=program" },
+  "academy.hero.layout": { pt: "featured-course", en: "featured-course" },
+  "academy.hero.video.url": { pt: "", en: "" },
+  "academy.hero.image.url": { pt: "", en: "" },
+  "academy.hero.animations.enabled": { pt: "true", en: "true" },
+  // Academy - Filters & Search
   "academy.search.placeholder": { pt: "Pesquisar conteúdo...", en: "Search content..." },
   "academy.filter.all": { pt: "Todos", en: "All" },
   "academy.filter.courses": { pt: "Cursos", en: "Courses" },
   "academy.filter.ebooks": { pt: "Ebooks", en: "Ebooks" },
   "academy.filter.programs": { pt: "Programas", en: "Programs" },
   "academy.filter.bundles": { pt: "Bundles", en: "Bundles" },
+  // Academy - Categories
   "academy.categories.title": { pt: "Categorias", en: "Categories" },
   "academy.categories.training": { pt: "Treino", en: "Training" },
   "academy.categories.nutrition": { pt: "Nutrição", en: "Nutrition" },
   "academy.categories.programs": { pt: "Programas", en: "Programs" },
   "academy.categories.beginners": { pt: "Iniciantes", en: "Beginners" },
   "academy.categories.advanced": { pt: "Avançado", en: "Advanced" },
+  // Academy - Content Sections
   "academy.featured.title": { pt: "Destaque", en: "Featured" },
   "academy.allCourses.title": { pt: "Todos os cursos", en: "All courses" },
   "academy.moreContent.title": { pt: "Mais conteúdos", en: "More content" },
   "academy.empty.title": { pt: "Brevemente novos conteúdos", en: "New content coming soon" },
   "academy.empty.noResults": { pt: "Nenhum resultado encontrado", en: "No results found" },
   "academy.footer.disclaimer": { pt: "Todos os conteúdos são criados por profissionais certificados. Compras processadas externamente com segurança.", en: "All content is created by certified professionals. Purchases processed securely externally." },
+  // Academy - Course Card
   "academy.course.videoLabel": { pt: "Curso em vídeo", en: "Video course" },
   "academy.course.lessons": { pt: "aulas", en: "lessons" },
   "academy.course.viewCourse": { pt: "Ver curso", en: "View course" },
+  // Academy - Course Detail
   "academy.detail.about": { pt: "Sobre o curso", en: "About this course" },
   "academy.detail.whatYouLearn": { pt: "O que vais aprender", en: "What you'll learn" },
   "academy.detail.content": { pt: "Conteúdo do curso", en: "Course content" },
@@ -73,6 +88,7 @@ const FALLBACK_CONTENT: Record<string, { pt: string; en: string }> = {
   "academy.detail.lessonsCompleted": { pt: "aulas concluídas", en: "lessons completed" },
   "academy.detail.loginPrompt": { pt: "Faça login para acompanhar seu progresso", en: "Log in to track your progress" },
   "academy.detail.loginButton": { pt: "Entrar", en: "Log in" },
+  // Academy - Difficulty
   "academy.difficulty.beginner": { pt: "Iniciante", en: "Beginner" },
   "academy.difficulty.intermediate": { pt: "Intermédio", en: "Intermediate" },
   "academy.difficulty.advanced": { pt: "Avançado", en: "Advanced" },
