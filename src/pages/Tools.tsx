@@ -1,7 +1,8 @@
 import { useNavigate } from "react-router-dom";
-import { Camera, ScanBarcode, Apple, ChefHat, History, ChevronRight } from "lucide-react";
+import { Camera, ScanBarcode, Apple, ChefHat, History, ChevronRight, HelpCircle } from "lucide-react";
 import { useLanguage } from "@/hooks/useLanguage";
 import { WaterTracker } from "@/components/WaterTracker";
+import { useCmsContent } from "@/hooks/useCmsContent";
 
 interface ToolItem {
   id: string;
@@ -15,6 +16,7 @@ interface ToolItem {
 export default function Tools() {
   const navigate = useNavigate();
   const { t } = useLanguage();
+  const cms = useCmsContent();
 
   const tools: ToolItem[] = [
     {
@@ -48,6 +50,14 @@ export default function Tools() {
       description: { pt: "Receitas saudáveis e equilibradas", en: "Healthy and balanced recipes" },
       color: "bg-warning/20 text-warning",
       action: () => navigate("/recipes"),
+    },
+    {
+      id: "support",
+      icon: HelpCircle,
+      title: { pt: "Ajuda & Suporte", en: "Help & Support" },
+      description: { pt: "Questões técnicas e apoio", en: "Technical questions and support" },
+      color: "bg-muted/40 text-white/70",
+      action: () => navigate("/support"),
     },
   ];
 

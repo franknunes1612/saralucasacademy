@@ -36,6 +36,8 @@ import TrainingClasses from "./pages/TrainingClasses";
 import Products from "./pages/Products";
 import GiftPlan from "./pages/GiftPlan";
 import TermsOfUse from "./pages/TermsOfUse";
+import Support from "./pages/Support";
+import AdminSupport from "./pages/AdminSupport";
 import NotFound from "./pages/NotFound";
 import { NutritionistFAB } from "./components/NutritionistFAB";
 
@@ -142,6 +144,7 @@ const App = () => (
               <Route path="/premium/products" element={<Products />} />
               <Route path="/premium/gift" element={<GiftPlan />} />
               <Route path="/terms" element={<TermsOfUse />} />
+              <Route path="/support" element={<Support />} />
               
               {/* Admin routes */}
               <Route path="/admin" element={<AdminLogin />} />
@@ -183,6 +186,11 @@ const App = () => (
               <Route path="/admin/purchases" element={
                 <AdminAuthGuard>
                   <AdminPurchases />
+                </AdminAuthGuard>
+              } />
+              <Route path="/admin/support" element={
+                <AdminAuthGuard>
+                  <AdminSupport />
                 </AdminAuthGuard>
               } />
               
