@@ -1,7 +1,7 @@
 import { useState, useMemo, useCallback, useEffect } from "react";
 import { useParams, useNavigate, useSearchParams } from "react-router-dom";
 import { motion } from "framer-motion";
-import { ArrowLeft, Clock, BookOpen, Award, User, ShoppingCart, Check, Share2, CheckCircle2, Loader2 } from "lucide-react";
+import { ArrowLeft, Clock, BookOpen, Award, User, ShoppingCart, Check, Share2, CheckCircle2, Loader2, Video, FileText, Package, Users, Download } from "lucide-react";
 import { useCmsContent } from "@/hooks/useCmsContent";
 import { useLanguage } from "@/hooks/useLanguage";
 import { useAcademyItems, AcademyItem } from "@/hooks/useAcademyItems";
@@ -24,6 +24,10 @@ type ExtendedAcademyItem = AcademyItem & {
   what_you_learn_pt?: string[];
   what_you_learn_en?: string[];
   video_preview_url?: string;
+  who_is_this_for_pt?: string[];
+  who_is_this_for_en?: string[];
+  whats_included_pt?: string[];
+  whats_included_en?: string[];
 };
 
 export default function CourseDetail() {
@@ -348,7 +352,7 @@ export default function CourseDetail() {
           </motion.div>
         )}
 
-        {/* Description */}
+        {/* Description / About */}
         {description && (
           <motion.div
             initial={{ opacity: 0, y: 10 }}
@@ -357,9 +361,98 @@ export default function CourseDetail() {
             className="rounded-2xl bg-white/5 border border-white/10 p-4"
           >
             <h3 className="font-semibold text-white text-sm mb-2">
-              {cms.get("academy.detail.about")}
+              {isProgram 
+                ? cms.get("academy.detail.aboutProgram") || "Sobre o Programa"
+                : cms.get("academy.detail.about")}
             </h3>
             <p className="text-sm text-white/70 leading-relaxed">{description}</p>
+          </motion.div>
+        )}
+
+        {/* Format Section */}
+        <motion.div
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.17 }}
+          className="rounded-2xl bg-white/5 border border-white/10 p-4"
+        >
+          <h3 className="font-semibold text-white text-sm mb-3">
+            {cms.get("academy.detail.format") || "Formato"}
+          </h3>
+          <div className="flex items-center gap-3">
+            {course.item_type === "course" || course.item_type === "program" ? (
+              <>
+                <div className="p-2 rounded-xl bg-purple-500/20">
+                  <Video className="h-5 w-5 text-purple-300" />
+                </div>
+                <div>
+                  <p className="text-sm text-white font-medium">
+                    {course.item_type === "program" 
+                      ? cms.get("academy.detail.formatProgram") || "Programa completo com acompanhamento"
+                      : cms.get("academy.detail.formatVideo") || "Aulas em vídeo com acesso vitalício"}
+                  </p>
+                  {lessons && lessons.length > 0 && (
+                    <p className="text-xs text-white/50">
+                      {lessons.length} {cms.get("academy.course.lessons")}
+                      {course.total_duration_minutes && course.total_duration_minutes > 0 && (
+                        <> • {formatTotalDuration(course.total_duration_minutes)}</>
+                      )}
+                    </p>
+                  )}
+                </div>
+              </>
+            ) : course.item_type === "ebook" ? (
+              <>
+                <div className="p-2 rounded-xl bg-blue-500/20">
+                  <FileText className="h-5 w-5 text-blue-300" />
+                </div>
+                <div>
+                  <p className="text-sm text-white font-medium">
+                    {cms.get("academy.detail.formatEbook") || "Ebook digital para download"}
+                  </p>
+                  <p className="text-xs text-white/50">PDF</p>
+                </div>
+              </>
+            ) : (
+              <>
+                <div className="p-2 rounded-xl bg-orange-500/20">
+                  <Package className="h-5 w-5 text-orange-300" />
+                </div>
+                <div>
+                  <p className="text-sm text-white font-medium">
+                    {cms.get("academy.detail.formatBundle") || "Pacote com múltiplos conteúdos"}
+                  </p>
+                </div>
+              </>
+            )}
+          </div>
+        </motion.div>
+
+        {/* What's Included (for bundles) */}
+        {course.item_type === "bundle" && (
+          <motion.div
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.18 }}
+            className="rounded-2xl bg-white/5 border border-white/10 p-4"
+          >
+            <h3 className="font-semibold text-white text-sm mb-3">
+              {cms.get("academy.detail.whatsIncluded") || "O Que Está Incluído"}
+            </h3>
+            <ul className="space-y-2">
+              <li className="flex items-center gap-2">
+                <Check className="h-4 w-4 text-[hsl(155_40%_55%)]" />
+                <span className="text-sm text-white/70">Curso completo em vídeo</span>
+              </li>
+              <li className="flex items-center gap-2">
+                <Check className="h-4 w-4 text-[hsl(155_40%_55%)]" />
+                <span className="text-sm text-white/70">Ebook complementar</span>
+              </li>
+              <li className="flex items-center gap-2">
+                <Check className="h-4 w-4 text-[hsl(155_40%_55%)]" />
+                <span className="text-sm text-white/70">Materiais de apoio</span>
+              </li>
+            </ul>
           </motion.div>
         )}
 
