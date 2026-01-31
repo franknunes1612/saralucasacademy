@@ -1,5 +1,6 @@
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { GraduationCap, Utensils, MessageCircle, ChevronRight, Sparkles, BookOpen, Users, Instagram } from "lucide-react";
+import { GraduationCap, Utensils, MessageCircle, ChevronRight, Sparkles, BookOpen, Users, Instagram, LogIn } from "lucide-react";
 import { useLanguage } from "@/hooks/useLanguage";
 import { useFeaturedAcademyItems } from "@/hooks/useAcademyItems";
 import { AcademyCard } from "@/components/academy/AcademyCard";
@@ -8,6 +9,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { SaraLucasLogo } from "@/components/brand/SaraLucasLogo";
 import { RecommendedProductsSection } from "@/components/home/RecommendedProductsSection";
 import { LanguageToggle } from "@/components/LanguageToggle";
+import { AuthModal } from "@/components/auth/AuthModal";
 import saraPortrait from "@/assets/sara-lucas-portrait.png";
 
 const INSTAGRAM_URL = "https://www.instagram.com/saralucas_pt_nutricionista/";
@@ -15,8 +17,9 @@ const INSTAGRAM_URL = "https://www.instagram.com/saralucas_pt_nutricionista/";
 export default function Home() {
   const navigate = useNavigate();
   const { t, language } = useLanguage();
-  const { isAdmin } = useAuth();
+  const { isAdmin, user } = useAuth();
   const { data: featuredItems, isLoading } = useFeaturedAcademyItems();
+  const [showAuthModal, setShowAuthModal] = useState(false);
 
   const handleWhatsApp = () => {
     const message = language === "pt" 
@@ -47,6 +50,15 @@ export default function Home() {
           >
             <Instagram className="h-5 w-5 text-white/70 hover:text-white transition-colors" />
           </a>
+          {!user && (
+            <button
+              onClick={() => setShowAuthModal(true)}
+              className="p-2 rounded-xl hover:bg-white/10 transition-colors"
+              aria-label={t({ pt: "Entrar", en: "Sign In" })}
+            >
+              <LogIn className="h-5 w-5 text-white/70 hover:text-white transition-colors" />
+            </button>
+          )}
           {isAdmin && (
             <button
               onClick={() => navigate("/admin/dashboard")}
@@ -236,6 +248,9 @@ export default function Home() {
           </li>
         </ul>
       </section>
+
+      {/* Auth Modal */}
+      <AuthModal open={showAuthModal} onOpenChange={setShowAuthModal} />
     </div>
   );
 }
