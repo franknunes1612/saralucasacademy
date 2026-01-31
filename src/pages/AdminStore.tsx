@@ -10,6 +10,7 @@ import { Switch } from "@/components/ui/switch";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { toast } from "sonner";
+import { ProductImageUpload } from "@/components/admin/ProductImageUpload";
 
 const CATEGORY_OPTIONS = [
   { value: "supplement", label: { pt: "Suplemento", en: "Supplement" } },
@@ -44,6 +45,7 @@ export default function AdminStore() {
     purchase_type: "external_link",
     purchase_link: "",
     image_emoji: "📦",
+    image_url: null,
     rating: null,
     is_active: true,
     display_order: 0,
@@ -62,6 +64,7 @@ export default function AdminStore() {
       purchase_type: "external_link",
       purchase_link: "",
       image_emoji: "📦",
+      image_url: null,
       rating: null,
       is_active: true,
       display_order: items?.length || 0,
@@ -88,6 +91,7 @@ export default function AdminStore() {
       purchase_type: item.purchase_type,
       purchase_link: item.purchase_link || "",
       image_emoji: item.image_emoji || "📦",
+      image_url: item.image_url || null,
       rating: item.rating,
       is_active: item.is_active,
       display_order: item.display_order,
@@ -194,8 +198,12 @@ export default function AdminStore() {
               className={`result-card p-4 ${!item.is_active ? "opacity-50" : ""}`}
             >
               <div className="flex items-start gap-3">
-                <div className="w-10 h-10 rounded-lg bg-white/10 flex items-center justify-center text-lg">
-                  {item.image_emoji || "📦"}
+                <div className="w-10 h-10 rounded-lg bg-white/10 flex items-center justify-center text-lg overflow-hidden">
+                  {item.image_url ? (
+                    <img src={item.image_url} alt="" className="w-full h-full object-cover" />
+                  ) : (
+                    item.image_emoji || "📦"
+                  )}
                 </div>
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-2 mb-0.5">
@@ -312,25 +320,23 @@ export default function AdminStore() {
               </div>
             </div>
 
-            {/* Brand & Emoji */}
-            <div className="grid grid-cols-2 gap-3">
-              <div>
-                <label className="text-xs text-white/60 mb-1 block">{t({ pt: "Marca", en: "Brand" })}</label>
-                <Input
-                  value={formData.brand || ""}
-                  onChange={(e) => setFormData({ ...formData, brand: e.target.value })}
-                  placeholder="NutriPure"
-                />
-              </div>
-              <div>
-                <label className="text-xs text-white/60 mb-1 block">Emoji</label>
-                <Input
-                  value={formData.image_emoji || ""}
-                  onChange={(e) => setFormData({ ...formData, image_emoji: e.target.value })}
-                  placeholder="🥛"
-                />
-              </div>
+            {/* Brand */}
+            <div>
+              <label className="text-xs text-white/60 mb-1 block">{t({ pt: "Marca", en: "Brand" })}</label>
+              <Input
+                value={formData.brand || ""}
+                onChange={(e) => setFormData({ ...formData, brand: e.target.value })}
+                placeholder="NutriPure"
+              />
             </div>
+
+            {/* Image Upload */}
+            <ProductImageUpload
+              currentImageUrl={formData.image_url || null}
+              currentEmoji={formData.image_emoji || "📦"}
+              onImageChange={(url) => setFormData({ ...formData, image_url: url })}
+              onEmojiChange={(emoji) => setFormData({ ...formData, image_emoji: emoji })}
+            />
 
             {/* Price, Currency, Category */}
             <div className="grid grid-cols-3 gap-3">
