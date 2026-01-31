@@ -3,7 +3,7 @@ import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route, useLocation } from "react-router-dom";
+import { BrowserRouter, Routes, Route, useLocation, useNavigate } from "react-router-dom";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
 import { AdminAuthGuard } from "@/components/admin/AdminAuthGuard";
 import { BottomNav } from "@/components/navigation/BottomNav";
@@ -66,6 +66,7 @@ function NutritionistFABWrapper() {
 // App entry flow manager - now CMS-controlled
 function AppEntryFlow({ children }: { children: React.ReactNode }) {
   const location = useLocation();
+  const navigate = useNavigate();
   const cms = useCmsContent();
   const [showSplash, setShowSplash] = useState(true);
   const [showOnboarding, setShowOnboarding] = useState(false);
@@ -149,7 +150,13 @@ function AppEntryFlow({ children }: { children: React.ReactNode }) {
       localStorage.setItem(ONBOARDING_COMPLETED_KEY, "true");
     }
     setShowOnboarding(false);
-  }, [showMode]);
+    
+    // CRITICAL: Always navigate to Home after onboarding completes
+    // This ensures the user lands on the Main Menu, not whatever route was loaded
+    // CMS key: app.onboarding.redirectPath - defaults to "/" (Home)
+    const redirectPath = cms.get("app.onboarding.redirectPath", { pt: "/", en: "/" });
+    navigate(redirectPath, { replace: true });
+  }, [showMode, cms, navigate]);
 
   // Skip entry flow for direct scan access, admin routes, or OAuth callbacks
   if (isDirectAccess || hasOAuthSkipFlag || isOAuthIntermediaryRoute || (isScanRoute && !showSplash) || isAdminRoute || isOAuthCallback) {
