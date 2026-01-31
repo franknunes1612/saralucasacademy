@@ -1,235 +1,268 @@
 
-# Fix Academy Hero Positioning — Training + Nutrition
+# Dynamic Onboarding Slides Management
 
 ## Overview
 
-The current Academy Hero focuses only on **nutrition**. This plan updates the hero to position the Academy as a **complete health and performance academy** covering Training, Nutrition, and Education.
+Currently, onboarding slides are hardcoded in the `Onboarding.tsx` component with a fixed array `SLIDE_KEYS = [1, 2, 3, 4, 5, 6]`. Content is fetched from CMS but the slide structure (number of slides, order) is static. This plan adds full admin control to:
+
+- Add/remove slides dynamically
+- Reorder slides via drag-and-drop
+- Edit all slide content (title, text, icon)
+- Toggle slides active/inactive
 
 ---
 
-## Current State Analysis
+## Architecture Decision
 
-**Current Hero Content (from CMS fallbacks):**
-- Headline: "Transforma a tua relação com a alimentação" (only nutrition)
-- Subheadline: "Para quem quer aprender a comer bem..." (only food/eating)
-- Badge: "Nutricionista Certificada" (only nutritionist)
-- CTAs: "Explorar Cursos" and "Ver Programas" (generic, good)
+**Option A: Extend CMS with display_order column** (Not recommended)
+- Would require parsing slide keys dynamically from CMS entries
+- CMS table not designed for ordered collections
 
-**Problem:** The messaging is nutrition-centric when the Academy offers Training + Nutrition + Education.
-
----
-
-## Changes Summary
-
-### 1. Update CMS Fallback Content
-
-Update the default hero text in `useCmsContent.ts` to reflect both Training and Nutrition:
-
-| Key | Current (PT) | New (PT) |
-|-----|--------------|----------|
-| `academy.hero.headline` | "Transforma a tua relação com a alimentação" | "Transforma o teu corpo e a tua saúde" |
-| `academy.hero.subheadline` | "Para quem quer aprender a comer bem..." | "Programas de treino, nutrição guiada e educação contínua. Cursos, ebooks e programas criados por profissional certificada." |
-| `academy.hero.badge.label` | "Nutricionista Certificada" | "Personal Trainer & Nutricionista" |
-
-### 2. Add Third CTA Button
-
-Add an optional third CTA to access the full Academy:
-
-- Primary: "Explorar Cursos" → `/learn?type=course`
-- Secondary: "Ver Programas" → `/learn?type=program`
-- Tertiary (new): "Academia Completa" → `/learn`
-
-### 3. Add Visual Feature Tags
-
-Add animated feature tags below the badge to communicate both pillars:
-
-```
-[🏋️ Treino] [🥗 Nutrição] [📚 Educação]
-```
-
-These tags will be:
-- Admin-editable via CMS
-- Animated with subtle stagger effect
-- Styled with semi-transparent white backgrounds
-
-### 4. New CMS Keys Required
-
-| Key | Purpose | Default PT | Default EN |
-|-----|---------|------------|------------|
-| `academy.hero.cta.tertiary.label` | Third CTA text | "Academia Completa" | "Full Academy" |
-| `academy.hero.cta.tertiary.link` | Third CTA link | "/learn" | "/learn" |
-| `academy.hero.cta.tertiary.enabled` | Toggle third CTA | "true" | "true" |
-| `academy.hero.tags.enabled` | Toggle feature tags | "true" | "true" |
-| `academy.hero.tag1.icon` | Tag 1 icon | "dumbbell" | "dumbbell" |
-| `academy.hero.tag1.label` | Tag 1 text | "Treino" | "Training" |
-| `academy.hero.tag2.icon` | Tag 2 icon | "utensils" | "utensils" |
-| `academy.hero.tag2.label` | Tag 2 text | "Nutrição" | "Nutrition" |
-| `academy.hero.tag3.icon` | Tag 3 icon | "book-open" | "book-open" |
-| `academy.hero.tag3.label` | Tag 3 text | "Educação" | "Education" |
+**Option B: Create dedicated `onboarding_slides` table** (Recommended)
+- Clean separation of concerns
+- Proper `display_order` column for reordering
+- `is_active` toggle per slide
+- Follows existing patterns (academy_items, course_lessons use display_order)
 
 ---
 
-## Technical Implementation
+## Database Schema
 
-### File: `src/hooks/useCmsContent.ts`
+### New Table: `onboarding_slides`
 
-Update the `FALLBACK_CONTENT` object with new default values:
+| Column | Type | Description |
+|--------|------|-------------|
+| `id` | uuid | Primary key |
+| `icon` | text | Icon name (camera, dumbbell, etc.) |
+| `title_pt` | text | Portuguese title |
+| `title_en` | text | English title |
+| `text_pt` | text | Portuguese description |
+| `text_en` | text | English description |
+| `display_order` | integer | Slide order (0, 1, 2...) |
+| `is_active` | boolean | Show/hide slide |
+| `created_at` | timestamptz | Creation timestamp |
+| `updated_at` | timestamptz | Last update timestamp |
+
+### RLS Policies
+
+- Anyone can read active slides (public onboarding)
+- Admins can read all slides
+- Admins can create/update/delete slides
+
+### Seed Data
+
+Insert the 6 default slides from current fallbacks into the new table.
+
+---
+
+## Frontend Changes
+
+### 1. New Hook: `useOnboardingSlides.ts`
 
 ```typescript
-// Updated Hero Content
-"academy.hero.headline": { 
-  pt: "Transforma o teu corpo e a tua saúde", 
-  en: "Transform your body and health" 
-},
-"academy.hero.subheadline": { 
-  pt: "Programas de treino, nutrição guiada e educação contínua. Cursos, ebooks e programas criados por profissional certificada.", 
-  en: "Training programs, guided nutrition and continuous education. Courses, ebooks and programs created by a certified professional." 
-},
-"academy.hero.badge.label": { 
-  pt: "Personal Trainer & Nutricionista", 
-  en: "Personal Trainer & Nutritionist" 
-},
+// Public hook - fetches active slides ordered by display_order
+export function useOnboardingSlides() {
+  // Fetches from onboarding_slides where is_active = true
+  // Ordered by display_order ASC
+  // Returns: { slides, isLoading }
+}
 
-// New CMS keys for third CTA
-"academy.hero.cta.tertiary.label": { pt: "Academia Completa", en: "Full Academy" },
-"academy.hero.cta.tertiary.link": { pt: "/learn", en: "/learn" },
-"academy.hero.cta.tertiary.enabled": { pt: "true", en: "true" },
-
-// Feature tags
-"academy.hero.tags.enabled": { pt: "true", en: "true" },
-"academy.hero.tag1.icon": { pt: "dumbbell", en: "dumbbell" },
-"academy.hero.tag1.label": { pt: "Treino", en: "Training" },
-"academy.hero.tag2.icon": { pt: "utensils", en: "utensils" },
-"academy.hero.tag2.label": { pt: "Nutrição", en: "Nutrition" },
-"academy.hero.tag3.icon": { pt: "book-open", en: "book-open" },
-"academy.hero.tag3.label": { pt: "Educação", en: "Education" },
+// Admin hook - full CRUD with reordering
+export function useAdminOnboardingSlides() {
+  // Fetches ALL slides (active + inactive)
+  // CRUD operations: createSlide, updateSlide, deleteSlide
+  // Reorder operation: reorderSlides(slideIds: string[])
+}
 ```
 
-### File: `src/components/academy/AcademyHero.tsx`
+### 2. Update `Onboarding.tsx`
 
-1. **Import additional icons:**
+Replace hardcoded `SLIDE_KEYS` and `SLIDE_FALLBACKS` with data from `useOnboardingSlides()`:
+
 ```typescript
-import { Dumbbell, Utensils } from "lucide-react";
+// Before
+const SLIDE_KEYS = [1, 2, 3, 4, 5, 6];
+const slideContent = getSlideContent(SLIDE_KEYS[currentSlide]);
+
+// After
+const { slides, isLoading } = useOnboardingSlides();
+const currentSlideData = slides[currentSlide];
 ```
 
-2. **Create icon map for feature tags:**
-```typescript
-const TAG_ICON_MAP: Record<string, React.ComponentType<{ className?: string }>> = {
-  dumbbell: Dumbbell,
-  utensils: Utensils,
-  "book-open": BookOpen,
-  // ... other icons
-};
-```
+Keep existing fallbacks as backup if database is empty or loading.
 
-3. **Add feature tags section below badge:**
-```tsx
-{/* Feature Tags */}
-{tagsEnabled && (
-  <motion.div variants={itemVariants} className="flex flex-wrap gap-2 mb-4">
-    {[1, 2, 3].map((i) => {
-      const iconKey = cms.get(`academy.hero.tag${i}.icon`);
-      const label = cms.get(`academy.hero.tag${i}.label`);
-      const IconComponent = TAG_ICON_MAP[iconKey] || BookOpen;
-      return (
-        <span key={i} className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/15 backdrop-blur-sm text-xs text-white/90">
-          <IconComponent className="h-3.5 w-3.5" />
-          {label}
-        </span>
-      );
-    })}
-  </motion.div>
-)}
-```
+### 3. New Admin Page: `AdminOnboarding.tsx`
 
-4. **Add tertiary CTA button:**
-```tsx
-{/* Tertiary CTA */}
-{tertiaryCtaEnabled && (
-  <button
-    onClick={() => navigate(tertiaryCtaLink)}
-    className="inline-flex items-center gap-2 px-4 py-2 rounded-xl text-white/80 font-medium text-sm hover:text-white transition-colors"
-  >
-    {tertiaryCtaLabel}
-    <ChevronRight className="h-4 w-4" />
-  </button>
-)}
-```
+A dedicated page for managing onboarding slides:
+
+**Features:**
+- List all slides with drag handles for reordering
+- Toggle active/inactive per slide
+- Add new slide button
+- Edit slide modal (icon picker, bilingual title/text)
+- Delete slide with confirmation
+- Live preview of slide appearance
+
+**UI Components:**
+- Drag-and-drop list using HTML5 drag API (same pattern as course lessons)
+- Icon picker dropdown with all supported icons
+- Character count for title/text fields
+
+### 4. Update Admin Dashboard
+
+Add "Onboarding" link in the admin dashboard navigation grid.
 
 ---
 
-## Visual Result
+## Files to Create
 
-The updated hero will display:
-
-```text
-┌─────────────────────────────────────────────────────┐
-│  🏆 Personal Trainer & Nutricionista                │
-│                                                      │
-│  [🏋️ Treino] [🥗 Nutrição] [📚 Educação]            │
-│                                                      │
-│  Transforma o teu corpo                             │
-│  e a tua saúde                                      │
-│                                                      │
-│  Programas de treino, nutrição guiada e educação    │
-│  contínua. Cursos, ebooks e programas criados       │
-│  por profissional certificada.                      │
-│                                                      │
-│  [Explorar Cursos] [Ver Programas] Academia →       │
-│                                                      │
-│  ┌─────────────────────────────────────────────┐    │
-│  │  🎬 Featured Course/Program Card            │    │
-│  └─────────────────────────────────────────────┘    │
-│  ────────────────── bronze line ──────────────────  │
-└─────────────────────────────────────────────────────┘
-```
-
----
-
-## Admin Control Summary
-
-Admins can edit through the CMS panel (`/admin/cms`):
-
-| Element | CMS Key | Editable |
-|---------|---------|----------|
-| Badge text | `academy.hero.badge.label` | ✅ |
-| Headline | `academy.hero.headline` | ✅ |
-| Subheadline | `academy.hero.subheadline` | ✅ |
-| Primary CTA text | `academy.hero.cta.primary.label` | ✅ |
-| Secondary CTA text | `academy.hero.cta.secondary.label` | ✅ |
-| Tertiary CTA text | `academy.hero.cta.tertiary.label` | ✅ |
-| Feature tags on/off | `academy.hero.tags.enabled` | ✅ |
-| Tag 1/2/3 icons | `academy.hero.tagX.icon` | ✅ |
-| Tag 1/2/3 labels | `academy.hero.tagX.label` | ✅ |
-| Hero layout | `academy.hero.layout` | ✅ |
-| Video/Image URLs | `academy.hero.video.url` / `academy.hero.image.url` | ✅ |
-| Animations on/off | `academy.hero.animations.enabled` | ✅ |
-
----
+| File | Purpose |
+|------|---------|
+| `src/hooks/useOnboardingSlides.ts` | Public + Admin hooks for slides data |
+| `src/pages/AdminOnboarding.tsx` | Admin page for slide management |
 
 ## Files to Modify
 
-1. **`src/hooks/useCmsContent.ts`**
-   - Update existing fallback values for headline, subheadline, badge
-   - Add new CMS keys for tertiary CTA and feature tags
+| File | Changes |
+|------|---------|
+| `src/components/Onboarding.tsx` | Use database slides instead of hardcoded array |
+| `src/pages/AdminDashboard.tsx` | Add Onboarding link to navigation |
 
-2. **`src/components/academy/AcademyHero.tsx`**
-   - Import new icons (Dumbbell, Utensils)
-   - Add icon map for dynamic tag rendering
-   - Add feature tags section with animation
-   - Add tertiary CTA button
-   - Fetch new CMS values
+---
+
+## Technical Details
+
+### Database Migration SQL
+
+```sql
+-- Create onboarding_slides table
+CREATE TABLE public.onboarding_slides (
+  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  icon text NOT NULL DEFAULT 'sparkles',
+  title_pt text NOT NULL,
+  title_en text NOT NULL,
+  text_pt text NOT NULL,
+  text_en text NOT NULL,
+  display_order integer NOT NULL DEFAULT 0,
+  is_active boolean NOT NULL DEFAULT true,
+  created_at timestamptz NOT NULL DEFAULT now(),
+  updated_at timestamptz NOT NULL DEFAULT now()
+);
+
+-- Enable RLS
+ALTER TABLE public.onboarding_slides ENABLE ROW LEVEL SECURITY;
+
+-- RLS Policies
+CREATE POLICY "Anyone can read active slides"
+  ON public.onboarding_slides FOR SELECT
+  USING (is_active = true);
+
+CREATE POLICY "Admins can read all slides"
+  ON public.onboarding_slides FOR SELECT
+  USING (has_role(auth.uid(), 'admin'::app_role));
+
+CREATE POLICY "Admins can insert slides"
+  ON public.onboarding_slides FOR INSERT
+  WITH CHECK (has_role(auth.uid(), 'admin'::app_role));
+
+CREATE POLICY "Admins can update slides"
+  ON public.onboarding_slides FOR UPDATE
+  USING (has_role(auth.uid(), 'admin'::app_role));
+
+CREATE POLICY "Admins can delete slides"
+  ON public.onboarding_slides FOR DELETE
+  USING (has_role(auth.uid(), 'admin'::app_role));
+
+-- Auto-update timestamp trigger
+CREATE TRIGGER update_onboarding_slides_updated_at
+  BEFORE UPDATE ON public.onboarding_slides
+  FOR EACH ROW
+  EXECUTE FUNCTION update_updated_at_column();
+
+-- Seed default slides
+INSERT INTO public.onboarding_slides (icon, title_pt, title_en, text_pt, text_en, display_order) VALUES
+  ('camera', 'Scan Alimentar & Codigo de Barras', 'Food & Barcode Scanner', 'Fotografa a tua refeicao ou produto e obtem informacao nutricional instantanea.', 'Photograph your meal or product and get instant nutritional information.', 0),
+  ('graduation-cap', 'Academy Completa', 'Complete Academy', 'Cursos, programas, ebooks e bundles para transformar a tua saude.', 'Courses, programs, ebooks and bundles to transform your health.', 1),
+  ('message-circle', 'Fala com Nutricionista', 'Talk to Nutritionist', 'Acompanhamento profissional, consultas e planos personalizados.', 'Professional guidance, consultations and personalized plans.', 2),
+  ('dumbbell', 'Programas de Treino', 'Training Programs', 'Treinos guiados e programas de nutricao para atingir os teus objetivos.', 'Guided workouts and nutrition programs to reach your goals.', 3),
+  ('utensils', 'Receitas & Refeicoes', 'Recipes & Meals', 'Receitas fit, acompanhamento de refeicoes e sugestoes inteligentes.', 'Fit recipes, meal tracking and smart suggestions.', 4),
+  ('heart-handshake', 'Suporte & Contacto', 'Support & Contact', 'Estamos aqui para ajudar. Contacta-nos quando precisares.', 'We are here to help. Contact us whenever you need.', 5);
+```
+
+### Reordering Logic
+
+When admin drags a slide to a new position:
+
+1. Capture the new order array (list of slide IDs)
+2. Loop through and update `display_order` for each slide
+3. Use a transaction or batch update to ensure consistency
+
+```typescript
+const reorderSlides = async (orderedIds: string[]) => {
+  const updates = orderedIds.map((id, index) => ({
+    id,
+    display_order: index
+  }));
+  
+  // Update each slide's display_order
+  for (const { id, display_order } of updates) {
+    await supabase
+      .from('onboarding_slides')
+      .update({ display_order })
+      .eq('id', id);
+  }
+};
+```
+
+### Icon Picker
+
+Reuse the existing `ICON_MAP` from Onboarding.tsx:
+
+```typescript
+const AVAILABLE_ICONS = [
+  { value: 'camera', label: 'Camera' },
+  { value: 'graduation-cap', label: 'Graduation Cap' },
+  { value: 'message-circle', label: 'Message Circle' },
+  { value: 'dumbbell', label: 'Dumbbell' },
+  { value: 'utensils', label: 'Utensils' },
+  { value: 'heart-handshake', label: 'Heart Handshake' },
+  { value: 'sparkles', label: 'Sparkles' },
+  { value: 'book-open', label: 'Book Open' },
+  { value: 'play', label: 'Play' },
+  { value: 'shopping-bag', label: 'Shopping Bag' },
+];
+```
 
 ---
 
 ## Verification Checklist
 
 After implementation:
-- [ ] Hero clearly shows "Training + Nutrition + Education"
-- [ ] Badge reads "Personal Trainer & Nutricionista"
-- [ ] Three feature tags visible with icons
-- [ ] Three CTAs available (primary, secondary, tertiary)
-- [ ] All text editable via Admin CMS
-- [ ] Animations remain smooth
-- [ ] Mobile layout renders correctly
-- [ ] No impact on navigation or scan features
+- [ ] Database table created with RLS policies
+- [ ] Default slides seeded in correct order
+- [ ] Onboarding displays slides from database
+- [ ] Falls back to hardcoded slides if DB empty
+- [ ] Admin can view all slides in admin panel
+- [ ] Admin can add new slides
+- [ ] Admin can edit existing slides
+- [ ] Admin can delete slides
+- [ ] Admin can reorder slides via drag-and-drop
+- [ ] Admin can toggle slides active/inactive
+- [ ] Changes reflect immediately in app onboarding
+- [ ] Mobile layout works correctly
+- [ ] No impact on camera/scan features
+
+---
+
+## Admin Dashboard Navigation
+
+Add to the existing grid in `AdminDashboard.tsx`:
+
+```tsx
+{
+  label: { pt: "Onboarding", en: "Onboarding" },
+  icon: Play,
+  path: "/admin/onboarding",
+  description: { pt: "Gerir slides de boas-vindas", en: "Manage welcome slides" }
+}
+```
