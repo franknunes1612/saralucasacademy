@@ -30,6 +30,8 @@ import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { toast } from "sonner";
 
+const OAUTH_SKIP_ENTRY_FLOW_KEY = "sara-lucas-oauth-skip-entry-flow";
+
 interface MenuItem {
   id: string;
   icon: typeof User;
@@ -98,6 +100,10 @@ export default function Profile() {
 
   const handleGoogleSignIn = async () => {
     try {
+      // Some providers/browsers may strip query params on the final redirect.
+      // This one-time flag ensures we can still bypass splash/onboarding right after returning.
+      sessionStorage.setItem(OAUTH_SKIP_ENTRY_FLOW_KEY, "1");
+
       const { error } = await lovable.auth.signInWithOAuth("google", {
         // Avoid the entry flow (splash/onboarding) after the OAuth redirect
         // by returning with the direct access flag.
