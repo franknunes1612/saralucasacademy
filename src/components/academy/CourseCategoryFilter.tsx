@@ -1,21 +1,21 @@
 import { motion } from "framer-motion";
 import { Dumbbell, Apple, Calendar, Sparkles, GraduationCap, Zap } from "lucide-react";
-import { useLanguage } from "@/hooks/useLanguage";
+import { useCmsContent } from "@/hooks/useCmsContent";
 import { cn } from "@/lib/utils";
 
 interface Category {
   id: string;
   icon: typeof Dumbbell;
-  label: { pt: string; en: string };
+  cmsKey: string;
 }
 
 const CATEGORIES: Category[] = [
-  { id: "all", icon: Sparkles, label: { pt: "Todos", en: "All" } },
-  { id: "training", icon: Dumbbell, label: { pt: "Treino", en: "Training" } },
-  { id: "nutrition", icon: Apple, label: { pt: "Nutrição", en: "Nutrition" } },
-  { id: "programs", icon: Calendar, label: { pt: "Programas", en: "Programs" } },
-  { id: "beginner", icon: GraduationCap, label: { pt: "Iniciantes", en: "Beginners" } },
-  { id: "advanced", icon: Zap, label: { pt: "Avançado", en: "Advanced" } },
+  { id: "all", icon: Sparkles, cmsKey: "academy.filter.all" },
+  { id: "training", icon: Dumbbell, cmsKey: "academy.categories.training" },
+  { id: "nutrition", icon: Apple, cmsKey: "academy.categories.nutrition" },
+  { id: "programs", icon: Calendar, cmsKey: "academy.categories.programs" },
+  { id: "beginner", icon: GraduationCap, cmsKey: "academy.categories.beginners" },
+  { id: "advanced", icon: Zap, cmsKey: "academy.categories.advanced" },
 ];
 
 interface CourseCategoryFilterProps {
@@ -27,12 +27,12 @@ export function CourseCategoryFilter({
   activeCategory,
   onCategoryChange,
 }: CourseCategoryFilterProps) {
-  const { t } = useLanguage();
+  const cms = useCmsContent();
 
   return (
     <div className="mb-6">
       <h2 className="text-sm font-medium text-white/70 mb-3 px-1">
-        {t({ pt: "Categorias", en: "Categories" })}
+        {cms.get("academy.categories.title")}
       </h2>
       
       <div className="flex gap-2 overflow-x-auto pb-2 -mx-4 px-4 scrollbar-hide">
@@ -55,7 +55,7 @@ export function CourseCategoryFilter({
               )}
             >
               <Icon className={cn("h-4 w-4", isActive ? "text-[hsl(340_45%_50%)]" : "text-white/60")} />
-              <span>{t(category.label)}</span>
+              <span>{cms.get(category.cmsKey)}</span>
             </motion.button>
           );
         })}

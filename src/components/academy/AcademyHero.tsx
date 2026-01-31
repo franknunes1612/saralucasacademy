@@ -1,9 +1,9 @@
 import { motion } from "framer-motion";
 import { GraduationCap, Sparkles } from "lucide-react";
-import { useLanguage } from "@/hooks/useLanguage";
+import { useCmsContent } from "@/hooks/useCmsContent";
 
 export function AcademyHero() {
-  const { t } = useLanguage();
+  const cms = useCmsContent();
 
   return (
     <motion.div
@@ -29,16 +29,13 @@ export function AcademyHero() {
           <div className="flex-1">
             <div className="flex items-center gap-2 mb-1">
               <h1 className="text-2xl font-bold text-white tracking-tight">
-                Academy
+                {cms.get("academy.hero.title")}
               </h1>
               <Sparkles className="h-5 w-5 text-[hsl(30_60%_75%)]" />
             </div>
             
             <p className="text-sm text-white/80 leading-relaxed max-w-xs">
-              {t({
-                pt: "Cursos, programas e aulas gravadas para transformar a sua saúde",
-                en: "Courses, programs and recorded classes to transform your health",
-              })}
+              {cms.get("academy.hero.subtitle")}
             </p>
           </div>
         </div>
