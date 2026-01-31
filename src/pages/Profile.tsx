@@ -99,7 +99,9 @@ export default function Profile() {
   const handleGoogleSignIn = async () => {
     try {
       const { error } = await lovable.auth.signInWithOAuth("google", {
-        redirect_uri: window.location.origin,
+        // Avoid the entry flow (splash/onboarding) after the OAuth redirect
+        // by returning with the direct access flag.
+        redirect_uri: `${window.location.origin}/profile?direct=1`,
       });
       if (error) throw error;
     } catch (error) {
