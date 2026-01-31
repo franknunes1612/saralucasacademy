@@ -1,7 +1,6 @@
 import { useState, useEffect } from "react";
 import { Droplets, Plus, Minus, RotateCcw } from "lucide-react";
 import { useLanguage } from "@/hooks/useLanguage";
-import { Progress } from "@/components/ui/progress";
 
 const STORAGE_KEY = "sara-lucas-water-tracker";
 const DEFAULT_GOAL_ML = 2000; // 2 liters
@@ -22,7 +21,6 @@ function loadWaterData(): WaterData {
     const stored = localStorage.getItem(STORAGE_KEY);
     if (stored) {
       const data: WaterData = JSON.parse(stored);
-      // Reset if it's a new day
       if (data.date !== getTodayKey()) {
         return { date: getTodayKey(), consumed: 0, goal: data.goal || DEFAULT_GOAL_ML };
       }
@@ -42,9 +40,83 @@ function saveWaterData(data: WaterData): void {
   }
 }
 
+interface WaterGlassProps {
+  filled: boolean;
+  index: number;
+  justFilled?: boolean;
+}
+
+function WaterGlass({ filled, index, justFilled }: WaterGlassProps) {
+  return (
+    <div
+      className={`
+        relative w-8 h-10 rounded-b-lg border-2 transition-all duration-300
+        ${filled 
+          ? "border-secondary bg-secondary/20" 
+          : "border-white/20 bg-white/5"
+        }
+        ${justFilled ? "animate-bounce" : ""}
+      `}
+      style={{ 
+        animationDelay: `${index * 50}ms`,
+        transitionDelay: `${index * 30}ms`
+      }}
+    >
+      {/* Glass handle */}
+      <div 
+        className={`
+          absolute -right-1.5 top-1/2 -translate-y-1/2 w-1.5 h-4 
+          rounded-r-full border-2 border-l-0
+          ${filled ? "border-secondary" : "border-white/20"}
+        `}
+      />
+      
+      {/* Water fill */}
+      <div 
+        className={`
+          absolute bottom-0 left-0 right-0 rounded-b-md
+          bg-gradient-to-t from-secondary to-secondary/70
+          transition-all duration-500 ease-out
+          ${filled ? "h-[85%] opacity-100" : "h-0 opacity-0"}
+        `}
+        style={{ transitionDelay: `${index * 30}ms` }}
+      >
+        {/* Water wave effect */}
+        {filled && (
+          <div className="absolute top-0 left-0 right-0 h-1 overflow-hidden">
+            <div 
+              className="w-[200%] h-2 bg-white/30 rounded-full animate-pulse"
+              style={{ 
+                animation: "wave 2s ease-in-out infinite",
+                animationDelay: `${index * 100}ms`
+              }}
+            />
+          </div>
+        )}
+      </div>
+      
+      {/* Bubbles when filled */}
+      {filled && (
+        <>
+          <div 
+            className="absolute bottom-2 left-1 w-1 h-1 bg-white/40 rounded-full animate-ping"
+            style={{ animationDuration: "2s", animationDelay: `${index * 200}ms` }}
+          />
+          <div 
+            className="absolute bottom-3 right-1.5 w-0.5 h-0.5 bg-white/30 rounded-full animate-ping"
+            style={{ animationDuration: "2.5s", animationDelay: `${index * 150 + 100}ms` }}
+          />
+        </>
+      )}
+    </div>
+  );
+}
+
 export function WaterTracker() {
   const { t } = useLanguage();
   const [data, setData] = useState<WaterData>(loadWaterData);
+  const [lastAdded, setLastAdded] = useState<number | null>(null);
+  const [showCelebration, setShowCelebration] = useState(false);
 
   useEffect(() => {
     saveWaterData(data);
@@ -52,14 +124,25 @@ export function WaterTracker() {
 
   const cupsConsumed = Math.floor(data.consumed / CUP_SIZE_ML);
   const cupsGoal = Math.floor(data.goal / CUP_SIZE_ML);
-  const progress = Math.min((data.consumed / data.goal) * 100, 100);
   const isGoalReached = data.consumed >= data.goal;
 
+  useEffect(() => {
+    if (isGoalReached && cupsConsumed === cupsGoal) {
+      setShowCelebration(true);
+      const timer = setTimeout(() => setShowCelebration(false), 3000);
+      return () => clearTimeout(timer);
+    }
+  }, [isGoalReached, cupsConsumed, cupsGoal]);
+
   const addCup = () => {
-    setData((prev) => ({
-      ...prev,
-      consumed: prev.consumed + CUP_SIZE_ML,
-    }));
+    if (cupsConsumed < cupsGoal) {
+      setLastAdded(cupsConsumed);
+      setData((prev) => ({
+        ...prev,
+        consumed: prev.consumed + CUP_SIZE_ML,
+      }));
+      setTimeout(() => setLastAdded(null), 600);
+    }
   };
 
   const removeCup = () => {
@@ -74,22 +157,29 @@ export function WaterTracker() {
       ...prev,
       consumed: 0,
     }));
+    setShowCelebration(false);
   };
 
+  // Create array of glasses
+  const glasses = Array.from({ length: cupsGoal }, (_, i) => ({
+    filled: i < cupsConsumed,
+    justFilled: lastAdded === i,
+  }));
+
   return (
-    <div className="result-card p-5">
+    <div className="result-card p-5 overflow-hidden">
       {/* Header */}
       <div className="flex items-center justify-between mb-4">
         <div className="flex items-center gap-3">
-          <div className="p-3 rounded-xl bg-secondary/20 text-secondary">
-            <Droplets className="h-6 w-6" />
+          <div className="p-2.5 rounded-xl bg-secondary/20 text-secondary">
+            <Droplets className="h-5 w-5" />
           </div>
           <div>
             <h3 className="font-semibold text-white">
-              {t({ pt: "Contador de Água", en: "Water Tracker" })}
+              {t({ pt: "Hidratação", en: "Hydration" })}
             </h3>
             <p className="text-xs text-white/60">
-              {t({ pt: `Meta: ${data.goal / 1000}L por dia`, en: `Goal: ${data.goal / 1000}L per day` })}
+              {t({ pt: `Meta: ${data.goal / 1000}L`, en: `Goal: ${data.goal / 1000}L` })}
             </p>
           </div>
         </div>
@@ -102,43 +192,43 @@ export function WaterTracker() {
         </button>
       </div>
 
-      {/* Progress */}
-      <div className="mb-4">
-        <div className="flex items-center justify-between mb-2">
-          <span className="text-2xl font-bold text-white">
-            {cupsConsumed}/{cupsGoal}
-          </span>
-          <span className="text-sm text-white/60">
-            {t({ pt: "copos", en: "cups" })} ({CUP_SIZE_ML}ml)
-          </span>
-        </div>
-        <Progress 
-          value={progress} 
-          className="h-3 bg-white/10"
-        />
-        <div className="flex justify-between mt-1">
-          <span className="text-xs text-white/50">
-            {(data.consumed / 1000).toFixed(1)}L
-          </span>
-          <span className="text-xs text-white/50">
-            {(data.goal / 1000).toFixed(1)}L
-          </span>
-        </div>
+      {/* Glasses Grid */}
+      <div className="flex flex-wrap justify-center gap-2 mb-4 py-3">
+        {glasses.map((glass, index) => (
+          <WaterGlass
+            key={index}
+            index={index}
+            filled={glass.filled}
+            justFilled={glass.justFilled}
+          />
+        ))}
       </div>
 
-      {/* Goal reached message */}
-      {isGoalReached && (
-        <div className="mb-4 p-3 rounded-xl bg-success/20 text-success text-center text-sm font-medium">
-          🎉 {t({ pt: "Parabéns! Meta atingida!", en: "Congratulations! Goal reached!" })}
+      {/* Progress Text */}
+      <div className="text-center mb-4">
+        <span className="text-3xl font-bold text-white">{cupsConsumed}</span>
+        <span className="text-lg text-white/40 mx-1">/</span>
+        <span className="text-lg text-white/60">{cupsGoal}</span>
+        <span className="text-sm text-white/40 ml-2">
+          {t({ pt: "copos", en: "cups" })}
+        </span>
+      </div>
+
+      {/* Celebration */}
+      {showCelebration && (
+        <div className="mb-4 p-3 rounded-xl bg-success/20 text-success text-center text-sm font-medium animate-scale-in">
+          <span className="inline-block animate-bounce">🎉</span>
+          {" "}{t({ pt: "Parabéns! Meta atingida!", en: "Congratulations! Goal reached!" })}{" "}
+          <span className="inline-block animate-bounce" style={{ animationDelay: "100ms" }}>💧</span>
         </div>
       )}
 
       {/* Controls */}
-      <div className="flex items-center justify-center gap-4">
+      <div className="flex items-center justify-center gap-6">
         <button
           onClick={removeCup}
           disabled={data.consumed === 0}
-          className="p-3 rounded-xl bg-white/10 hover:bg-white/20 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+          className="p-3 rounded-xl bg-white/10 hover:bg-white/20 disabled:opacity-30 disabled:cursor-not-allowed transition-all active:scale-95"
           aria-label={t({ pt: "Remover copo", en: "Remove cup" })}
         >
           <Minus className="h-5 w-5 text-white" />
@@ -146,10 +236,13 @@ export function WaterTracker() {
         
         <button
           onClick={addCup}
-          className="p-4 rounded-2xl bg-secondary hover:bg-secondary/80 active:scale-95 transition-all shadow-lg shadow-secondary/30"
+          disabled={cupsConsumed >= cupsGoal}
+          className="group relative p-5 rounded-2xl bg-secondary hover:bg-secondary/90 disabled:opacity-50 disabled:cursor-not-allowed transition-all active:scale-95 shadow-lg shadow-secondary/30"
           aria-label={t({ pt: "Adicionar copo", en: "Add cup" })}
         >
-          <Plus className="h-6 w-6 text-secondary-foreground" />
+          <Plus className="h-7 w-7 text-secondary-foreground transition-transform group-hover:rotate-90" />
+          {/* Ripple effect on hover */}
+          <div className="absolute inset-0 rounded-2xl bg-white/20 opacity-0 group-hover:opacity-100 group-hover:animate-ping pointer-events-none" />
         </button>
 
         <div className="w-[52px]" /> {/* Spacer for visual balance */}
@@ -158,10 +251,18 @@ export function WaterTracker() {
       {/* Quick tip */}
       <p className="text-xs text-white/50 text-center mt-4">
         {t({
-          pt: "Toca no + cada vez que bebes um copo de água",
-          en: "Tap + each time you drink a glass of water",
+          pt: "Toca no + cada vez que bebes um copo 💧",
+          en: "Tap + each time you drink a glass 💧",
         })}
       </p>
+
+      {/* Add wave animation keyframes */}
+      <style>{`
+        @keyframes wave {
+          0%, 100% { transform: translateX(-25%) rotate(2deg); }
+          50% { transform: translateX(0%) rotate(-2deg); }
+        }
+      `}</style>
     </div>
   );
 }
