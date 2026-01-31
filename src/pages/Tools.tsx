@@ -1,6 +1,7 @@
 import { useNavigate } from "react-router-dom";
 import { Camera, ScanBarcode, Apple, ChefHat, History, ChevronRight } from "lucide-react";
 import { useLanguage } from "@/hooks/useLanguage";
+import { WaterTracker } from "@/components/WaterTracker";
 
 interface ToolItem {
   id: string;
@@ -60,6 +61,11 @@ export default function Tools() {
         <p className="text-xs text-white/60">
           {t({ pt: "Apoio à tua jornada nutricional", en: "Support your nutrition journey" })}
         </p>
+      </div>
+
+      {/* Water Tracker */}
+      <div className="mb-6">
+        <WaterTracker />
       </div>
 
       {/* Tools Grid */}
