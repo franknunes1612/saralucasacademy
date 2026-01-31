@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { useCmsContent } from "@/hooks/useCmsContent";
 import { useLanguage } from "@/hooks/useLanguage";
-import saraSplashPortrait from "@/assets/sara-splash-portrait.png";
+import saraSplashPortrait from "@/assets/sara-splash-portrait-nobg.png";
 
 interface SplashScreenProps {
   onComplete: () => void;
@@ -23,8 +23,8 @@ export function SplashScreen({ onComplete }: SplashScreenProps) {
     pt: "Nutrição & Training Academy", 
     en: "Nutrition & Training Academy" 
   });
-  const durationStr = cms.get("app.splash.duration", { pt: "2000", en: "2000" });
-  const duration = parseInt(durationStr, 10) || 2000;
+  const durationStr = cms.get("app.splash.duration", { pt: "2500", en: "2500" });
+  const duration = parseInt(durationStr, 10) || 2500;
 
   useEffect(() => {
     // Trigger entrance animation after mount
@@ -46,7 +46,7 @@ export function SplashScreen({ onComplete }: SplashScreenProps) {
 
   return (
     <div
-      className={`fixed inset-0 z-50 flex flex-col items-center transition-opacity duration-500 overflow-hidden ${
+      className={`fixed inset-0 z-50 flex flex-col items-center justify-center transition-opacity duration-500 overflow-hidden ${
         isExiting ? "opacity-0" : "opacity-100"
       }`}
       style={{
@@ -78,9 +78,9 @@ export function SplashScreen({ onComplete }: SplashScreenProps) {
         }}
       />
 
-      {/* Logo container - positioned at top */}
+      {/* Logo container - centered like before */}
       <div
-        className="relative z-20 flex flex-col items-center pt-16 sm:pt-20 transition-all ease-out"
+        className="relative z-20 flex flex-col items-center transition-all ease-out"
         style={{
           transitionDuration: "800ms",
           opacity: isEntered ? 1 : 0,
@@ -111,36 +111,37 @@ export function SplashScreen({ onComplete }: SplashScreenProps) {
         </p>
       </div>
 
-      {/* Sara portrait - positioned to go off screen at the bottom */}
+      {/* Sara portrait - positioned to the right side, going off screen at the bottom */}
       <div
-        className="absolute bottom-0 left-1/2 -translate-x-1/2 z-10 transition-all ease-out"
+        className="absolute bottom-0 right-0 z-10 transition-all ease-out"
         style={{
           transitionDuration: "1000ms",
           transitionDelay: "300ms",
           opacity: isEntered ? 1 : 0,
           transform: isEntered 
-            ? "translateX(-50%) translateY(15%)" 
-            : "translateX(-50%) translateY(30%)",
+            ? "translateX(10%) translateY(12%)" 
+            : "translateX(20%) translateY(25%)",
         }}
       >
         <img
           src={saraSplashPortrait}
           alt="Sara Lucas"
-          className="w-auto max-w-none h-[85vh] sm:h-[90vh] object-contain object-bottom select-none pointer-events-none"
+          className="w-auto max-w-none h-[75vh] sm:h-[80vh] object-contain object-bottom select-none pointer-events-none"
           style={{
-            filter: "drop-shadow(0 -10px 40px rgba(0,0,0,0.1))",
+            filter: "drop-shadow(-10px 0 40px rgba(0,0,0,0.15))",
+            // Blend white edges with background using mix-blend-mode
+            mixBlendMode: "multiply",
           }}
         />
       </div>
 
-      {/* Decorative bottom gradient - blends portrait into edge */}
+      {/* Decorative bottom gradient */}
       <div 
-        className="absolute bottom-0 left-0 right-0 h-40 pointer-events-none z-20"
+        className="absolute bottom-0 left-0 right-0 h-32 pointer-events-none z-20"
         style={{
           background: `linear-gradient(
             to top,
             hsl(340 45% 72%) 0%,
-            hsl(340 45% 72% / 0.8) 30%,
             transparent 100%
           )`,
         }}
