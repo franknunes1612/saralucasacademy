@@ -35,6 +35,7 @@ import PersonalizedPlan from "./pages/PersonalizedPlan";
 import TrainingClasses from "./pages/TrainingClasses";
 import Products from "./pages/Products";
 import GiftPlan from "./pages/GiftPlan";
+import TermsOfUse from "./pages/TermsOfUse";
 import NotFound from "./pages/NotFound";
 import { NutritionistFAB } from "./components/NutritionistFAB";
 
@@ -140,6 +141,7 @@ const App = () => (
               <Route path="/premium/training" element={<TrainingClasses />} />
               <Route path="/premium/products" element={<Products />} />
               <Route path="/premium/gift" element={<GiftPlan />} />
+              <Route path="/terms" element={<TermsOfUse />} />
               
               {/* Admin routes */}
               <Route path="/admin" element={<AdminLogin />} />
