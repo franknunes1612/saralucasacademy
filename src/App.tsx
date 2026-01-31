@@ -47,6 +47,7 @@ const queryClient = new QueryClient();
 
 // Storage keys
 const ONBOARDING_COMPLETED_KEY = "sara-lucas-onboarding-completed";
+const OAUTH_SKIP_ENTRY_FLOW_KEY = "sara-lucas-oauth-skip-entry-flow";
 
 // FAB wrapper that hides on certain routes/states
 function NutritionistFABWrapper() {
@@ -74,6 +75,10 @@ function AppEntryFlow({ children }: { children: React.ReactNode }) {
   const isDirectAccess = location.search.includes("direct=1");
   const isScanRoute = location.pathname === "/scan";
   const isAdminRoute = location.pathname.startsWith("/admin");
+  // Some browsers/providers strip query params from the final redirect; keep a short-lived
+  // session flag so we can still bypass the entry flow right after returning.
+  const hasOAuthSkipFlag = sessionStorage.getItem(OAUTH_SKIP_ENTRY_FLOW_KEY) === "1";
+  const isOAuthIntermediaryRoute = location.pathname.startsWith("/~oauth");
   const isOAuthCallback = location.search.includes("code=") || 
                           location.hash.includes("access_token=") ||
                           location.search.includes("access_token=");
@@ -87,10 +92,15 @@ function AppEntryFlow({ children }: { children: React.ReactNode }) {
   // Initialize flow based on settings
   useEffect(() => {
     // Skip for direct scan access, admin routes, or OAuth callbacks
-    if (isDirectAccess || isScanRoute || isAdminRoute || isOAuthCallback) {
+    if (isDirectAccess || hasOAuthSkipFlag || isOAuthIntermediaryRoute || isScanRoute || isAdminRoute || isOAuthCallback) {
       setShowSplash(false);
       setShowOnboarding(false);
       setIsReady(true);
+
+      // Clear one-time OAuth bypass flag
+      if (hasOAuthSkipFlag) {
+        sessionStorage.removeItem(OAUTH_SKIP_ENTRY_FLOW_KEY);
+      }
       return;
     }
 
@@ -114,7 +124,7 @@ function AppEntryFlow({ children }: { children: React.ReactNode }) {
     }
 
     setIsReady(true);
-  }, [isDirectAccess, isScanRoute, isAdminRoute, isOAuthCallback, cms.isLoading, splashEnabled, onboardingEnabled, showMode]);
+  }, [isDirectAccess, hasOAuthSkipFlag, isOAuthIntermediaryRoute, isScanRoute, isAdminRoute, isOAuthCallback, cms.isLoading, splashEnabled, onboardingEnabled, showMode]);
 
   const handleSplashComplete = useCallback(() => {
     setShowSplash(false);
@@ -142,7 +152,7 @@ function AppEntryFlow({ children }: { children: React.ReactNode }) {
   }, [showMode]);
 
   // Skip entry flow for direct scan access, admin routes, or OAuth callbacks
-  if (isDirectAccess || (isScanRoute && !showSplash) || isAdminRoute || isOAuthCallback) {
+  if (isDirectAccess || hasOAuthSkipFlag || isOAuthIntermediaryRoute || (isScanRoute && !showSplash) || isAdminRoute || isOAuthCallback) {
     return <>{children}</>;
   }
 
