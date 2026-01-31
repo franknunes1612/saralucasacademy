@@ -1,9 +1,11 @@
-import { ArrowLeft, Camera, Sparkles, Shield, HelpCircle, RotateCcw, ChefHat } from "lucide-react";
+import { ArrowLeft, Camera, Sparkles, Shield, HelpCircle, RotateCcw, ChefHat, GraduationCap, BookOpen, Users } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import { useLanguage } from "@/hooks/useLanguage";
 
 
 export default function HowItWorks() {
   const navigate = useNavigate();
+  const { t } = useLanguage();
 
   return (
     <div className="min-h-screen bg-background px-4 py-5 safe-top safe-bottom">
@@ -15,7 +17,90 @@ export default function HowItWorks() {
         >
           <ArrowLeft className="h-5 w-5" />
         </button>
-        <h1 className="text-xl font-bold tracking-tight">How the Scanner Works</h1>
+        <h1 className="text-xl font-bold tracking-tight">
+          {t({ pt: "Como Funciona", en: "How It Works" })}
+        </h1>
+      </div>
+
+      {/* Academy Section */}
+      <div className="space-y-8 mb-10">
+        <section className="result-card p-5 space-y-4 border-l-4 border-primary">
+          <div className="flex items-center gap-3">
+            <div className="p-2 rounded-xl bg-primary/15">
+              <GraduationCap className="h-5 w-5 text-primary" />
+            </div>
+            <h2 className="font-semibold">
+              {t({ pt: "Academia Sara Lucas", en: "Sara Lucas Academy" })}
+            </h2>
+          </div>
+          <p className="text-sm text-muted-foreground leading-relaxed">
+            {t({
+              pt: "A nossa academia oferece cursos, programas e ebooks para transformar a tua alimentação e estilo de vida.",
+              en: "Our academy offers courses, programs and ebooks to transform your nutrition and lifestyle.",
+            })}
+          </p>
+        </section>
+
+        <section className="result-card p-5 space-y-4">
+          <div className="flex items-center gap-3">
+            <div className="p-2 rounded-xl bg-purple-500/15">
+              <BookOpen className="h-5 w-5 text-purple-400" />
+            </div>
+            <h2 className="font-semibold">
+              {t({ pt: "Cursos & Programas", en: "Courses & Programs" })}
+            </h2>
+          </div>
+          <div className="text-sm text-muted-foreground leading-relaxed space-y-3">
+            <p>
+              {t({
+                pt: "Os cursos incluem vídeo-aulas com lições passo a passo. Acompanha o teu progresso enquanto aprendes.",
+                en: "Courses include video lessons with step-by-step guidance. Track your progress as you learn.",
+              })}
+            </p>
+            <ul className="space-y-1 pl-4">
+              <li>📚 {t({ pt: "Acesso vitalício após compra", en: "Lifetime access after purchase" })}</li>
+              <li>🎯 {t({ pt: "Progresso guardado automaticamente", en: "Progress saved automatically" })}</li>
+              <li>📱 {t({ pt: "Assiste em qualquer dispositivo", en: "Watch on any device" })}</li>
+            </ul>
+          </div>
+          <button
+            onClick={() => navigate("/learn?type=course")}
+            className="w-full py-3 btn-secondary rounded-xl font-medium flex items-center justify-center gap-2"
+          >
+            <BookOpen className="h-4 w-4" />
+            {t({ pt: "Ver Cursos", en: "View Courses" })}
+          </button>
+        </section>
+
+        <section className="result-card p-5 space-y-4">
+          <div className="flex items-center gap-3">
+            <div className="p-2 rounded-xl bg-green-500/15">
+              <Users className="h-5 w-5 text-green-400" />
+            </div>
+            <h2 className="font-semibold">
+              {t({ pt: "Programas de Transformação", en: "Transformation Programs" })}
+            </h2>
+          </div>
+          <p className="text-sm text-muted-foreground leading-relaxed">
+            {t({
+              pt: "Programas intensivos com acompanhamento estruturado para alcançares os teus objetivos de saúde e fitness.",
+              en: "Intensive programs with structured guidance to help you reach your health and fitness goals.",
+            })}
+          </p>
+          <button
+            onClick={() => navigate("/learn?type=program")}
+            className="w-full py-3 btn-secondary rounded-xl font-medium flex items-center justify-center gap-2"
+          >
+            <Users className="h-4 w-4" />
+            {t({ pt: "Ver Programas", en: "View Programs" })}
+          </button>
+        </section>
+
+        <div className="h-px bg-border my-6" />
+
+        <h2 className="font-semibold text-lg px-1">
+          {t({ pt: "Ferramentas do Scanner", en: "Scanner Tools" })}
+        </h2>
       </div>
 
       <div className="space-y-8">
