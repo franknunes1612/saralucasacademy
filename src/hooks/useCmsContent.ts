@@ -69,7 +69,7 @@ const FALLBACK_CONTENT: Record<string, { pt: string; en: string }> = {
   "academy.hero.cta.secondary.link": { pt: "/learn?type=program", en: "/learn?type=program" },
   "academy.hero.cta.tertiary.label": { pt: "Academia Completa", en: "Full Academy" },
   "academy.hero.cta.tertiary.link": { pt: "/learn", en: "/learn" },
-  "academy.hero.cta.tertiary.enabled": { pt: "true", en: "true" },
+  "academy.hero.cta.tertiary.enabled": { pt: "false", en: "false" },
   "academy.hero.layout": { pt: "static", en: "static" },
   "academy.hero.animations.enabled": { pt: "true", en: "true" },
   // Academy Hero - Feature Tags
