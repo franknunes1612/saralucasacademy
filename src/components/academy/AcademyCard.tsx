@@ -57,12 +57,16 @@ export function AcademyCard({ item, compact = false }: AcademyCardProps) {
   };
 
   const handleClick = () => {
-    // For courses and programs, navigate to detail page
+    // Navigate to detail page for all item types (courses, programs, ebooks, bundles)
+    // This allows in-app purchase via Stripe
     if (item.item_type === "course" || item.item_type === "program") {
       const itemType = item.item_type === "program" ? "program" : "course";
       navigate(`/learn/${itemType}/${item.id}`);
+    } else if (item.item_type === "ebook" || item.item_type === "bundle") {
+      // Navigate to course detail page which can handle all types
+      navigate(`/learn/course/${item.id}`);
     } else if (item.purchase_link) {
-      // For ebooks/bundles with external links
+      // Fallback for external links
       window.open(item.purchase_link, "_blank", "noopener,noreferrer");
     }
   };

@@ -45,16 +45,24 @@ export default function CourseDetail() {
   const [isCheckingOut, setIsCheckingOut] = useState(false);
   const [isVerifyingPayment, setIsVerifyingPayment] = useState(false);
 
-  // Fetch item details (works for both courses and programs)
+  // Fetch item details (works for courses, programs, ebooks, bundles)
   const { data: allCourses, isLoading: isLoadingCourses } = useAcademyItems("course");
   const { data: allPrograms, isLoading: isLoadingPrograms } = useAcademyItems("program");
+  const { data: allEbooks, isLoading: isLoadingEbooks } = useAcademyItems("ebook");
+  const { data: allBundles, isLoading: isLoadingBundles } = useAcademyItems("bundle");
   
   const course = useMemo(() => {
-    const items = isProgram ? allPrograms : allCourses;
-    return items?.find((item) => item.id === itemId) as ExtendedAcademyItem | undefined;
-  }, [allCourses, allPrograms, itemId, isProgram]);
+    // Search in all item types
+    const allItems = [
+      ...(allCourses || []),
+      ...(allPrograms || []),
+      ...(allEbooks || []),
+      ...(allBundles || []),
+    ];
+    return allItems.find((item) => item.id === itemId) as ExtendedAcademyItem | undefined;
+  }, [allCourses, allPrograms, allEbooks, allBundles, itemId]);
   
-  const isLoadingCourse = isProgram ? isLoadingPrograms : isLoadingCourses;
+  const isLoadingCourse = isLoadingCourses || isLoadingPrograms || isLoadingEbooks || isLoadingBundles;
 
   // Fetch lessons
   const { data: lessons, isLoading: isLoadingLessons } = useCourseLessons(itemId);
