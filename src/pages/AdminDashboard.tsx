@@ -1,5 +1,5 @@
 import { useNavigate, Link } from "react-router-dom";
-import { ArrowLeft, LogOut, ChefHat, FileText, Sparkles, ShoppingBag, Heart } from "lucide-react";
+import { ArrowLeft, LogOut, ChefHat, FileText, Sparkles, ShoppingBag, Heart, CreditCard } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { useLanguage } from "@/hooks/useLanguage";
 
@@ -20,6 +20,13 @@ export default function AdminDashboard() {
       icon: Sparkles,
       path: "/admin/academy",
       color: "bg-purple-500/20 text-purple-400",
+    },
+    {
+      title: { pt: "Compras / Acessos", en: "Purchases / Access" },
+      description: { pt: "Gerir acessos aos cursos", en: "Manage course access" },
+      icon: CreditCard,
+      path: "/admin/purchases",
+      color: "bg-emerald-500/20 text-emerald-400",
     },
     {
       title: { pt: "Receitas", en: "Recipes" },

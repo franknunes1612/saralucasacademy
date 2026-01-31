@@ -29,6 +29,7 @@ import AdminPremium from "./pages/AdminPremium";
 import AdminStore from "./pages/AdminStore";
 import AdminRecommendedProducts from "./pages/AdminRecommendedProducts";
 import AdminAcademy from "./pages/AdminAcademy";
+import AdminPurchases from "./pages/AdminPurchases";
 import Premium from "./pages/Premium";
 import PersonalizedPlan from "./pages/PersonalizedPlan";
 import TrainingClasses from "./pages/TrainingClasses";
@@ -174,6 +175,11 @@ const App = () => (
               <Route path="/admin/academy" element={
                 <AdminAuthGuard>
                   <AdminAcademy />
+                </AdminAuthGuard>
+              } />
+              <Route path="/admin/purchases" element={
+                <AdminAuthGuard>
+                  <AdminPurchases />
                 </AdminAuthGuard>
               } />
               
