@@ -1,5 +1,5 @@
 import { motion } from "framer-motion";
-import { Play, Clock, BookOpen, Award, Lock } from "lucide-react";
+import { Play, Clock, BookOpen, Award, Lock, Video } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useCmsContent } from "@/hooks/useCmsContent";
 import { useLanguage } from "@/hooks/useLanguage";
@@ -81,9 +81,12 @@ export function CourseCard({ course, featured = false, index = 0 }: CourseCardPr
               </div>
             )}
 
-            {/* Type label */}
-            <div className="absolute top-4 right-4 px-3 py-1 rounded-full bg-white/90 text-[hsl(340_45%_40%)] text-xs font-medium">
-              {cms.get("academy.course.videoLabel")}
+            {/* Type label with video icon */}
+            <div className="absolute top-4 right-4 flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/90 text-[hsl(340_45%_40%)] text-xs font-medium">
+              <Video className="h-3 w-3" />
+              <span>{course.item_type === "program" 
+                ? cms.get("academy.program.videoLabel") 
+                : cms.get("academy.course.videoLabel")}</span>
             </div>
           </div>
 
