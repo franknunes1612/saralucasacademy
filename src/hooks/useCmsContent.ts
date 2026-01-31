@@ -21,6 +21,7 @@ interface CmsContentState {
 
 // Default fallback values for critical content
 const FALLBACK_CONTENT: Record<string, { pt: string; en: string }> = {
+  // Onboarding
   "onboarding.slide1.title": { pt: "Tire uma foto da sua refeição", en: "Take a photo of your meal" },
   "onboarding.slide1.subtitle": { pt: "A câmara identifica automaticamente os alimentos", en: "The camera automatically identifies foods" },
   "camera.error.firstLoad": { pt: "Não foi possível aceder à câmara", en: "Could not access camera" },
@@ -28,6 +29,44 @@ const FALLBACK_CONTENT: Record<string, { pt: string; en: string }> = {
   "nutritionist.cta.label": { pt: "Falar com nutricionista", en: "Talk to nutritionist" },
   "disclaimer.aiEstimate": { pt: "Estimativa visual por IA. Valores podem variar.", en: "AI visual estimate. Values may vary." },
   "recipes.section.title": { pt: "Receitas Fit", en: "Fit Recipes" },
+  // Academy
+  "academy.hero.title": { pt: "Academy", en: "Academy" },
+  "academy.hero.subtitle": { pt: "Cursos, programas e aulas gravadas para transformar a sua saúde", en: "Courses, programs and recorded classes to transform your health" },
+  "academy.search.placeholder": { pt: "Pesquisar conteúdo...", en: "Search content..." },
+  "academy.filter.all": { pt: "Todos", en: "All" },
+  "academy.filter.courses": { pt: "Cursos", en: "Courses" },
+  "academy.filter.ebooks": { pt: "Ebooks", en: "Ebooks" },
+  "academy.filter.programs": { pt: "Programas", en: "Programs" },
+  "academy.filter.bundles": { pt: "Bundles", en: "Bundles" },
+  "academy.categories.title": { pt: "Categorias", en: "Categories" },
+  "academy.categories.training": { pt: "Treino", en: "Training" },
+  "academy.categories.nutrition": { pt: "Nutrição", en: "Nutrition" },
+  "academy.categories.programs": { pt: "Programas", en: "Programs" },
+  "academy.categories.beginners": { pt: "Iniciantes", en: "Beginners" },
+  "academy.categories.advanced": { pt: "Avançado", en: "Advanced" },
+  "academy.featured.title": { pt: "Destaque", en: "Featured" },
+  "academy.allCourses.title": { pt: "Todos os cursos", en: "All courses" },
+  "academy.moreContent.title": { pt: "Mais conteúdos", en: "More content" },
+  "academy.empty.title": { pt: "Brevemente novos conteúdos", en: "New content coming soon" },
+  "academy.empty.noResults": { pt: "Nenhum resultado encontrado", en: "No results found" },
+  "academy.footer.disclaimer": { pt: "Todos os conteúdos são criados por profissionais certificados. Compras processadas externamente com segurança.", en: "All content is created by certified professionals. Purchases processed securely externally." },
+  "academy.course.videoLabel": { pt: "Curso em vídeo", en: "Video course" },
+  "academy.course.lessons": { pt: "aulas", en: "lessons" },
+  "academy.course.viewCourse": { pt: "Ver curso", en: "View course" },
+  "academy.detail.about": { pt: "Sobre o curso", en: "About this course" },
+  "academy.detail.whatYouLearn": { pt: "O que vais aprender", en: "What you'll learn" },
+  "academy.detail.content": { pt: "Conteúdo do curso", en: "Course content" },
+  "academy.detail.completed": { pt: "concluídas", en: "completed" },
+  "academy.detail.preview": { pt: "Prévia", en: "Preview" },
+  "academy.detail.lifetimeAccess": { pt: "Acesso vitalício após a compra. Compras processadas externamente com segurança.", en: "Lifetime access after purchase. Purchases processed securely externally." },
+  "academy.detail.accessLabel": { pt: "Acesso vitalício", en: "Lifetime access" },
+  "academy.detail.buyNow": { pt: "Comprar", en: "Buy now" },
+  "academy.detail.continue": { pt: "Continuar", en: "Continue" },
+  "academy.detail.notFound": { pt: "Curso não encontrado", en: "Course not found" },
+  "academy.detail.backToAcademy": { pt: "Voltar à Academia", en: "Back to Academy" },
+  "academy.difficulty.beginner": { pt: "Iniciante", en: "Beginner" },
+  "academy.difficulty.intermediate": { pt: "Intermédio", en: "Intermediate" },
+  "academy.difficulty.advanced": { pt: "Avançado", en: "Advanced" },
 };
 
 export function useCmsContent() {

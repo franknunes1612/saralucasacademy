@@ -3,6 +3,7 @@ import { useNavigate, useSearchParams } from "react-router-dom";
 import { motion } from "framer-motion";
 import { ArrowLeft, BookOpen, PlayCircle, Calendar, Package, Search, Sparkles } from "lucide-react";
 import { useLanguage } from "@/hooks/useLanguage";
+import { useCmsContent } from "@/hooks/useCmsContent";
 import { useAcademyItems, AcademyItemType, AcademyItem } from "@/hooks/useAcademyItems";
 import { AcademyHero } from "@/components/academy/AcademyHero";
 import { CourseCard } from "@/components/academy/CourseCard";
@@ -10,18 +11,6 @@ import { CourseCategoryFilter } from "@/components/academy/CourseCategoryFilter"
 import { AcademyCard } from "@/components/academy/AcademyCard";
 import { Skeleton } from "@/components/ui/skeleton";
 import { cn } from "@/lib/utils";
-
-const TYPE_FILTERS: Array<{
-  type: AcademyItemType | "all";
-  icon: typeof BookOpen;
-  label: { pt: string; en: string };
-}> = [
-  { type: "all", icon: Sparkles, label: { pt: "Todos", en: "All" } },
-  { type: "course", icon: PlayCircle, label: { pt: "Cursos", en: "Courses" } },
-  { type: "ebook", icon: BookOpen, label: { pt: "Ebooks", en: "Ebooks" } },
-  { type: "program", icon: Calendar, label: { pt: "Programas", en: "Programs" } },
-  { type: "bundle", icon: Package, label: { pt: "Bundles", en: "Bundles" } },
-];
 
 type ExtendedAcademyItem = AcademyItem & {
   instructor_name?: string;
@@ -32,7 +21,8 @@ type ExtendedAcademyItem = AcademyItem & {
 
 export default function Learn() {
   const navigate = useNavigate();
-  const { t, language } = useLanguage();
+  const { language } = useLanguage();
+  const cms = useCmsContent();
   const [searchParams, setSearchParams] = useSearchParams();
   const [searchQuery, setSearchQuery] = useState("");
   const [categoryFilter, setCategoryFilter] = useState("all");
@@ -41,6 +31,15 @@ export default function Learn() {
   const { data: items, isLoading, error } = useAcademyItems(
     activeType === "all" ? undefined : activeType
   );
+
+  // Type filters with CMS labels
+  const TYPE_FILTERS = useMemo(() => [
+    { type: "all" as const, icon: Sparkles, labelKey: "academy.filter.all" },
+    { type: "course" as const, icon: PlayCircle, labelKey: "academy.filter.courses" },
+    { type: "ebook" as const, icon: BookOpen, labelKey: "academy.filter.ebooks" },
+    { type: "program" as const, icon: Calendar, labelKey: "academy.filter.programs" },
+    { type: "bundle" as const, icon: Package, labelKey: "academy.filter.bundles" },
+  ], []);
 
   // Filter items
   const filteredItems = useMemo(() => {
@@ -115,10 +114,10 @@ export default function Learn() {
         </button>
         <div>
           <h1 className="text-xl font-bold text-white tracking-tight">
-            {t({ pt: "Academia", en: "Academy" })}
+            {cms.get("academy.hero.title")}
           </h1>
           <p className="text-xs text-white/60">
-            {t({ pt: "Cursos, ebooks e programas", en: "Courses, ebooks and programs" })}
+            {cms.get("academy.hero.subtitle")}
           </p>
         </div>
       </div>
@@ -131,7 +130,7 @@ export default function Learn() {
         <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-white/40" />
         <input
           type="text"
-          placeholder={t({ pt: "Pesquisar conteúdo...", en: "Search content..." })}
+          placeholder={cms.get("academy.search.placeholder")}
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
           className="w-full pl-10 pr-4 py-3 rounded-xl bg-white/10 border border-white/10 text-white placeholder:text-white/40 focus:outline-none focus:ring-2 focus:ring-white/20 text-sm"
@@ -155,7 +154,7 @@ export default function Learn() {
               "h-4 w-4",
               activeType === filter.type ? "text-[hsl(340_45%_50%)]" : "text-white/60"
             )} />
-            {t(filter.label)}
+            {cms.get(filter.labelKey)}
           </button>
         ))}
       </div>
@@ -179,7 +178,7 @@ export default function Learn() {
         ) : error ? (
           <div className="text-center py-12">
             <p className="text-white/60">
-              {t({ pt: "Erro ao carregar conteúdo", en: "Error loading content" })}
+              {cms.get("academy.empty.title")}
             </p>
           </div>
         ) : (
@@ -192,7 +191,7 @@ export default function Learn() {
                 className="mb-6"
               >
                 <h2 className="text-sm font-medium text-white/70 mb-3 px-1">
-                  {t({ pt: "Destaque", en: "Featured" })}
+                  {cms.get("academy.featured.title")}
                 </h2>
                 <CourseCard course={featuredCourses[0]} featured index={0} />
               </motion.div>
@@ -204,8 +203,8 @@ export default function Learn() {
                 {!searchQuery && featuredCourses.length > 0 && (
                   <h2 className="text-sm font-medium text-white/70 mb-3 px-1">
                     {activeType === "course"
-                      ? t({ pt: "Todos os cursos", en: "All courses" })
-                      : t({ pt: "Mais conteúdos", en: "More content" })}
+                      ? cms.get("academy.allCourses.title")
+                      : cms.get("academy.moreContent.title")}
                   </h2>
                 )}
                 
@@ -222,8 +221,8 @@ export default function Learn() {
                 <BookOpen className="h-12 w-12 text-white/20 mx-auto mb-3" />
                 <p className="text-white/60">
                   {searchQuery
-                    ? t({ pt: "Nenhum resultado encontrado", en: "No results found" })
-                    : t({ pt: "Brevemente novos conteúdos", en: "New content coming soon" })}
+                    ? cms.get("academy.empty.noResults")
+                    : cms.get("academy.empty.title")}
                 </p>
               </div>
             )}
@@ -234,10 +233,7 @@ export default function Learn() {
       {/* Info Banner */}
       <div className="mt-6 p-4 rounded-xl bg-white/5 border border-white/10">
         <p className="text-xs text-white/50 text-center">
-          {t({
-            pt: "Todos os conteúdos são criados por profissionais certificados. Compras processadas externamente com segurança.",
-            en: "All content is created by certified professionals. Purchases processed securely externally.",
-          })}
+          {cms.get("academy.footer.disclaimer")}
         </p>
       </div>
     </div>

@@ -1,6 +1,7 @@
 import { motion } from "framer-motion";
 import { Play, Clock, BookOpen, Award, Lock } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import { useCmsContent } from "@/hooks/useCmsContent";
 import { useLanguage } from "@/hooks/useLanguage";
 import { AcademyItem } from "@/hooks/useAcademyItems";
 import { formatTotalDuration } from "@/hooks/useCourseLessons";
@@ -17,20 +18,18 @@ interface CourseCardProps {
   index?: number;
 }
 
-const DIFFICULTY_LABELS: Record<string, { pt: string; en: string }> = {
-  beginner: { pt: "Iniciante", en: "Beginner" },
-  intermediate: { pt: "Intermédio", en: "Intermediate" },
-  advanced: { pt: "Avançado", en: "Advanced" },
-};
-
 export function CourseCard({ course, featured = false, index = 0 }: CourseCardProps) {
   const navigate = useNavigate();
-  const { language, t } = useLanguage();
+  const { language } = useLanguage();
+  const cms = useCmsContent();
 
   const title = language === "pt" ? course.title_pt : course.title_en;
   const subtitle = language === "pt" ? course.subtitle_pt : course.subtitle_en;
   const badge = language === "pt" ? course.badge_pt : course.badge_en;
-  const difficulty = DIFFICULTY_LABELS[course.difficulty_level || "beginner"];
+  
+  // Get difficulty label from CMS
+  const difficultyKey = `academy.difficulty.${course.difficulty_level || "beginner"}`;
+  const difficultyLabel = cms.get(difficultyKey);
 
   const formatPrice = (price: number) => {
     const symbol = course.currency === "EUR" ? "€" : course.currency === "USD" ? "$" : "£";
@@ -81,7 +80,7 @@ export function CourseCard({ course, featured = false, index = 0 }: CourseCardPr
 
             {/* Type label */}
             <div className="absolute top-4 right-4 px-3 py-1 rounded-full bg-white/90 text-[hsl(340_45%_40%)] text-xs font-medium">
-              {t({ pt: "Curso em vídeo", en: "Video course" })}
+              {cms.get("academy.course.videoLabel")}
             </div>
           </div>
 
@@ -109,14 +108,14 @@ export function CourseCard({ course, featured = false, index = 0 }: CourseCardPr
                 <div className="flex items-center gap-1">
                   <BookOpen className="h-3.5 w-3.5" />
                   <span>
-                    {course.total_lessons} {t({ pt: "aulas", en: "lessons" })}
+                    {course.total_lessons} {cms.get("academy.course.lessons")}
                   </span>
                 </div>
               )}
-              {difficulty && (
+              {difficultyLabel && (
                 <div className="flex items-center gap-1">
                   <Award className="h-3.5 w-3.5" />
-                  <span>{t(difficulty)}</span>
+                  <span>{difficultyLabel}</span>
                 </div>
               )}
             </div>
@@ -135,7 +134,7 @@ export function CourseCard({ course, featured = false, index = 0 }: CourseCardPr
               </div>
               
               <div className="px-4 py-2 rounded-xl bg-white text-[hsl(340_45%_45%)] text-sm font-semibold group-hover:bg-white/90 transition-colors">
-                {t({ pt: "Ver curso", en: "View course" })}
+                {cms.get("academy.course.viewCourse")}
               </div>
             </div>
           </div>
@@ -196,10 +195,10 @@ export function CourseCard({ course, featured = false, index = 0 }: CourseCardPr
             )}
             {course.total_lessons && course.total_lessons > 0 && (
               <span>
-                {course.total_lessons} {t({ pt: "aulas", en: "lessons" })}
+                {course.total_lessons} {cms.get("academy.course.lessons")}
               </span>
             )}
-            {difficulty && <span>{t(difficulty)}</span>}
+            {difficultyLabel && <span>{difficultyLabel}</span>}
           </div>
 
           {/* Price */}

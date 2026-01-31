@@ -2,19 +2,13 @@ import { useState, useMemo } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import { ArrowLeft, Clock, BookOpen, Award, User, Play, ShoppingCart, Check, Share2 } from "lucide-react";
+import { useCmsContent } from "@/hooks/useCmsContent";
 import { useLanguage } from "@/hooks/useLanguage";
 import { useAcademyItems, AcademyItem } from "@/hooks/useAcademyItems";
 import { useCourseLessons, CourseLesson, formatTotalDuration } from "@/hooks/useCourseLessons";
 import { VideoPlayer } from "@/components/academy/VideoPlayer";
 import { LessonList } from "@/components/academy/LessonList";
 import { Skeleton } from "@/components/ui/skeleton";
-import { cn } from "@/lib/utils";
-
-const DIFFICULTY_LABELS: Record<string, { pt: string; en: string }> = {
-  beginner: { pt: "Iniciante", en: "Beginner" },
-  intermediate: { pt: "Intermédio", en: "Intermediate" },
-  advanced: { pt: "Avançado", en: "Advanced" },
-};
 
 type ExtendedAcademyItem = AcademyItem & {
   instructor_name?: string;
@@ -29,7 +23,8 @@ type ExtendedAcademyItem = AcademyItem & {
 export default function CourseDetail() {
   const { courseId } = useParams<{ courseId: string }>();
   const navigate = useNavigate();
-  const { language, t } = useLanguage();
+  const { language } = useLanguage();
+  const cms = useCmsContent();
   
   const [currentLesson, setCurrentLesson] = useState<CourseLesson | null>(null);
   const [isPurchased] = useState(false); // TODO: Implement purchase check
@@ -61,13 +56,13 @@ export default function CourseDetail() {
       <div className="min-h-screen bg-background px-4 pt-5 pb-24 safe-top flex items-center justify-center">
         <div className="text-center">
           <p className="text-white/60 mb-4">
-            {t({ pt: "Curso não encontrado", en: "Course not found" })}
+            {cms.get("academy.detail.notFound")}
           </p>
           <button
             onClick={() => navigate("/learn")}
             className="px-4 py-2 rounded-xl bg-white text-[hsl(340_45%_45%)] font-medium"
           >
-            {t({ pt: "Voltar à Academia", en: "Back to Academy" })}
+            {cms.get("academy.detail.backToAcademy")}
           </button>
         </div>
       </div>
@@ -78,7 +73,7 @@ export default function CourseDetail() {
   const subtitle = language === "pt" ? course.subtitle_pt : course.subtitle_en;
   const description = language === "pt" ? course.description_pt : course.description_en;
   const whatYouLearn = language === "pt" ? course.what_you_learn_pt : course.what_you_learn_en;
-  const difficulty = DIFFICULTY_LABELS[course.difficulty_level || "beginner"];
+  const difficultyLabel = cms.get(`academy.difficulty.${course.difficulty_level || "beginner"}`);
 
   const formatPrice = (price: number) => {
     const symbol = course.currency === "EUR" ? "€" : course.currency === "USD" ? "$" : "£";
@@ -119,7 +114,7 @@ export default function CourseDetail() {
     ? language === "pt"
       ? currentLesson.title_pt
       : currentLesson.title_en
-    : t({ pt: "Prévia do curso", en: "Course preview" });
+    : cms.get("academy.detail.preview");
 
   return (
     <div className="min-h-screen bg-background pb-32 safe-top">
@@ -205,14 +200,14 @@ export default function CourseDetail() {
               <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-white/10 text-xs text-white/70">
                 <BookOpen className="h-3.5 w-3.5" />
                 <span>
-                  {lessons.length} {t({ pt: "aulas", en: "lessons" })}
+                  {lessons.length} {cms.get("academy.course.lessons")}
                 </span>
               </div>
             )}
             
             <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-white/10 text-xs text-white/70">
               <Award className="h-3.5 w-3.5" />
-              <span>{t(difficulty)}</span>
+              <span>{difficultyLabel}</span>
             </div>
           </div>
         </motion.div>
@@ -226,7 +221,7 @@ export default function CourseDetail() {
             className="rounded-2xl bg-white/5 border border-white/10 p-4"
           >
             <h3 className="font-semibold text-white text-sm mb-2">
-              {t({ pt: "Sobre o curso", en: "About this course" })}
+              {cms.get("academy.detail.about")}
             </h3>
             <p className="text-sm text-white/70 leading-relaxed">{description}</p>
           </motion.div>
@@ -241,7 +236,7 @@ export default function CourseDetail() {
             className="rounded-2xl bg-white/5 border border-white/10 p-4"
           >
             <h3 className="font-semibold text-white text-sm mb-3">
-              {t({ pt: "O que vais aprender", en: "What you'll learn" })}
+              {cms.get("academy.detail.whatYouLearn")}
             </h3>
             <ul className="space-y-2">
               {whatYouLearn.map((item, index) => (
@@ -274,10 +269,7 @@ export default function CourseDetail() {
         {/* Info Banner */}
         <div className="p-4 rounded-xl bg-white/5 border border-white/10">
           <p className="text-xs text-white/50 text-center">
-            {t({
-              pt: "Acesso vitalício após a compra. Compras processadas externamente com segurança.",
-              en: "Lifetime access after purchase. Purchases processed securely externally.",
-            })}
+            {cms.get("academy.detail.lifetimeAccess")}
           </p>
         </div>
       </div>
@@ -302,7 +294,7 @@ export default function CourseDetail() {
               )}
             </div>
             <p className="text-xs text-white/50">
-              {t({ pt: "Acesso vitalício", en: "Lifetime access" })}
+              {cms.get("academy.detail.accessLabel")}
             </p>
           </div>
 
@@ -313,8 +305,8 @@ export default function CourseDetail() {
             <ShoppingCart className="h-5 w-5" />
             <span>
               {isPurchased
-                ? t({ pt: "Continuar", en: "Continue" })
-                : t({ pt: "Comprar", en: "Buy now" })}
+                ? cms.get("academy.detail.continue")
+                : cms.get("academy.detail.buyNow")}
             </span>
           </button>
         </div>

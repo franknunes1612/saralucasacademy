@@ -1,9 +1,10 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { ArrowLeft, Plus, Pencil, Trash2, BookOpen, PlayCircle, Calendar, Package, Search, Eye, EyeOff, Star, Video, ChevronRight } from "lucide-react";
+import { ArrowLeft, Plus, Pencil, Trash2, BookOpen, PlayCircle, Calendar, Package, Search, Eye, EyeOff, Star, Video, ChevronRight, GripVertical } from "lucide-react";
 import { useLanguage } from "@/hooks/useLanguage";
 import { useAdminAcademyItems, AcademyItem, AcademyItemType } from "@/hooks/useAcademyItems";
 import { useAdminCourseLessons, CourseLesson } from "@/hooks/useCourseLessons";
+import { AcademyImageUpload } from "@/components/admin/AcademyImageUpload";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -523,27 +524,14 @@ export default function AdminAcademy() {
             />
           </div>
 
-          {/* Cover Image & Emoji */}
-          <div className="grid grid-cols-2 gap-3">
-            <div>
-              <label className="text-sm text-white/70 mb-1 block">
-                {t({ pt: "URL da Imagem", en: "Image URL" })}
-              </label>
-              <Input
-                value={formData.cover_image_url || ""}
-                onChange={(e) => setFormData({ ...formData, cover_image_url: e.target.value || null })}
-                placeholder="https://..."
-              />
-            </div>
-            <div>
-              <label className="text-sm text-white/70 mb-1 block">Emoji</label>
-              <Input
-                value={formData.cover_emoji || ""}
-                onChange={(e) => setFormData({ ...formData, cover_emoji: e.target.value || null })}
-                placeholder="🎓"
-              />
-            </div>
-          </div>
+          {/* Cover Image Upload */}
+          <AcademyImageUpload
+            currentImageUrl={formData.cover_image_url}
+            currentEmoji={formData.cover_emoji}
+            onImageChange={(url) => setFormData({ ...formData, cover_image_url: url })}
+            onEmojiChange={(emoji) => setFormData({ ...formData, cover_emoji: emoji })}
+            type={isCourse ? "course" : "course"}
+          />
 
           {/* Display Order */}
           <div>

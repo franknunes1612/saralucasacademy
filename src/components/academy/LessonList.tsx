@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Play, Lock, Check, ChevronDown, Clock } from "lucide-react";
+import { useCmsContent } from "@/hooks/useCmsContent";
 import { useLanguage } from "@/hooks/useLanguage";
 import { CourseLesson, formatDuration } from "@/hooks/useCourseLessons";
 import { cn } from "@/lib/utils";
@@ -20,7 +21,8 @@ export function LessonList({
   isPurchased = false,
   completedLessons = [],
 }: LessonListProps) {
-  const { language, t } = useLanguage();
+  const { language } = useLanguage();
+  const cms = useCmsContent();
   const [isExpanded, setIsExpanded] = useState(true);
 
   const totalDuration = lessons.reduce((acc, lesson) => acc + (lesson.duration_seconds || 0), 0);
@@ -39,13 +41,13 @@ export function LessonList({
           </div>
           <div className="text-left">
             <h3 className="font-semibold text-white text-sm">
-              {t({ pt: "Conteúdo do curso", en: "Course content" })}
+              {cms.get("academy.detail.content")}
             </h3>
             <p className="text-xs text-white/50">
-              {lessons.length} {t({ pt: "aulas", en: "lessons" })} • {formatDuration(totalDuration)}
+              {lessons.length} {cms.get("academy.course.lessons")} • {formatDuration(totalDuration)}
               {isPurchased && completedCount > 0 && (
                 <span className="text-[hsl(155_40%_55%)] ml-2">
-                  • {completedCount}/{lessons.length} {t({ pt: "concluídas", en: "completed" })}
+                  • {completedCount}/{lessons.length} {cms.get("academy.detail.completed")}
                 </span>
               )}
             </p>
@@ -124,7 +126,7 @@ export function LessonList({
                         </span>
                         {lesson.is_preview && !isPurchased && (
                           <span className="text-[10px] px-1.5 py-0.5 rounded bg-[hsl(30_50%_65%)]/20 text-[hsl(30_60%_75%)] font-medium">
-                            {t({ pt: "Prévia", en: "Preview" })}
+                            {cms.get("academy.detail.preview")}
                           </span>
                         )}
                       </div>
