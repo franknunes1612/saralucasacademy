@@ -79,16 +79,18 @@ export default function Learn() {
     return filtered;
   }, [items, searchQuery, language, categoryFilter, activeType]);
 
-  // Separate featured courses
-  const featuredCourses = useMemo(() => {
-    if (activeType !== "all" && activeType !== "course") return [];
-    return filteredItems.filter((item) => item.is_featured && item.item_type === "course").slice(0, 1);
+  // Separate featured items (courses or programs)
+  const featuredItems = useMemo(() => {
+    if (activeType !== "all" && activeType !== "course" && activeType !== "program") return [];
+    return filteredItems.filter((item) => 
+      item.is_featured && (item.item_type === "course" || item.item_type === "program")
+    ).slice(0, 1);
   }, [filteredItems, activeType]);
 
   const regularItems = useMemo(() => {
-    const featuredIds = new Set(featuredCourses.map((c) => c.id));
+    const featuredIds = new Set(featuredItems.map((c) => c.id));
     return filteredItems.filter((item) => !featuredIds.has(item.id));
-  }, [filteredItems, featuredCourses]);
+  }, [filteredItems, featuredItems]);
 
   const handleTypeChange = (type: AcademyItemType | "all") => {
     if (type === "all") {
@@ -99,7 +101,7 @@ export default function Learn() {
     setCategoryFilter("all");
   };
 
-  const showCourseUI = activeType === "all" || activeType === "course";
+  const showCourseUI = activeType === "all" || activeType === "course" || activeType === "program";
 
   return (
     <div className="min-h-screen bg-background px-4 pt-5 pb-24 safe-top">
@@ -183,8 +185,8 @@ export default function Learn() {
           </div>
         ) : (
           <>
-            {/* Featured Course */}
-            {featuredCourses.length > 0 && !searchQuery && (
+            {/* Featured Item */}
+            {featuredItems.length > 0 && !searchQuery && (
               <motion.div
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
@@ -193,23 +195,25 @@ export default function Learn() {
                 <h2 className="text-sm font-medium text-white/70 mb-3 px-1">
                   {cms.get("academy.featured.title")}
                 </h2>
-                <CourseCard course={featuredCourses[0]} featured index={0} />
+                <CourseCard course={featuredItems[0]} featured index={0} />
               </motion.div>
             )}
 
             {/* Regular Items */}
             {regularItems.length > 0 ? (
               <div className="space-y-3">
-                {!searchQuery && featuredCourses.length > 0 && (
+                {!searchQuery && featuredItems.length > 0 && (
                   <h2 className="text-sm font-medium text-white/70 mb-3 px-1">
                     {activeType === "course"
                       ? cms.get("academy.allCourses.title")
-                      : cms.get("academy.moreContent.title")}
+                      : activeType === "program"
+                        ? cms.get("academy.allPrograms.title")
+                        : cms.get("academy.moreContent.title")}
                   </h2>
                 )}
                 
                 {regularItems.map((item, index) =>
-                  item.item_type === "course" ? (
+                  item.item_type === "course" || item.item_type === "program" ? (
                     <CourseCard key={item.id} course={item} index={index} />
                   ) : (
                     <AcademyCard key={item.id} item={item} />

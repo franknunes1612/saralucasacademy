@@ -9,6 +9,7 @@ import { cn } from "@/lib/utils";
 
 interface CourseCardProps {
   course: AcademyItem & {
+    item_type: string;
     instructor_name?: string;
     total_duration_minutes?: number;
     total_lessons?: number;
@@ -37,7 +38,9 @@ export function CourseCard({ course, featured = false, index = 0 }: CourseCardPr
   };
 
   const handleClick = () => {
-    navigate(`/learn/course/${course.id}`);
+    // Navigate to appropriate detail page based on item type
+    const itemType = course.item_type === "program" ? "program" : "course";
+    navigate(`/learn/${itemType}/${course.id}`);
   };
 
   if (featured) {
