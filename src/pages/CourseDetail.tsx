@@ -159,10 +159,14 @@ export default function CourseDetail() {
     setCurrentLesson(lesson);
   };
 
-  const handlePurchase = async () => {
-    if (!user) {
-      toast.info("Please log in to purchase this course.");
-      navigate("/profile");
+  const handlePurchase = async (asGuest = false) => {
+    if (!user && !asGuest) {
+      // Show option to login or continue as guest
+      toast.info(
+        language === "pt" 
+          ? "Inicia sessão ou continua como convidado." 
+          : "Log in or continue as guest."
+      );
       return;
     }
 
@@ -171,7 +175,7 @@ export default function CourseDetail() {
 
     try {
       const { data, error } = await supabase.functions.invoke("create-course-checkout", {
-        body: { courseId: itemId },
+        body: { courseId: itemId, guestCheckout: asGuest },
       });
 
       if (error) throw error;
@@ -568,25 +572,53 @@ export default function CourseDetail() {
             )}
           </div>
 
-          <button
-            onClick={hasPurchased ? () => lessons?.[0] && handleLessonSelect(lessons[0]) : handlePurchase}
-            disabled={isCheckingOut}
-            className="flex items-center gap-2 px-6 py-3 rounded-xl bg-white text-[hsl(340_45%_45%)] font-semibold shadow-lg hover:bg-white/90 transition-colors disabled:opacity-50"
-          >
-            {isCheckingOut ? (
-              <Loader2 className="h-5 w-5 animate-spin" />
-            ) : hasPurchased ? (
-              <>
-                <BookOpen className="h-5 w-5" />
-                <span>{cms.get("academy.detail.continue")}</span>
-              </>
-            ) : (
-              <>
-                <ShoppingCart className="h-5 w-5" />
-                <span>{cms.get("academy.detail.buyNow")}</span>
-              </>
-            )}
-          </button>
+          {hasPurchased ? (
+            <button
+              onClick={() => lessons?.[0] && handleLessonSelect(lessons[0])}
+              className="flex items-center gap-2 px-6 py-3 rounded-xl bg-white text-[hsl(340_45%_45%)] font-semibold shadow-lg hover:bg-white/90 transition-colors"
+            >
+              <BookOpen className="h-5 w-5" />
+              <span>{cms.get("academy.detail.continue")}</span>
+            </button>
+          ) : user ? (
+            <button
+              onClick={() => handlePurchase(false)}
+              disabled={isCheckingOut}
+              className="flex items-center gap-2 px-6 py-3 rounded-xl bg-white text-[hsl(340_45%_45%)] font-semibold shadow-lg hover:bg-white/90 transition-colors disabled:opacity-50"
+            >
+              {isCheckingOut ? (
+                <Loader2 className="h-5 w-5 animate-spin" />
+              ) : (
+                <>
+                  <ShoppingCart className="h-5 w-5" />
+                  <span>{cms.get("academy.detail.buyNow")}</span>
+                </>
+              )}
+            </button>
+          ) : (
+            <div className="flex flex-col gap-2">
+              <button
+                onClick={() => handlePurchase(true)}
+                disabled={isCheckingOut}
+                className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-white text-[hsl(340_45%_45%)] font-semibold shadow-lg hover:bg-white/90 transition-colors disabled:opacity-50 text-sm"
+              >
+                {isCheckingOut ? (
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                ) : (
+                  <>
+                    <ShoppingCart className="h-4 w-4" />
+                    <span>{language === "pt" ? "Comprar" : "Buy Now"}</span>
+                  </>
+                )}
+              </button>
+              <button
+                onClick={() => navigate("/profile")}
+                className="text-xs text-white/60 hover:text-white/80 transition-colors underline"
+              >
+                {language === "pt" ? "ou criar conta" : "or create account"}
+              </button>
+            </div>
+          )}
         </div>
       </motion.div>
     </div>

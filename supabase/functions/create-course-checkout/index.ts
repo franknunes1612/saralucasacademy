@@ -28,47 +28,41 @@ serve(async (req) => {
     const supabaseAnonKey = Deno.env.get("SUPABASE_ANON_KEY");
     if (!supabaseUrl || !supabaseAnonKey) throw new Error("Supabase config missing");
 
-    // Get auth header
+    // Parse request body first to check for guest checkout
+    const { courseId, guestCheckout } = await req.json();
+    if (!courseId) throw new Error("Course ID is required");
+    logStep("Request parsed", { courseId, guestCheckout });
+
+    let userId: string | null = null;
+    let userEmail: string | null = null;
+
+    // Check for authenticated user (optional for guest checkout)
     const authHeader = req.headers.get("Authorization");
-    if (!authHeader?.startsWith("Bearer ")) {
-      return new Response(JSON.stringify({ error: "Unauthorized" }), {
-        headers: { ...corsHeaders, "Content-Type": "application/json" },
-        status: 401,
+    if (authHeader?.startsWith("Bearer ") && !guestCheckout) {
+      const token = authHeader.slice("Bearer ".length);
+
+      const supabaseClient = createClient(supabaseUrl, supabaseAnonKey, {
+        auth: { persistSession: false },
+        global: { headers: { Authorization: authHeader } },
       });
+
+      const { data: claimsData, error: claimsError } = await supabaseClient.auth.getClaims(token);
+      if (!claimsError && claimsData?.claims) {
+        userId = claimsData.claims.sub || null;
+        userEmail = ((claimsData.claims as Record<string, unknown>).email as string) || null;
+        logStep("User authenticated", { userId, email: userEmail });
+      }
     }
-    logStep("Authorization header found");
 
-    const token = authHeader.slice("Bearer ".length);
+    // For guest checkout, user remains unauthenticated
+    if (guestCheckout) {
+      logStep("Guest checkout mode - no user authentication required");
+    }
 
-    // IMPORTANT: Use getClaims() instead of getUser() to avoid session_not_found issues.
-    // getClaims validates the JWT signature/expiry and returns user identifiers from the token.
+    // Create a basic Supabase client for course lookup
     const supabaseClient = createClient(supabaseUrl, supabaseAnonKey, {
       auth: { persistSession: false },
-      global: { headers: { Authorization: authHeader } },
     });
-
-    const { data: claimsData, error: claimsError } = await supabaseClient.auth.getClaims(token);
-    if (claimsError || !claimsData?.claims) {
-      return new Response(JSON.stringify({ error: "Unauthorized" }), {
-        headers: { ...corsHeaders, "Content-Type": "application/json" },
-        status: 401,
-      });
-    }
-
-    const userId = claimsData.claims.sub;
-    const userEmail = (claimsData.claims as Record<string, unknown>).email;
-    if (!userId || typeof userEmail !== "string" || !userEmail) {
-      return new Response(JSON.stringify({ error: "Unauthorized" }), {
-        headers: { ...corsHeaders, "Content-Type": "application/json" },
-        status: 401,
-      });
-    }
-    logStep("User authenticated", { userId, email: userEmail });
-
-    // Parse request body
-    const { courseId } = await req.json();
-    if (!courseId) throw new Error("Course ID is required");
-    logStep("Course ID received", { courseId });
 
     // Fetch course details from database
     const { data: course, error: courseError } = await supabaseClient
@@ -86,20 +80,33 @@ serve(async (req) => {
     // Initialize Stripe
     const stripe = new Stripe(stripeKey, { apiVersion: "2025-08-27.basil" });
 
-    // Check if customer exists
-    const customers = await stripe.customers.list({ email: userEmail, limit: 1 });
-    let customerId;
-    if (customers.data.length > 0) {
-      customerId = customers.data[0].id;
-      logStep("Existing customer found", { customerId });
+    // Check if customer exists (only for authenticated users)
+    let customerId: string | undefined;
+    if (userEmail) {
+      const customers = await stripe.customers.list({ email: userEmail, limit: 1 });
+      if (customers.data.length > 0) {
+        customerId = customers.data[0].id;
+        logStep("Existing customer found", { customerId });
+      }
     }
 
-    // Create checkout session with price_data (dynamic pricing from database)
+    // Create checkout session
     const origin = req.headers.get("origin") || "https://saralucasacademy.lovable.app";
+    
+    // Build metadata - include user_id only if authenticated
+    const metadata: Record<string, string> = {
+      course_id: course.id,
+      is_guest: guestCheckout ? "true" : "false",
+    };
+    if (userId) {
+      metadata.user_id = userId;
+    }
     
     const session = await stripe.checkout.sessions.create({
       customer: customerId,
-      customer_email: customerId ? undefined : userEmail,
+      customer_email: customerId ? undefined : (userEmail || undefined),
+      // For guest checkout, Stripe will collect email on checkout page
+      customer_creation: guestCheckout ? "always" : undefined,
       line_items: [
         {
           price_data: {
@@ -117,15 +124,12 @@ serve(async (req) => {
         },
       ],
       mode: "payment",
-      success_url: `${origin}/learn/course/${courseId}?payment=success`,
+      success_url: `${origin}/learn/course/${courseId}?payment=success&session_id={CHECKOUT_SESSION_ID}`,
       cancel_url: `${origin}/learn/course/${courseId}?payment=canceled`,
-      metadata: {
-        user_id: userId,
-        course_id: course.id,
-      },
+      metadata,
     });
 
-    logStep("Checkout session created", { sessionId: session.id });
+    logStep("Checkout session created", { sessionId: session.id, isGuest: guestCheckout });
 
     return new Response(JSON.stringify({ url: session.url }), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
