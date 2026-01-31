@@ -1,13 +1,14 @@
 import { useEffect, useState } from "react";
 import { useCmsContent } from "@/hooks/useCmsContent";
 import { useLanguage } from "@/hooks/useLanguage";
+import saraSplashPortrait from "@/assets/sara-splash-portrait.png";
 
 interface SplashScreenProps {
   onComplete: () => void;
 }
 
 /**
- * Premium splash screen with gradient background and signature logo
+ * Premium splash screen with gradient background, signature logo, and portrait
  * All content and duration controlled via CMS
  */
 export function SplashScreen({ onComplete }: SplashScreenProps) {
@@ -45,7 +46,7 @@ export function SplashScreen({ onComplete }: SplashScreenProps) {
 
   return (
     <div
-      className={`fixed inset-0 z-50 flex flex-col items-center justify-center transition-opacity duration-500 ${
+      className={`fixed inset-0 z-50 flex flex-col items-center transition-opacity duration-500 overflow-hidden ${
         isExiting ? "opacity-0" : "opacity-100"
       }`}
       style={{
@@ -77,9 +78,9 @@ export function SplashScreen({ onComplete }: SplashScreenProps) {
         }}
       />
 
-      {/* Logo container with entrance animation */}
+      {/* Logo container - positioned at top */}
       <div
-        className="relative z-10 flex flex-col items-center transition-all ease-out"
+        className="relative z-20 flex flex-col items-center pt-16 sm:pt-20 transition-all ease-out"
         style={{
           transitionDuration: "800ms",
           opacity: isEntered ? 1 : 0,
@@ -110,13 +111,36 @@ export function SplashScreen({ onComplete }: SplashScreenProps) {
         </p>
       </div>
 
-      {/* Decorative bottom gradient */}
+      {/* Sara portrait - positioned to go off screen at the bottom */}
+      <div
+        className="absolute bottom-0 left-1/2 -translate-x-1/2 z-10 transition-all ease-out"
+        style={{
+          transitionDuration: "1000ms",
+          transitionDelay: "300ms",
+          opacity: isEntered ? 1 : 0,
+          transform: isEntered 
+            ? "translateX(-50%) translateY(15%)" 
+            : "translateX(-50%) translateY(30%)",
+        }}
+      >
+        <img
+          src={saraSplashPortrait}
+          alt="Sara Lucas"
+          className="w-auto max-w-none h-[85vh] sm:h-[90vh] object-contain object-bottom select-none pointer-events-none"
+          style={{
+            filter: "drop-shadow(0 -10px 40px rgba(0,0,0,0.1))",
+          }}
+        />
+      </div>
+
+      {/* Decorative bottom gradient - blends portrait into edge */}
       <div 
-        className="absolute bottom-0 left-0 right-0 h-32 pointer-events-none"
+        className="absolute bottom-0 left-0 right-0 h-40 pointer-events-none z-20"
         style={{
           background: `linear-gradient(
             to top,
-            hsl(340 40% 65% / 0.5) 0%,
+            hsl(340 45% 72%) 0%,
+            hsl(340 45% 72% / 0.8) 30%,
             transparent 100%
           )`,
         }}
