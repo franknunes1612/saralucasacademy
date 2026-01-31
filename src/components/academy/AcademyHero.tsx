@@ -1,10 +1,19 @@
 import { motion, AnimatePresence, Variants, Easing } from "framer-motion";
-import { ChevronRight, Award, Play, BookOpen, Clock } from "lucide-react";
+import { ChevronRight, Award, Play, BookOpen, Clock, Dumbbell, Utensils, GraduationCap, Heart, Sparkles } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useCmsContent } from "@/hooks/useCmsContent";
 import { useLanguage } from "@/hooks/useLanguage";
 import { useFeaturedAcademyItems } from "@/hooks/useAcademyItems";
 
+// Icon map for dynamic feature tags
+const TAG_ICON_MAP: Record<string, React.ComponentType<{ className?: string }>> = {
+  dumbbell: Dumbbell,
+  utensils: Utensils,
+  "book-open": BookOpen,
+  "graduation-cap": GraduationCap,
+  heart: Heart,
+  sparkles: Sparkles,
+};
 // Hero anchor component - Featured Course Card
 function FeaturedCourseAnchor() {
   const navigate = useNavigate();
@@ -161,10 +170,20 @@ export function AcademyHero() {
   const primaryCtaLink = cms.get("academy.hero.cta.primary.link");
   const secondaryCtaLabel = cms.get("academy.hero.cta.secondary.label");
   const secondaryCtaLink = cms.get("academy.hero.cta.secondary.link");
+  const tertiaryCtaLabel = cms.get("academy.hero.cta.tertiary.label");
+  const tertiaryCtaLink = cms.get("academy.hero.cta.tertiary.link");
+  const tertiaryCtaEnabled = cms.get("academy.hero.cta.tertiary.enabled") === "true";
   const layout = cms.get("academy.hero.layout");
   const videoUrl = cms.get("academy.hero.video.url");
   const imageUrl = cms.get("academy.hero.image.url");
   const animationsEnabled = cms.isFeatureEnabled("academy.hero.animations.enabled");
+  
+  // Feature tags
+  const tagsEnabled = cms.get("academy.hero.tags.enabled") === "true";
+  const tags = [1, 2, 3].map(i => ({
+    icon: cms.get(`academy.hero.tag${i}.icon`),
+    label: cms.get(`academy.hero.tag${i}.label`),
+  }));
 
   // Animation variants - properly typed
   const containerVariants: Variants = animationsEnabled ? {
@@ -249,13 +268,37 @@ export function AcademyHero() {
         {/* Authority badge */}
         <motion.div
           variants={badgeVariants}
-          className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/20 backdrop-blur-sm mb-4 shadow-sm"
+          className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/20 backdrop-blur-sm mb-3 shadow-sm"
         >
           <Award className="h-4 w-4 text-white drop-shadow-sm" />
           <span className="text-xs font-medium text-white tracking-wide drop-shadow-sm">
             {badgeLabel}
           </span>
         </motion.div>
+        
+        {/* Feature Tags - Training, Nutrition, Education */}
+        {tagsEnabled && (
+          <motion.div 
+            variants={itemVariants} 
+            className="flex flex-wrap gap-2 mb-4"
+          >
+            {tags.map((tag, index) => {
+              const IconComponent = TAG_ICON_MAP[tag.icon] || BookOpen;
+              return (
+                <motion.span
+                  key={index}
+                  initial={animationsEnabled ? { opacity: 0, scale: 0.9 } : {}}
+                  animate={animationsEnabled ? { opacity: 1, scale: 1 } : {}}
+                  transition={{ delay: 0.3 + index * 0.1, duration: 0.3 }}
+                  className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/15 backdrop-blur-sm text-xs text-white/90 font-medium"
+                >
+                  <IconComponent className="h-3.5 w-3.5" />
+                  {tag.label}
+                </motion.span>
+              );
+            })}
+          </motion.div>
+        )}
         
         {/* Main headline - outcome focused */}
         <motion.h1
@@ -276,7 +319,7 @@ export function AcademyHero() {
         {/* CTA buttons */}
         <motion.div
           variants={itemVariants}
-          className="flex flex-wrap gap-3 mb-6"
+          className="flex flex-wrap items-center gap-3 mb-6"
         >
           {/* Primary CTA */}
           <button
@@ -294,6 +337,17 @@ export function AcademyHero() {
           >
             {secondaryCtaLabel}
           </button>
+          
+          {/* Tertiary CTA - Full Academy */}
+          {tertiaryCtaEnabled && (
+            <button
+              onClick={() => navigate(tertiaryCtaLink)}
+              className="inline-flex items-center gap-1.5 px-4 py-2 text-white/80 font-medium text-sm hover:text-white transition-colors"
+            >
+              {tertiaryCtaLabel}
+              <ChevronRight className="h-4 w-4" />
+            </button>
+          )}
         </motion.div>
 
         {/* Visual Anchor Element */}
