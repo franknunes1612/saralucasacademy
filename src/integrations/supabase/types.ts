@@ -520,6 +520,110 @@ export type Database = {
         }
         Relationships: []
       }
+      user_lesson_progress: {
+        Row: {
+          completed: boolean
+          completed_at: string | null
+          course_id: string
+          created_at: string
+          id: string
+          last_watched_at: string | null
+          lesson_id: string
+          progress_seconds: number | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          completed?: boolean
+          completed_at?: string | null
+          course_id: string
+          created_at?: string
+          id?: string
+          last_watched_at?: string | null
+          lesson_id: string
+          progress_seconds?: number | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          completed?: boolean
+          completed_at?: string | null
+          course_id?: string
+          created_at?: string
+          id?: string
+          last_watched_at?: string | null
+          lesson_id?: string
+          progress_seconds?: number | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_lesson_progress_course_id_fkey"
+            columns: ["course_id"]
+            isOneToOne: false
+            referencedRelation: "academy_items"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "user_lesson_progress_lesson_id_fkey"
+            columns: ["lesson_id"]
+            isOneToOne: false
+            referencedRelation: "course_lessons"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      user_purchases: {
+        Row: {
+          amount_paid: number | null
+          course_id: string
+          created_at: string
+          currency: string | null
+          id: string
+          payment_method: string | null
+          payment_reference: string | null
+          purchase_date: string
+          status: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          amount_paid?: number | null
+          course_id: string
+          created_at?: string
+          currency?: string | null
+          id?: string
+          payment_method?: string | null
+          payment_reference?: string | null
+          purchase_date?: string
+          status?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          amount_paid?: number | null
+          course_id?: string
+          created_at?: string
+          currency?: string | null
+          id?: string
+          payment_method?: string | null
+          payment_reference?: string | null
+          purchase_date?: string
+          status?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_purchases_course_id_fkey"
+            columns: ["course_id"]
+            isOneToOne: false
+            referencedRelation: "academy_items"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       user_roles: {
         Row: {
           created_at: string

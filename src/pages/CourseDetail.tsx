@@ -1,13 +1,17 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useCallback } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
-import { ArrowLeft, Clock, BookOpen, Award, User, Play, ShoppingCart, Check, Share2 } from "lucide-react";
+import { ArrowLeft, Clock, BookOpen, Award, User, ShoppingCart, Check, Share2, CheckCircle2 } from "lucide-react";
 import { useCmsContent } from "@/hooks/useCmsContent";
 import { useLanguage } from "@/hooks/useLanguage";
 import { useAcademyItems, AcademyItem } from "@/hooks/useAcademyItems";
 import { useCourseLessons, CourseLesson, formatTotalDuration } from "@/hooks/useCourseLessons";
+import { useHasPurchased } from "@/hooks/useUserPurchases";
+import { useCourseProgress, useMarkLessonComplete } from "@/hooks/useLessonProgress";
+import { useAuth } from "@/hooks/useAuth";
 import { VideoPlayer } from "@/components/academy/VideoPlayer";
 import { LessonList } from "@/components/academy/LessonList";
+import { Progress } from "@/components/ui/progress";
 import { Skeleton } from "@/components/ui/skeleton";
 
 type ExtendedAcademyItem = AcademyItem & {
@@ -25,10 +29,9 @@ export default function CourseDetail() {
   const navigate = useNavigate();
   const { language } = useLanguage();
   const cms = useCmsContent();
+  const { user } = useAuth();
   
   const [currentLesson, setCurrentLesson] = useState<CourseLesson | null>(null);
-  const [isPurchased] = useState(false); // TODO: Implement purchase check
-  const [completedLessons] = useState<string[]>([]); // TODO: Track progress
 
   // Fetch course details
   const { data: allItems, isLoading: isLoadingCourse } = useAcademyItems("course");
@@ -38,6 +41,23 @@ export default function CourseDetail() {
 
   // Fetch lessons
   const { data: lessons, isLoading: isLoadingLessons } = useCourseLessons(courseId);
+
+  // Check purchase status
+  const { hasPurchased, isLoading: isLoadingPurchase } = useHasPurchased(courseId || "");
+
+  // Get progress
+  const { completedLessonIds, completedCount, progressPercentage } = useCourseProgress(
+    courseId || "",
+    lessons?.length || 0
+  );
+
+  // Lesson completion
+  const { markComplete, isPending: isMarkingComplete } = useMarkLessonComplete();
+
+  const handleMarkComplete = useCallback(async () => {
+    if (!currentLesson || !courseId || isMarkingComplete) return;
+    await markComplete(currentLesson.id, courseId);
+  }, [currentLesson, courseId, markComplete, isMarkingComplete]);
 
   if (isLoadingCourse || isLoadingLessons) {
     return (
@@ -116,6 +136,8 @@ export default function CourseDetail() {
       : currentLesson.title_en
     : cms.get("academy.detail.preview");
 
+  const isCurrentLessonCompleted = currentLesson ? completedLessonIds.includes(currentLesson.id) : false;
+
   return (
     <div className="min-h-screen bg-background pb-32 safe-top">
       {/* Header */}
@@ -130,6 +152,12 @@ export default function CourseDetail() {
         
         <div className="flex-1 min-w-0">
           <h1 className="font-semibold text-white truncate">{title}</h1>
+          {hasPurchased && lessons && lessons.length > 0 && (
+            <div className="flex items-center gap-2 mt-1">
+              <Progress value={progressPercentage} className="h-1 flex-1 bg-white/10" />
+              <span className="text-[10px] text-white/50">{progressPercentage}%</span>
+            </div>
+          )}
         </div>
 
         <button
@@ -148,11 +176,30 @@ export default function CourseDetail() {
         className="px-4 pt-4"
       >
         {videoUrl ? (
-          <VideoPlayer
-            src={videoUrl}
-            poster={course.cover_image_url || undefined}
-            title={videoTitle}
-          />
+          <div className="relative">
+            <VideoPlayer
+              src={videoUrl}
+              poster={course.cover_image_url || undefined}
+              title={videoTitle}
+            />
+            {/* Mark Complete Button */}
+            {hasPurchased && currentLesson && (
+              <button
+                onClick={handleMarkComplete}
+                disabled={isMarkingComplete || isCurrentLessonCompleted}
+                className={`absolute bottom-4 right-4 flex items-center gap-2 px-3 py-2 rounded-xl text-xs font-medium transition-all ${
+                  isCurrentLessonCompleted
+                    ? "bg-[hsl(155_40%_45%)] text-white"
+                    : "bg-white/90 text-[hsl(340_45%_45%)] hover:bg-white"
+                }`}
+              >
+                <CheckCircle2 className="h-4 w-4" />
+                {isCurrentLessonCompleted
+                  ? cms.get("academy.detail.completed")
+                  : cms.get("academy.detail.markComplete")}
+              </button>
+            )}
+          </div>
         ) : (
           <div className="aspect-video rounded-2xl bg-gradient-to-br from-[hsl(340_40%_65%)] to-[hsl(30_40%_70%)] flex items-center justify-center">
             {course.cover_image_url ? (
@@ -212,6 +259,31 @@ export default function CourseDetail() {
           </div>
         </motion.div>
 
+        {/* Progress Card (if purchased) */}
+        {hasPurchased && lessons && lessons.length > 0 && (
+          <motion.div
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.12 }}
+            className="rounded-2xl bg-gradient-to-r from-[hsl(155_40%_45%)]/20 to-[hsl(155_40%_35%)]/10 border border-[hsl(155_40%_45%)]/30 p-4"
+          >
+            <div className="flex items-center justify-between mb-2">
+              <span className="text-sm font-medium text-white">
+                {cms.get("academy.detail.yourProgress")}
+              </span>
+              <span className="text-sm font-bold text-[hsl(155_40%_55%)]">
+                {completedCount}/{lessons.length}
+              </span>
+            </div>
+            <Progress value={progressPercentage} className="h-2 bg-white/10" />
+            <p className="text-xs text-white/50 mt-2">
+              {progressPercentage === 100
+                ? cms.get("academy.detail.courseComplete")
+                : `${progressPercentage}% ${cms.get("academy.detail.completed")}`}
+            </p>
+          </motion.div>
+        )}
+
         {/* Description */}
         {description && (
           <motion.div
@@ -260,9 +332,29 @@ export default function CourseDetail() {
               lessons={lessons}
               currentLessonId={currentLesson?.id}
               onLessonSelect={handleLessonSelect}
-              isPurchased={isPurchased}
-              completedLessons={completedLessons}
+              isPurchased={hasPurchased}
+              completedLessons={completedLessonIds}
             />
+          </motion.div>
+        )}
+
+        {/* Login prompt for non-authenticated users */}
+        {!user && (
+          <motion.div
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.27 }}
+            className="rounded-2xl bg-white/5 border border-white/10 p-4 text-center"
+          >
+            <p className="text-sm text-white/70 mb-3">
+              {cms.get("academy.detail.loginPrompt")}
+            </p>
+            <button
+              onClick={() => navigate("/profile")}
+              className="px-4 py-2 rounded-xl bg-white/10 text-white text-sm font-medium hover:bg-white/15 transition-colors"
+            >
+              {cms.get("academy.detail.loginButton")}
+            </button>
           </motion.div>
         )}
 
@@ -283,31 +375,49 @@ export default function CourseDetail() {
       >
         <div className="flex items-center justify-between gap-4 p-4 rounded-2xl bg-white/10 backdrop-blur-md border border-white/10">
           <div>
-            <div className="flex items-center gap-2">
-              <span className="text-2xl font-bold text-white">
-                {formatPrice(course.price)}
-              </span>
-              {course.original_price && course.original_price > course.price && (
-                <span className="text-sm text-white/50 line-through">
-                  {formatPrice(course.original_price)}
+            {hasPurchased ? (
+              <>
+                <span className="text-lg font-bold text-[hsl(155_40%_55%)]">
+                  {cms.get("academy.detail.unlocked")}
                 </span>
-              )}
-            </div>
-            <p className="text-xs text-white/50">
-              {cms.get("academy.detail.accessLabel")}
-            </p>
+                <p className="text-xs text-white/50">
+                  {completedCount}/{lessons?.length || 0} {cms.get("academy.detail.lessonsCompleted")}
+                </p>
+              </>
+            ) : (
+              <>
+                <div className="flex items-center gap-2">
+                  <span className="text-2xl font-bold text-white">
+                    {formatPrice(course.price)}
+                  </span>
+                  {course.original_price && course.original_price > course.price && (
+                    <span className="text-sm text-white/50 line-through">
+                      {formatPrice(course.original_price)}
+                    </span>
+                  )}
+                </div>
+                <p className="text-xs text-white/50">
+                  {cms.get("academy.detail.accessLabel")}
+                </p>
+              </>
+            )}
           </div>
 
           <button
-            onClick={handlePurchase}
+            onClick={hasPurchased ? () => lessons?.[0] && handleLessonSelect(lessons[0]) : handlePurchase}
             className="flex items-center gap-2 px-6 py-3 rounded-xl bg-white text-[hsl(340_45%_45%)] font-semibold shadow-lg hover:bg-white/90 transition-colors"
           >
-            <ShoppingCart className="h-5 w-5" />
-            <span>
-              {isPurchased
-                ? cms.get("academy.detail.continue")
-                : cms.get("academy.detail.buyNow")}
-            </span>
+            {hasPurchased ? (
+              <>
+                <BookOpen className="h-5 w-5" />
+                <span>{cms.get("academy.detail.continue")}</span>
+              </>
+            ) : (
+              <>
+                <ShoppingCart className="h-5 w-5" />
+                <span>{cms.get("academy.detail.buyNow")}</span>
+              </>
+            )}
           </button>
         </div>
       </motion.div>
