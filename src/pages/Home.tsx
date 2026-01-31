@@ -75,7 +75,7 @@ export default function Home() {
               {t({ pt: "Olá, sou a Sara Lucas", en: "Hi, I'm Sara Lucas" })}
             </h2>
             <p className="text-sm text-white/70 mb-2">
-              {t({ pt: "Nutricionista Certificada", en: "Certified Nutritionist" })}
+              {t({ pt: "Nutricionista / Personal Trainer Certificada", en: "Certified Nutritionist / Personal Trainer" })}
             </p>
             <p className="text-xs text-white/60 line-clamp-2">
               {t({
