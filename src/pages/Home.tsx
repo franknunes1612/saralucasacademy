@@ -6,10 +6,12 @@ import { useFeaturedAcademyItems } from "@/hooks/useAcademyItems";
 import { AcademyCard } from "@/components/academy/AcademyCard";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useAuth } from "@/hooks/useAuth";
+import { useUserProfile } from "@/hooks/useUserProfile";
 import { SaraLucasLogo } from "@/components/brand/SaraLucasLogo";
 import { RecommendedProductsSection } from "@/components/home/RecommendedProductsSection";
 import { LanguageToggle } from "@/components/LanguageToggle";
 import { AuthModal } from "@/components/auth/AuthModal";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import saraPortrait from "@/assets/sara-lucas-portrait.png";
 
 const INSTAGRAM_URL = "https://www.instagram.com/saralucas_pt_nutricionista/";
@@ -18,8 +20,20 @@ export default function Home() {
   const navigate = useNavigate();
   const { t, language } = useLanguage();
   const { isAdmin, user } = useAuth();
+  const { data: profile } = useUserProfile();
   const { data: featuredItems, isLoading } = useFeaturedAcademyItems();
   const [showAuthModal, setShowAuthModal] = useState(false);
+
+  // Get user initials for avatar fallback
+  const getInitials = () => {
+    if (profile?.display_name) {
+      return profile.display_name.split(" ").map(n => n[0]).join("").toUpperCase().slice(0, 2);
+    }
+    if (user?.email) {
+      return user.email[0].toUpperCase();
+    }
+    return "U";
+  };
 
   const handleWhatsApp = () => {
     const message = language === "pt" 
@@ -50,7 +64,20 @@ export default function Home() {
           >
             <Instagram className="h-5 w-5 text-white/70 hover:text-white transition-colors" />
           </a>
-          {!user && (
+          {user ? (
+            <button
+              onClick={() => navigate("/profile")}
+              className="rounded-full hover:ring-2 hover:ring-white/30 transition-all"
+              aria-label={t({ pt: "Perfil", en: "Profile" })}
+            >
+              <Avatar className="h-9 w-9 border-2 border-white/20">
+                <AvatarImage src={profile?.avatar_url || undefined} alt={profile?.display_name || "User"} />
+                <AvatarFallback className="bg-primary/20 text-primary text-xs font-medium">
+                  {getInitials()}
+                </AvatarFallback>
+              </Avatar>
+            </button>
+          ) : (
             <button
               onClick={() => setShowAuthModal(true)}
               className="p-2 rounded-xl hover:bg-white/10 transition-colors"
