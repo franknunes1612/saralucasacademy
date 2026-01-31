@@ -1,4 +1,5 @@
 import { ExternalLink, BookOpen, PlayCircle, Calendar, Package } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 import { useLanguage } from "@/hooks/useLanguage";
 import { AcademyItem, AcademyItemType } from "@/hooks/useAcademyItems";
 import { cn } from "@/lib/utils";
@@ -36,6 +37,7 @@ interface AcademyCardProps {
 
 export function AcademyCard({ item, compact = false }: AcademyCardProps) {
   const { language, t } = useLanguage();
+  const navigate = useNavigate();
   const config = TYPE_CONFIG[item.item_type];
   const Icon = config.icon;
 
@@ -55,7 +57,12 @@ export function AcademyCard({ item, compact = false }: AcademyCardProps) {
   };
 
   const handleClick = () => {
-    if (item.purchase_link) {
+    // For courses and programs, navigate to detail page
+    if (item.item_type === "course" || item.item_type === "program") {
+      const itemType = item.item_type === "program" ? "program" : "course";
+      navigate(`/learn/${itemType}/${item.id}`);
+    } else if (item.purchase_link) {
+      // For ebooks/bundles with external links
       window.open(item.purchase_link, "_blank", "noopener,noreferrer");
     }
   };
