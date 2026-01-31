@@ -271,7 +271,7 @@ export default function Home() {
           </li>
           <li className="flex items-start gap-2 text-sm text-white/80">
             <span className="text-success mt-0.5">✓</span>
-            {t({ pt: "Suporte por WhatsApp", en: "WhatsApp support" })}
+            {t({ pt: "Suporte por WhatsApp / Email", en: "WhatsApp / Email support" })}
           </li>
         </ul>
       </section>
