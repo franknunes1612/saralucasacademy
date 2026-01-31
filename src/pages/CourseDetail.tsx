@@ -1,7 +1,7 @@
-import { useState, useMemo, useCallback } from "react";
-import { useParams, useNavigate } from "react-router-dom";
+import { useState, useMemo, useCallback, useEffect } from "react";
+import { useParams, useNavigate, useSearchParams } from "react-router-dom";
 import { motion } from "framer-motion";
-import { ArrowLeft, Clock, BookOpen, Award, User, ShoppingCart, Check, Share2, CheckCircle2 } from "lucide-react";
+import { ArrowLeft, Clock, BookOpen, Award, User, ShoppingCart, Check, Share2, CheckCircle2, Loader2 } from "lucide-react";
 import { useCmsContent } from "@/hooks/useCmsContent";
 import { useLanguage } from "@/hooks/useLanguage";
 import { useAcademyItems, AcademyItem } from "@/hooks/useAcademyItems";
@@ -9,10 +9,12 @@ import { useCourseLessons, CourseLesson, formatTotalDuration } from "@/hooks/use
 import { useHasPurchased } from "@/hooks/useUserPurchases";
 import { useCourseProgress, useMarkLessonComplete } from "@/hooks/useLessonProgress";
 import { useAuth } from "@/hooks/useAuth";
+import { supabase } from "@/integrations/supabase/client";
 import { VideoPlayer } from "@/components/academy/VideoPlayer";
 import { LessonList } from "@/components/academy/LessonList";
 import { Progress } from "@/components/ui/progress";
 import { Skeleton } from "@/components/ui/skeleton";
+import { toast } from "sonner";
 
 type ExtendedAcademyItem = AcademyItem & {
   instructor_name?: string;
@@ -27,11 +29,14 @@ type ExtendedAcademyItem = AcademyItem & {
 export default function CourseDetail() {
   const { courseId } = useParams<{ courseId: string }>();
   const navigate = useNavigate();
+  const [searchParams, setSearchParams] = useSearchParams();
   const { language } = useLanguage();
   const cms = useCmsContent();
   const { user } = useAuth();
   
   const [currentLesson, setCurrentLesson] = useState<CourseLesson | null>(null);
+  const [isCheckingOut, setIsCheckingOut] = useState(false);
+  const [isVerifyingPayment, setIsVerifyingPayment] = useState(false);
 
   // Fetch course details
   const { data: allItems, isLoading: isLoadingCourse } = useAcademyItems("course");
@@ -58,6 +63,36 @@ export default function CourseDetail() {
     if (!currentLesson || !courseId || isMarkingComplete) return;
     await markComplete(currentLesson.id, courseId);
   }, [currentLesson, courseId, markComplete, isMarkingComplete]);
+
+  // Handle payment verification when returning from Stripe
+  useEffect(() => {
+    const paymentStatus = searchParams.get("payment");
+    const sessionId = searchParams.get("session_id");
+    
+    if (paymentStatus === "success" && sessionId && !isVerifyingPayment) {
+      setIsVerifyingPayment(true);
+      
+      supabase.functions.invoke("verify-course-payment", {
+        body: { sessionId },
+      }).then(({ data, error }) => {
+        if (error) {
+          console.error("Payment verification error:", error);
+          toast.error("Payment verification failed. Please contact support.");
+        } else if (data?.success) {
+          toast.success("Course unlocked! Welcome to your new course.");
+          // Clear the URL params
+          setSearchParams({});
+          // Refresh the page to show unlocked state
+          window.location.reload();
+        }
+      }).finally(() => {
+        setIsVerifyingPayment(false);
+      });
+    } else if (paymentStatus === "canceled") {
+      toast.info("Payment was canceled.");
+      setSearchParams({});
+    }
+  }, [searchParams, setSearchParams, isVerifyingPayment]);
 
   if (isLoadingCourse || isLoadingLessons) {
     return (
@@ -104,9 +139,30 @@ export default function CourseDetail() {
     setCurrentLesson(lesson);
   };
 
-  const handlePurchase = () => {
-    if (course.purchase_link) {
-      window.open(course.purchase_link, "_blank", "noopener,noreferrer");
+  const handlePurchase = async () => {
+    if (!user) {
+      toast.info("Please log in to purchase this course.");
+      navigate("/profile");
+      return;
+    }
+
+    if (isCheckingOut) return;
+    setIsCheckingOut(true);
+
+    try {
+      const { data, error } = await supabase.functions.invoke("create-course-checkout", {
+        body: { courseId },
+      });
+
+      if (error) throw error;
+      if (data?.url) {
+        window.open(data.url, "_blank", "noopener,noreferrer");
+      }
+    } catch (error) {
+      const message = error instanceof Error ? error.message : "Checkout failed";
+      toast.error(message);
+    } finally {
+      setIsCheckingOut(false);
     }
   };
 
@@ -405,9 +461,12 @@ export default function CourseDetail() {
 
           <button
             onClick={hasPurchased ? () => lessons?.[0] && handleLessonSelect(lessons[0]) : handlePurchase}
-            className="flex items-center gap-2 px-6 py-3 rounded-xl bg-white text-[hsl(340_45%_45%)] font-semibold shadow-lg hover:bg-white/90 transition-colors"
+            disabled={isCheckingOut}
+            className="flex items-center gap-2 px-6 py-3 rounded-xl bg-white text-[hsl(340_45%_45%)] font-semibold shadow-lg hover:bg-white/90 transition-colors disabled:opacity-50"
           >
-            {hasPurchased ? (
+            {isCheckingOut ? (
+              <Loader2 className="h-5 w-5 animate-spin" />
+            ) : hasPurchased ? (
               <>
                 <BookOpen className="h-5 w-5" />
                 <span>{cms.get("academy.detail.continue")}</span>
