@@ -25,10 +25,13 @@ serve(async (req) => {
     logStep("Stripe key verified");
 
     const supabaseUrl = Deno.env.get("SUPABASE_URL");
-    const supabaseAnonKey = Deno.env.get("SUPABASE_ANON_KEY");
-    if (!supabaseUrl || !supabaseAnonKey) throw new Error("Supabase config missing");
+    const supabaseServiceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY");
+    if (!supabaseUrl || !supabaseServiceKey) throw new Error("Supabase config missing");
 
-    const supabaseClient = createClient(supabaseUrl, supabaseAnonKey);
+    // Use service role key for authenticating users
+    const supabaseClient = createClient(supabaseUrl, supabaseServiceKey, {
+      auth: { persistSession: false }
+    });
 
     // Get auth header
     const authHeader = req.headers.get("Authorization");
