@@ -881,7 +881,7 @@ export default function Index() {
 
   // Splash screen
   if (appState === "splash") {
-    return <SplashScreen onComplete={handleSplashComplete} minDuration={1200} />;
+    return <SplashScreen onComplete={handleSplashComplete} />;
   }
 
   // Onboarding screen

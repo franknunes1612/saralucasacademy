@@ -1,17 +1,29 @@
 import { useEffect, useState } from "react";
+import { useCmsContent } from "@/hooks/useCmsContent";
+import { useLanguage } from "@/hooks/useLanguage";
 
 interface SplashScreenProps {
   onComplete: () => void;
-  minDuration?: number;
 }
 
 /**
  * Premium splash screen with gradient background and signature logo
- * Shows on every app launch for brand presence
+ * All content and duration controlled via CMS
  */
-export function SplashScreen({ onComplete, minDuration = 2500 }: SplashScreenProps) {
+export function SplashScreen({ onComplete }: SplashScreenProps) {
   const [isExiting, setIsExiting] = useState(false);
   const [isEntered, setIsEntered] = useState(false);
+  const cms = useCmsContent();
+  const { language } = useLanguage();
+
+  // Get CMS values
+  const title = cms.get("app.splash.title", { pt: "Sara Lucas", en: "Sara Lucas" });
+  const subtitle = cms.get("app.splash.subtitle", { 
+    pt: "Nutrição & Training Academy", 
+    en: "Nutrition & Training Academy" 
+  });
+  const durationStr = cms.get("app.splash.duration", { pt: "2000", en: "2000" });
+  const duration = parseInt(durationStr, 10) || 2000;
 
   useEffect(() => {
     // Trigger entrance animation after mount
@@ -23,13 +35,13 @@ export function SplashScreen({ onComplete, minDuration = 2500 }: SplashScreenPro
     const exitTimer = setTimeout(() => {
       setIsExiting(true);
       setTimeout(onComplete, 500); // Fade out duration
-    }, minDuration);
+    }, duration);
 
     return () => {
       clearTimeout(enterTimer);
       clearTimeout(exitTimer);
     };
-  }, [onComplete, minDuration]);
+  }, [onComplete, duration]);
 
   return (
     <div
@@ -41,7 +53,7 @@ export function SplashScreen({ onComplete, minDuration = 2500 }: SplashScreenPro
           165deg,
           hsl(340 50% 78%) 0%,
           hsl(340 45% 72%) 40%,
-          hsl(340 40% 68%) 100%
+          hsl(30 40% 75%) 100%
         )`,
       }}
     >
@@ -54,6 +66,14 @@ export function SplashScreen({ onComplete, minDuration = 2500 }: SplashScreenPro
             hsl(340 55% 85% / 0.4) 0%,
             transparent 70%
           )`,
+        }}
+      />
+
+      {/* Subtle texture overlay */}
+      <div 
+        className="absolute inset-0 opacity-[0.03] pointer-events-none"
+        style={{
+          backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E")`,
         }}
       />
 
@@ -73,7 +93,7 @@ export function SplashScreen({ onComplete, minDuration = 2500 }: SplashScreenPro
             textShadow: "0 4px 20px rgba(0,0,0,0.15), 0 2px 8px rgba(0,0,0,0.1)",
           }}
         >
-          Sara Lucas
+          {title}
         </h1>
 
         {/* Subtitle */}
@@ -86,7 +106,7 @@ export function SplashScreen({ onComplete, minDuration = 2500 }: SplashScreenPro
             transform: isEntered ? "translateY(0)" : "translateY(10px)",
           }}
         >
-          Nutrição & Training Academy
+          {subtitle}
         </p>
       </div>
 

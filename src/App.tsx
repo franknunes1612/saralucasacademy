@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -9,6 +9,7 @@ import { AdminAuthGuard } from "@/components/admin/AdminAuthGuard";
 import { BottomNav } from "@/components/navigation/BottomNav";
 import { SplashScreen } from "@/components/SplashScreen";
 import { Onboarding } from "@/components/Onboarding";
+import { useCmsContent } from "@/hooks/useCmsContent";
 
 // Pages
 import Home from "./pages/Home";
@@ -60,50 +61,105 @@ function NutritionistFABWrapper() {
   return <NutritionistFAB />;
 }
 
-// App entry flow manager
+// App entry flow manager - now CMS-controlled
 function AppEntryFlow({ children }: { children: React.ReactNode }) {
   const location = useLocation();
+  const cms = useCmsContent();
   const [showSplash, setShowSplash] = useState(true);
   const [showOnboarding, setShowOnboarding] = useState(false);
+  const [isReady, setIsReady] = useState(false);
 
   // Check if this is a direct scan access (skip splash/onboarding)
   const isDirectAccess = location.search.includes("direct=1");
   const isScanRoute = location.pathname === "/scan";
+  const isAdminRoute = location.pathname.startsWith("/admin");
 
+  // Get CMS settings
+  const splashEnabled = cms.isFeatureEnabled("app.splash.enabled");
+  const onboardingEnabled = cms.isFeatureEnabled("app.onboarding.enabled");
+  const showModeValue = cms.get("app.onboarding.showMode", { pt: "always", en: "always" });
+  const showMode = showModeValue === "first-visit" ? "first-visit" : "always";
+
+  // Initialize flow based on settings
   useEffect(() => {
-    // Skip splash for direct scan access
-    if (isDirectAccess || isScanRoute) {
+    // Skip for direct scan access or admin routes
+    if (isDirectAccess || isScanRoute || isAdminRoute) {
       setShowSplash(false);
       setShowOnboarding(false);
+      setIsReady(true);
+      return;
     }
-  }, [isDirectAccess, isScanRoute]);
 
-  const handleSplashComplete = () => {
+    // Wait for CMS to be ready
+    if (cms.isLoading) return;
+
+    // Determine if we should show splash
+    if (!splashEnabled) {
+      setShowSplash(false);
+      
+      // Check onboarding next
+      if (onboardingEnabled) {
+        if (showMode === "always") {
+          setShowOnboarding(true);
+        } else {
+          // first-visit mode
+          const completed = localStorage.getItem(ONBOARDING_COMPLETED_KEY);
+          setShowOnboarding(!completed);
+        }
+      }
+    }
+
+    setIsReady(true);
+  }, [isDirectAccess, isScanRoute, isAdminRoute, cms.isLoading, splashEnabled, onboardingEnabled, showMode]);
+
+  const handleSplashComplete = useCallback(() => {
     setShowSplash(false);
     
-    // Check if onboarding was completed before
-    const onboardingCompleted = localStorage.getItem(ONBOARDING_COMPLETED_KEY);
-    if (!onboardingCompleted) {
-      setShowOnboarding(true);
+    // Check if onboarding should be shown
+    if (onboardingEnabled) {
+      if (showMode === "always") {
+        setShowOnboarding(true);
+      } else {
+        // first-visit mode - check localStorage
+        const completed = localStorage.getItem(ONBOARDING_COMPLETED_KEY);
+        if (!completed) {
+          setShowOnboarding(true);
+        }
+      }
     }
-  };
+  }, [onboardingEnabled, showMode]);
 
-  const handleOnboardingComplete = () => {
-    localStorage.setItem(ONBOARDING_COMPLETED_KEY, "true");
+  const handleOnboardingComplete = useCallback(() => {
+    // Save completion for first-visit mode
+    if (showMode === "first-visit") {
+      localStorage.setItem(ONBOARDING_COMPLETED_KEY, "true");
+    }
     setShowOnboarding(false);
-  };
+  }, [showMode]);
 
-  // Skip entry flow for direct scan access
-  if (isDirectAccess || (isScanRoute && !showSplash)) {
+  // Skip entry flow for direct scan access or admin routes
+  if (isDirectAccess || (isScanRoute && !showSplash) || isAdminRoute) {
     return <>{children}</>;
   }
 
-  // Show splash screen on every app launch
-  if (showSplash) {
+  // Wait for CMS to be ready
+  if (!isReady || cms.isLoading) {
+    return (
+      <div 
+        className="fixed inset-0 z-50 flex items-center justify-center"
+        style={{
+          background: `linear-gradient(165deg, hsl(340 50% 78%) 0%, hsl(340 45% 72%) 40%, hsl(30 40% 75%) 100%)`,
+        }}
+      />
+    );
+  }
+
+  // Show splash screen
+  if (showSplash && splashEnabled) {
     return <SplashScreen onComplete={handleSplashComplete} />;
   }
 
-  // Show onboarding if not completed
+  // Show onboarding
   if (showOnboarding) {
     return <Onboarding onComplete={handleOnboardingComplete} />;
   }

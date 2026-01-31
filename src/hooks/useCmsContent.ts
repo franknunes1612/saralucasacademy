@@ -21,9 +21,36 @@ interface CmsContentState {
 
 // Default fallback values for critical content
 const FALLBACK_CONTENT: Record<string, { pt: string; en: string }> = {
-  // Onboarding
-  "onboarding.slide1.title": { pt: "Tire uma foto da sua refeição", en: "Take a photo of your meal" },
-  "onboarding.slide1.subtitle": { pt: "A câmara identifica automaticamente os alimentos", en: "The camera automatically identifies foods" },
+  // App Settings - Splash
+  "app.splash.enabled": { pt: "true", en: "true" },
+  "app.splash.duration": { pt: "2000", en: "2000" },
+  "app.splash.title": { pt: "Sara Lucas", en: "Sara Lucas" },
+  "app.splash.subtitle": { pt: "Nutrição & Training Academy", en: "Nutrition & Training Academy" },
+  // App Settings - Onboarding
+  "app.onboarding.enabled": { pt: "true", en: "true" },
+  "app.onboarding.showMode": { pt: "always", en: "always" },
+  "app.onboarding.slideDuration": { pt: "3000", en: "3000" },
+  "app.onboarding.autoPlay": { pt: "true", en: "true" },
+  // Onboarding Slides
+  "onboarding.slide1.icon": { pt: "camera", en: "camera" },
+  "onboarding.slide1.title": { pt: "Scan Alimentar & Código de Barras", en: "Food & Barcode Scanner" },
+  "onboarding.slide1.text": { pt: "Fotografa a tua refeição ou produto e obtém informação nutricional instantânea.", en: "Photograph your meal or product and get instant nutritional information." },
+  "onboarding.slide2.icon": { pt: "graduation-cap", en: "graduation-cap" },
+  "onboarding.slide2.title": { pt: "Academy Completa", en: "Complete Academy" },
+  "onboarding.slide2.text": { pt: "Cursos, programas, ebooks e bundles para transformar a tua saúde.", en: "Courses, programs, ebooks and bundles to transform your health." },
+  "onboarding.slide3.icon": { pt: "message-circle", en: "message-circle" },
+  "onboarding.slide3.title": { pt: "Fala com Nutricionista", en: "Talk to Nutritionist" },
+  "onboarding.slide3.text": { pt: "Acompanhamento profissional, consultas e planos personalizados.", en: "Professional guidance, consultations and personalized plans." },
+  "onboarding.slide4.icon": { pt: "dumbbell", en: "dumbbell" },
+  "onboarding.slide4.title": { pt: "Programas de Treino", en: "Training Programs" },
+  "onboarding.slide4.text": { pt: "Treinos guiados e programas de nutrição para atingir os teus objetivos.", en: "Guided workouts and nutrition programs to reach your goals." },
+  "onboarding.slide5.icon": { pt: "utensils", en: "utensils" },
+  "onboarding.slide5.title": { pt: "Receitas & Refeições", en: "Recipes & Meals" },
+  "onboarding.slide5.text": { pt: "Receitas fit, acompanhamento de refeições e sugestões inteligentes.", en: "Fit recipes, meal tracking and smart suggestions." },
+  "onboarding.slide6.icon": { pt: "heart-handshake", en: "heart-handshake" },
+  "onboarding.slide6.title": { pt: "Suporte & Contacto", en: "Support & Contact" },
+  "onboarding.slide6.text": { pt: "Estamos aqui para ajudar. Contacta-nos quando precisares.", en: "We are here to help. Contact us whenever you need." },
+  // Camera & Scanner
   "camera.error.firstLoad": { pt: "Não foi possível aceder à câmara", en: "Could not access camera" },
   "camera.loading": { pt: "A preparar câmara...", en: "Setting up camera..." },
   "nutritionist.cta.label": { pt: "Falar com nutricionista", en: "Talk to nutritionist" },
