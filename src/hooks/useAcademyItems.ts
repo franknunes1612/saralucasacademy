@@ -27,6 +27,14 @@ export interface AcademyItem {
   badge_en: string | null;
   created_at: string;
   updated_at: string;
+  // Extended course fields
+  instructor_name?: string;
+  total_duration_minutes?: number;
+  total_lessons?: number;
+  difficulty_level?: string;
+  what_you_learn_pt?: string[];
+  what_you_learn_en?: string[];
+  video_preview_url?: string;
 }
 
 // Public hook - fetches active items only
