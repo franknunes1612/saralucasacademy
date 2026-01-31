@@ -1,10 +1,23 @@
 import { useState, useEffect } from "react";
-import { Droplets, Plus, Minus, RotateCcw } from "lucide-react";
+import { Droplets, Plus, Minus, RotateCcw, Settings } from "lucide-react";
 import { useLanguage } from "@/hooks/useLanguage";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
 
 const STORAGE_KEY = "sara-lucas-water-tracker";
 const DEFAULT_GOAL_ML = 2000; // 2 liters
 const CUP_SIZE_ML = 250; // 250ml per cup
+
+const GOAL_OPTIONS = [
+  { ml: 1500, label: "1.5L" },
+  { ml: 2000, label: "2L" },
+  { ml: 2500, label: "2.5L" },
+  { ml: 3000, label: "3L" },
+  { ml: 3500, label: "3.5L" },
+];
 
 interface WaterData {
   date: string;
@@ -160,6 +173,14 @@ export function WaterTracker() {
     setShowCelebration(false);
   };
 
+  const setGoal = (newGoal: number) => {
+    setData((prev) => ({
+      ...prev,
+      goal: newGoal,
+      // Keep consumed but cap it to new goal display
+    }));
+  };
+
   // Create array of glasses
   const glasses = Array.from({ length: cupsGoal }, (_, i) => ({
     filled: i < cupsConsumed,
@@ -183,13 +204,51 @@ export function WaterTracker() {
             </p>
           </div>
         </div>
-        <button
-          onClick={resetToday}
-          className="p-2 rounded-lg hover:bg-white/10 transition-colors"
-          aria-label={t({ pt: "Reiniciar", en: "Reset" })}
-        >
-          <RotateCcw className="h-4 w-4 text-white/40" />
-        </button>
+        <div className="flex items-center gap-1">
+          <Popover>
+            <PopoverTrigger asChild>
+              <button
+                className="p-2 rounded-lg hover:bg-white/10 transition-colors"
+                aria-label={t({ pt: "Definições", en: "Settings" })}
+              >
+                <Settings className="h-4 w-4 text-white/40" />
+              </button>
+            </PopoverTrigger>
+            <PopoverContent 
+              className="w-48 p-2 bg-card border-white/10" 
+              align="end"
+            >
+              <p className="text-xs text-white/60 mb-2 px-2">
+                {t({ pt: "Meta diária", en: "Daily goal" })}
+              </p>
+              <div className="space-y-1">
+                {GOAL_OPTIONS.map((option) => (
+                  <button
+                    key={option.ml}
+                    onClick={() => setGoal(option.ml)}
+                    className={`w-full px-3 py-2 rounded-lg text-left text-sm transition-colors ${
+                      data.goal === option.ml
+                        ? "bg-secondary text-secondary-foreground font-medium"
+                        : "hover:bg-white/10 text-white/80"
+                    }`}
+                  >
+                    {option.label}
+                    <span className="text-xs ml-1 opacity-60">
+                      ({option.ml / CUP_SIZE_ML} {t({ pt: "copos", en: "cups" })})
+                    </span>
+                  </button>
+                ))}
+              </div>
+            </PopoverContent>
+          </Popover>
+          <button
+            onClick={resetToday}
+            className="p-2 rounded-lg hover:bg-white/10 transition-colors"
+            aria-label={t({ pt: "Reiniciar", en: "Reset" })}
+          >
+            <RotateCcw className="h-4 w-4 text-white/40" />
+          </button>
+        </div>
       </div>
 
       {/* Glasses Grid */}
