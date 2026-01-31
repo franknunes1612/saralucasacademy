@@ -1,11 +1,13 @@
 import { useState, useEffect } from "react";
-import { Droplets, Plus, Minus, RotateCcw, Settings } from "lucide-react";
+import { Droplets, Plus, Minus, RotateCcw, Settings, Bell, BellOff } from "lucide-react";
 import { useLanguage } from "@/hooks/useLanguage";
+import { useWaterReminders } from "@/hooks/useWaterReminders";
 import {
   Popover,
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
+import { Switch } from "@/components/ui/switch";
 
 const STORAGE_KEY = "sara-lucas-water-tracker";
 const DEFAULT_GOAL_ML = 2000; // 2 liters
@@ -17,6 +19,13 @@ const GOAL_OPTIONS = [
   { ml: 2500, label: "2.5L" },
   { ml: 3000, label: "3L" },
   { ml: 3500, label: "3.5L" },
+];
+
+const INTERVAL_OPTIONS = [
+  { minutes: 60, label: { pt: "1 hora", en: "1 hour" } },
+  { minutes: 90, label: { pt: "1.5 horas", en: "1.5 hours" } },
+  { minutes: 120, label: { pt: "2 horas", en: "2 hours" } },
+  { minutes: 180, label: { pt: "3 horas", en: "3 hours" } },
 ];
 
 interface WaterData {
@@ -130,6 +139,15 @@ export function WaterTracker() {
   const [data, setData] = useState<WaterData>(loadWaterData);
   const [lastAdded, setLastAdded] = useState<number | null>(null);
   const [showCelebration, setShowCelebration] = useState(false);
+  
+  const {
+    settings: reminderSettings,
+    updateSettings: updateReminderSettings,
+    permissionStatus,
+    enableReminders,
+    disableReminders,
+    isSupported: remindersSupported,
+  } = useWaterReminders();
 
   useEffect(() => {
     saveWaterData(data);
@@ -215,30 +233,101 @@ export function WaterTracker() {
               </button>
             </PopoverTrigger>
             <PopoverContent 
-              className="w-48 p-2 bg-card border-white/10" 
+              className="w-64 p-3 bg-card border-white/10" 
               align="end"
             >
-              <p className="text-xs text-white/60 mb-2 px-2">
-                {t({ pt: "Meta diária", en: "Daily goal" })}
-              </p>
-              <div className="space-y-1">
-                {GOAL_OPTIONS.map((option) => (
-                  <button
-                    key={option.ml}
-                    onClick={() => setGoal(option.ml)}
-                    className={`w-full px-3 py-2 rounded-lg text-left text-sm transition-colors ${
-                      data.goal === option.ml
-                        ? "bg-secondary text-secondary-foreground font-medium"
-                        : "hover:bg-white/10 text-white/80"
-                    }`}
-                  >
-                    {option.label}
-                    <span className="text-xs ml-1 opacity-60">
-                      ({option.ml / CUP_SIZE_ML} {t({ pt: "copos", en: "cups" })})
-                    </span>
-                  </button>
-                ))}
+              {/* Daily Goal */}
+              <div className="mb-4">
+                <p className="text-xs text-white/60 mb-2 font-medium">
+                  {t({ pt: "Meta diária", en: "Daily goal" })}
+                </p>
+                <div className="grid grid-cols-3 gap-1">
+                  {GOAL_OPTIONS.map((option) => (
+                    <button
+                      key={option.ml}
+                      onClick={() => setGoal(option.ml)}
+                      className={`px-2 py-1.5 rounded-lg text-xs transition-colors ${
+                        data.goal === option.ml
+                          ? "bg-secondary text-secondary-foreground font-medium"
+                          : "bg-white/5 hover:bg-white/10 text-white/80"
+                      }`}
+                    >
+                      {option.label}
+                    </button>
+                  ))}
+                </div>
               </div>
+
+              {/* Reminders */}
+              {remindersSupported && (
+                <div className="pt-3 border-t border-white/10">
+                  <div className="flex items-center justify-between mb-3">
+                    <div className="flex items-center gap-2">
+                      {reminderSettings.enabled ? (
+                        <Bell className="h-4 w-4 text-secondary" />
+                      ) : (
+                        <BellOff className="h-4 w-4 text-white/40" />
+                      )}
+                      <span className="text-xs text-white/80">
+                        {t({ pt: "Lembretes", en: "Reminders" })}
+                      </span>
+                    </div>
+                    <Switch
+                      checked={reminderSettings.enabled}
+                      onCheckedChange={async (checked) => {
+                        if (checked) {
+                          await enableReminders();
+                        } else {
+                          disableReminders();
+                        }
+                      }}
+                    />
+                  </div>
+
+                  {reminderSettings.enabled && (
+                    <div className="space-y-3 animate-fade-in">
+                      {/* Interval */}
+                      <div>
+                        <p className="text-xs text-white/50 mb-1.5">
+                          {t({ pt: "Intervalo", en: "Interval" })}
+                        </p>
+                        <div className="grid grid-cols-2 gap-1">
+                          {INTERVAL_OPTIONS.map((option) => (
+                            <button
+                              key={option.minutes}
+                              onClick={() => updateReminderSettings({ intervalMinutes: option.minutes })}
+                              className={`px-2 py-1.5 rounded-lg text-xs transition-colors ${
+                                reminderSettings.intervalMinutes === option.minutes
+                                  ? "bg-secondary text-secondary-foreground font-medium"
+                                  : "bg-white/5 hover:bg-white/10 text-white/80"
+                              }`}
+                            >
+                              {t(option.label)}
+                            </button>
+                          ))}
+                        </div>
+                      </div>
+
+                      {/* Quiet hours info */}
+                      <p className="text-xs text-white/40">
+                        {t({ 
+                          pt: `Silenciado: ${reminderSettings.quietStart}h - ${reminderSettings.quietEnd}h`, 
+                          en: `Quiet hours: ${reminderSettings.quietStart}:00 - ${reminderSettings.quietEnd}:00` 
+                        })}
+                      </p>
+                    </div>
+                  )}
+
+                  {permissionStatus === "denied" && (
+                    <p className="text-xs text-warning mt-2">
+                      {t({ 
+                        pt: "Notificações bloqueadas no browser", 
+                        en: "Notifications blocked in browser" 
+                      })}
+                    </p>
+                  )}
+                </div>
+              )}
             </PopoverContent>
           </Popover>
           <button
