@@ -423,6 +423,9 @@ function getDominantCategory(items: FoodItem[]): FoodCategory {
   return dominant;
 }
 
+// Maximum image size: 10MB (prevents memory exhaustion attacks)
+const MAX_IMAGE_SIZE_BYTES = 10 * 1024 * 1024;
+
 function validateRequest(body: unknown): { valid: true; data: FoodIdentificationRequest } | { valid: false; error: ErrorResponse } {
   if (!body || typeof body !== "object") {
     return { valid: false, error: { error: "Invalid request body", code: "INVALID_BODY" } };
@@ -434,8 +437,21 @@ function validateRequest(body: unknown): { valid: true; data: FoodIdentification
     return { valid: false, error: { error: "Missing or invalid 'image' field", code: "MISSING_IMAGE" } };
   }
 
+  // Estimate actual bytes from base64 (base64 is ~4/3 of original size)
   const estimatedBytes = (image.length * 3) / 4;
   console.log(`[identify-food] Image payload: ${Math.round(estimatedBytes / 1024)}KB`);
+
+  // Reject oversized images before processing to prevent memory exhaustion
+  if (estimatedBytes > MAX_IMAGE_SIZE_BYTES) {
+    console.warn(`[identify-food] Image rejected: ${Math.round(estimatedBytes / 1024 / 1024)}MB exceeds 10MB limit`);
+    return { 
+      valid: false, 
+      error: { 
+        error: "Image too large. Maximum size is 10MB.", 
+        code: "IMAGE_TOO_LARGE" 
+      } 
+    };
+  }
 
   return { valid: true, data: { image } };
 }
