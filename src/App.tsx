@@ -48,6 +48,7 @@ const queryClient = new QueryClient();
 // Storage keys
 const ONBOARDING_COMPLETED_KEY = "sara-lucas-onboarding-completed";
 const OAUTH_SKIP_ENTRY_FLOW_KEY = "sara-lucas-oauth-skip-entry-flow";
+const SESSION_ENTRY_FLOW_DONE_KEY = "sara-lucas-entry-flow-done";
 
 // FAB wrapper that hides on certain routes/states
 function NutritionistFABWrapper() {
@@ -83,6 +84,9 @@ function AppEntryFlow({ children }: { children: React.ReactNode }) {
   const isOAuthCallback = location.search.includes("code=") || 
                           location.hash.includes("access_token=") ||
                           location.search.includes("access_token=");
+  
+  // Check if entry flow was already completed this session (prevents reset on internal navigation)
+  const hasCompletedEntryFlow = sessionStorage.getItem(SESSION_ENTRY_FLOW_DONE_KEY) === "1";
 
   // Get CMS settings
   const splashEnabled = cms.isFeatureEnabled("app.splash.enabled");
@@ -92,8 +96,8 @@ function AppEntryFlow({ children }: { children: React.ReactNode }) {
 
   // Initialize flow based on settings
   useEffect(() => {
-    // Skip for direct scan access, admin routes, or OAuth callbacks
-    if (isDirectAccess || hasOAuthSkipFlag || isOAuthIntermediaryRoute || isScanRoute || isAdminRoute || isOAuthCallback) {
+    // Skip for direct scan access, admin routes, OAuth callbacks, or if entry flow already done this session
+    if (isDirectAccess || hasOAuthSkipFlag || isOAuthIntermediaryRoute || isScanRoute || isAdminRoute || isOAuthCallback || hasCompletedEntryFlow) {
       setShowSplash(false);
       setShowOnboarding(false);
       setIsReady(true);
@@ -125,7 +129,7 @@ function AppEntryFlow({ children }: { children: React.ReactNode }) {
     }
 
     setIsReady(true);
-  }, [isDirectAccess, hasOAuthSkipFlag, isOAuthIntermediaryRoute, isScanRoute, isAdminRoute, isOAuthCallback, cms.isLoading, splashEnabled, onboardingEnabled, showMode]);
+  }, [isDirectAccess, hasOAuthSkipFlag, isOAuthIntermediaryRoute, isScanRoute, isAdminRoute, isOAuthCallback, hasCompletedEntryFlow, cms.isLoading, splashEnabled, onboardingEnabled, showMode]);
 
   const handleSplashComplete = useCallback(() => {
     setShowSplash(false);
@@ -139,8 +143,14 @@ function AppEntryFlow({ children }: { children: React.ReactNode }) {
         const completed = localStorage.getItem(ONBOARDING_COMPLETED_KEY);
         if (!completed) {
           setShowOnboarding(true);
+        } else {
+          // No onboarding needed, mark entry flow as done
+          sessionStorage.setItem(SESSION_ENTRY_FLOW_DONE_KEY, "1");
         }
       }
+    } else {
+      // No onboarding, mark entry flow as done
+      sessionStorage.setItem(SESSION_ENTRY_FLOW_DONE_KEY, "1");
     }
   }, [onboardingEnabled, showMode]);
 
@@ -149,6 +159,8 @@ function AppEntryFlow({ children }: { children: React.ReactNode }) {
     if (showMode === "first-visit") {
       localStorage.setItem(ONBOARDING_COMPLETED_KEY, "true");
     }
+    // Mark entry flow as done for this session
+    sessionStorage.setItem(SESSION_ENTRY_FLOW_DONE_KEY, "1");
     setShowOnboarding(false);
     
     // CRITICAL: Always navigate to Home after onboarding completes
@@ -158,8 +170,8 @@ function AppEntryFlow({ children }: { children: React.ReactNode }) {
     navigate(redirectPath, { replace: true });
   }, [showMode, cms, navigate]);
 
-  // Skip entry flow for direct scan access, admin routes, or OAuth callbacks
-  if (isDirectAccess || hasOAuthSkipFlag || isOAuthIntermediaryRoute || (isScanRoute && !showSplash) || isAdminRoute || isOAuthCallback) {
+  // Skip entry flow for direct scan access, admin routes, OAuth callbacks, or if already done this session
+  if (isDirectAccess || hasOAuthSkipFlag || isOAuthIntermediaryRoute || (isScanRoute && !showSplash) || isAdminRoute || isOAuthCallback || hasCompletedEntryFlow) {
     return <>{children}</>;
   }
 
