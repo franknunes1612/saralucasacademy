@@ -1,9 +1,8 @@
-import { motion, AnimatePresence, Variants, Easing } from "framer-motion";
-import { ChevronRight, Award, Play, BookOpen, Clock, Dumbbell, Utensils, GraduationCap, Heart, Sparkles } from "lucide-react";
+import { motion, Variants, Easing } from "framer-motion";
+import { ChevronRight, Award, Dumbbell, Utensils, BookOpen, GraduationCap, Heart, Sparkles, Target } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useCmsContent } from "@/hooks/useCmsContent";
 import { useLanguage } from "@/hooks/useLanguage";
-import { useFeaturedAcademyItems } from "@/hooks/useAcademyItems";
 
 // Icon map for dynamic feature tags
 const TAG_ICON_MAP: Record<string, React.ComponentType<{ className?: string }>> = {
@@ -13,146 +12,8 @@ const TAG_ICON_MAP: Record<string, React.ComponentType<{ className?: string }>> 
   "graduation-cap": GraduationCap,
   heart: Heart,
   sparkles: Sparkles,
+  target: Target,
 };
-// Hero anchor component - Featured Course Card
-function FeaturedCourseAnchor() {
-  const navigate = useNavigate();
-  const { language } = useLanguage();
-  const { data: featuredItems, isLoading } = useFeaturedAcademyItems();
-  
-  const featured = featuredItems?.find(item => 
-    item.item_type === "course" || item.item_type === "program"
-  );
-
-  if (isLoading) {
-    return (
-      <div className="w-full h-32 rounded-2xl bg-white/10 animate-pulse" />
-    );
-  }
-
-  if (!featured) return null;
-
-  const title = language === "pt" ? featured.title_pt : featured.title_en;
-  const subtitle = language === "pt" ? featured.subtitle_pt : featured.subtitle_en;
-
-  return (
-    <motion.button
-      initial={{ opacity: 0, y: 20, scale: 0.95 }}
-      animate={{ opacity: 1, y: 0, scale: 1 }}
-      transition={{ delay: 0.6, duration: 0.5, ease: [0.25, 0.1, 0.25, 1] }}
-      onClick={() => navigate(`/learn/course/${featured.id}`)}
-      className="w-full group"
-    >
-      <div className="relative overflow-hidden rounded-2xl bg-white/95 backdrop-blur-sm shadow-xl shadow-black/10 border border-white/50 transition-all duration-300 group-hover:shadow-2xl group-hover:scale-[1.02] group-active:scale-[0.98]">
-        <div className="flex items-stretch">
-          {/* Thumbnail */}
-          <div className="relative w-28 h-28 flex-shrink-0 overflow-hidden">
-            {featured.cover_image_url ? (
-              <img 
-                src={featured.cover_image_url} 
-                alt={title}
-                className="w-full h-full object-cover"
-              />
-            ) : (
-              <div className="w-full h-full bg-gradient-to-br from-[hsl(340_50%_75%)] to-[hsl(30_45%_70%)] flex items-center justify-center">
-                <span className="text-3xl">{featured.cover_emoji || "📚"}</span>
-              </div>
-            )}
-            {/* Play overlay for courses */}
-            {featured.item_type === "course" && (
-              <div className="absolute inset-0 bg-black/20 flex items-center justify-center">
-                <div className="w-10 h-10 rounded-full bg-white/90 flex items-center justify-center shadow-lg">
-                  <Play className="h-4 w-4 text-[hsl(340_45%_45%)] ml-0.5" fill="currentColor" />
-                </div>
-              </div>
-            )}
-          </div>
-          
-          {/* Content */}
-          <div className="flex-1 p-3 flex flex-col justify-center min-w-0">
-            {featured.badge_pt && (
-              <span className="inline-flex items-center self-start px-2 py-0.5 rounded-full bg-[hsl(340_50%_90%)] text-[hsl(340_45%_40%)] text-[10px] font-semibold uppercase tracking-wide mb-1">
-                {language === "pt" ? featured.badge_pt : featured.badge_en}
-              </span>
-            )}
-            <h4 className="font-bold text-[hsl(340_30%_25%)] text-sm leading-snug line-clamp-2 mb-1">
-              {title}
-            </h4>
-            {subtitle && (
-              <p className="text-[10px] text-[hsl(340_20%_40%)] line-clamp-1 mb-2">
-                {subtitle}
-              </p>
-            )}
-            <div className="flex items-center gap-3 text-[10px] text-[hsl(340_20%_50%)]">
-              {featured.total_lessons && (
-                <span className="flex items-center gap-1">
-                  <BookOpen className="h-3 w-3" />
-                  {featured.total_lessons} aulas
-                </span>
-              )}
-              {featured.total_duration_minutes && (
-                <span className="flex items-center gap-1">
-                  <Clock className="h-3 w-3" />
-                  {Math.round(featured.total_duration_minutes / 60)}h
-                </span>
-              )}
-            </div>
-          </div>
-
-          {/* Arrow indicator */}
-          <div className="flex items-center pr-3">
-            <ChevronRight className="h-5 w-5 text-[hsl(340_30%_60%)] group-hover:translate-x-1 transition-transform" />
-          </div>
-        </div>
-      </div>
-    </motion.button>
-  );
-}
-
-// Hero anchor component - Video
-function VideoAnchor({ videoUrl }: { videoUrl: string }) {
-  if (!videoUrl) return null;
-
-  return (
-    <motion.div
-      initial={{ opacity: 0, y: 20, scale: 0.95 }}
-      animate={{ opacity: 1, y: 0, scale: 1 }}
-      transition={{ delay: 0.6, duration: 0.5, ease: [0.25, 0.1, 0.25, 1] }}
-      className="relative w-full aspect-video max-h-48 rounded-2xl overflow-hidden shadow-xl shadow-black/15 border border-white/20"
-    >
-      <video
-        src={videoUrl}
-        autoPlay
-        loop
-        muted
-        playsInline
-        className="w-full h-full object-cover"
-      />
-      <div className="absolute inset-0 bg-gradient-to-t from-black/30 to-transparent pointer-events-none" />
-    </motion.div>
-  );
-}
-
-// Hero anchor component - Image
-function ImageAnchor({ imageUrl }: { imageUrl: string }) {
-  if (!imageUrl) return null;
-
-  return (
-    <motion.div
-      initial={{ opacity: 0, y: 20, scale: 0.95 }}
-      animate={{ opacity: 1, y: 0, scale: 1 }}
-      transition={{ delay: 0.6, duration: 0.5, ease: [0.25, 0.1, 0.25, 1] }}
-      className="relative w-full aspect-[16/9] max-h-48 rounded-2xl overflow-hidden shadow-xl shadow-black/15 border border-white/20"
-    >
-      <img 
-        src={imageUrl} 
-        alt="Academy" 
-        className="w-full h-full object-cover"
-      />
-      <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent pointer-events-none" />
-    </motion.div>
-  );
-}
 
 // Easing curve for smooth animations
 const easeOut: Easing = [0.25, 0.1, 0.25, 1];
@@ -160,7 +21,6 @@ const easeOut: Easing = [0.25, 0.1, 0.25, 1];
 export function AcademyHero() {
   const cms = useCmsContent();
   const navigate = useNavigate();
-  const { language } = useLanguage();
 
   // Get CMS values
   const headline = cms.get("academy.hero.headline");
@@ -173,19 +33,16 @@ export function AcademyHero() {
   const tertiaryCtaLabel = cms.get("academy.hero.cta.tertiary.label");
   const tertiaryCtaLink = cms.get("academy.hero.cta.tertiary.link");
   const tertiaryCtaEnabled = cms.get("academy.hero.cta.tertiary.enabled") === "true";
-  const layout = cms.get("academy.hero.layout");
-  const videoUrl = cms.get("academy.hero.video.url");
-  const imageUrl = cms.get("academy.hero.image.url");
   const animationsEnabled = cms.isFeatureEnabled("academy.hero.animations.enabled");
   
-  // Feature tags
+  // Feature tags - Training, Nutrition, Education
   const tagsEnabled = cms.get("academy.hero.tags.enabled") === "true";
   const tags = [1, 2, 3].map(i => ({
     icon: cms.get(`academy.hero.tag${i}.icon`),
     label: cms.get(`academy.hero.tag${i}.label`),
   }));
 
-  // Animation variants - properly typed
+  // Animation variants
   const containerVariants: Variants = animationsEnabled ? {
     hidden: { opacity: 0 },
     visible: {
@@ -219,11 +76,14 @@ export function AcademyHero() {
       variants={containerVariants}
       className="relative overflow-hidden rounded-3xl mb-6"
     >
-      {/* Layered gradient background for depth */}
+      {/* Premium layered gradient background */}
       <div className="absolute inset-0 bg-gradient-to-br from-[hsl(340_50%_78%)] via-[hsl(340_45%_72%)] to-[hsl(30_40%_75%)]" />
       
-      {/* Secondary gradient layer */}
+      {/* Secondary gradient for depth */}
       <div className="absolute inset-0 bg-gradient-to-t from-[hsl(340_35%_65%)]/40 via-transparent to-[hsl(30_50%_85%)]/20" />
+      
+      {/* Subtle bronze/beige accent */}
+      <div className="absolute inset-0 bg-gradient-to-br from-transparent via-[hsl(30_45%_70%)]/10 to-[hsl(30_50%_75%)]/20" />
       
       {/* Subtle texture overlay */}
       <div 
@@ -233,7 +93,7 @@ export function AcademyHero() {
         }}
       />
       
-      {/* Decorative blur elements */}
+      {/* Decorative blur elements for premium depth */}
       {animationsEnabled ? (
         <>
           <motion.div 
@@ -252,23 +112,23 @@ export function AcademyHero() {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ delay: 1.2, duration: 1 }}
-            className="absolute top-1/3 right-1/3 w-24 h-24 rounded-full bg-white/5 blur-2xl" 
+            className="absolute top-1/2 right-1/4 w-24 h-24 rounded-full bg-white/5 blur-2xl" 
           />
         </>
       ) : (
         <>
           <div className="absolute top-4 right-4 w-40 h-40 rounded-full bg-white/8 blur-3xl" />
           <div className="absolute bottom-12 left-0 w-32 h-32 rounded-full bg-[hsl(30_50%_70%)]/15 blur-3xl" />
-          <div className="absolute top-1/3 right-1/3 w-24 h-24 rounded-full bg-white/5 blur-2xl" />
+          <div className="absolute top-1/2 right-1/4 w-24 h-24 rounded-full bg-white/5 blur-2xl" />
         </>
       )}
       
       {/* Content */}
-      <div className="relative px-5 py-7 md:py-9">
+      <div className="relative px-5 py-8 md:py-10">
         {/* Authority badge */}
         <motion.div
           variants={badgeVariants}
-          className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/20 backdrop-blur-sm mb-3 shadow-sm"
+          className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/20 backdrop-blur-sm mb-4 shadow-sm"
         >
           <Award className="h-4 w-4 text-white drop-shadow-sm" />
           <span className="text-xs font-medium text-white tracking-wide drop-shadow-sm">
@@ -280,7 +140,7 @@ export function AcademyHero() {
         {tagsEnabled && (
           <motion.div 
             variants={itemVariants} 
-            className="flex flex-wrap gap-2 mb-4"
+            className="flex flex-wrap gap-2 mb-5"
           >
             {tags.map((tag, index) => {
               const IconComponent = TAG_ICON_MAP[tag.icon] || BookOpen;
@@ -290,7 +150,7 @@ export function AcademyHero() {
                   initial={animationsEnabled ? { opacity: 0, scale: 0.9 } : {}}
                   animate={animationsEnabled ? { opacity: 1, scale: 1 } : {}}
                   transition={{ delay: 0.3 + index * 0.1, duration: 0.3 }}
-                  className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/15 backdrop-blur-sm text-xs text-white/90 font-medium"
+                  className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-white/15 backdrop-blur-sm text-xs text-white/95 font-medium shadow-sm"
                 >
                   <IconComponent className="h-3.5 w-3.5" />
                   {tag.label}
@@ -300,18 +160,18 @@ export function AcademyHero() {
           </motion.div>
         )}
         
-        {/* Main headline - outcome focused */}
+        {/* Main headline - balanced academy focus */}
         <motion.h1
           variants={itemVariants}
-          className="text-2xl md:text-3xl font-bold text-white tracking-tight leading-tight mb-3 drop-shadow-sm"
+          className="text-2xl md:text-3xl font-bold text-white tracking-tight leading-tight mb-4 drop-shadow-sm max-w-sm"
         >
           {headline}
         </motion.h1>
         
-        {/* Supporting subheadline */}
+        {/* Supporting subheadline - mentions training + nutrition + education */}
         <motion.p
           variants={itemVariants}
-          className="text-sm md:text-base text-white/90 leading-relaxed max-w-md mb-6 drop-shadow-sm"
+          className="text-sm md:text-base text-white/90 leading-relaxed max-w-md mb-7 drop-shadow-sm"
         >
           {subheadline}
         </motion.p>
@@ -319,7 +179,7 @@ export function AcademyHero() {
         {/* CTA buttons */}
         <motion.div
           variants={itemVariants}
-          className="flex flex-wrap items-center gap-3 mb-6"
+          className="flex flex-wrap items-center gap-3"
         >
           {/* Primary CTA */}
           <button
@@ -349,22 +209,11 @@ export function AcademyHero() {
             </button>
           )}
         </motion.div>
-
-        {/* Visual Anchor Element */}
-        <AnimatePresence mode="wait">
-          {layout === "video" && videoUrl ? (
-            <VideoAnchor key="video" videoUrl={videoUrl} />
-          ) : layout === "image" && imageUrl ? (
-            <ImageAnchor key="image" imageUrl={imageUrl} />
-          ) : (
-            <FeaturedCourseAnchor key="featured" />
-          )}
-        </AnimatePresence>
         
         {/* Bronze accent line */}
         <motion.div 
           variants={itemVariants}
-          className="mt-6 h-0.5 bg-gradient-to-r from-[hsl(30_50%_65%)]/50 via-[hsl(30_60%_75%)]/30 to-transparent rounded-full" 
+          className="mt-8 h-0.5 bg-gradient-to-r from-[hsl(30_50%_65%)]/50 via-[hsl(30_60%_75%)]/30 to-transparent rounded-full" 
         />
       </div>
     </motion.div>
