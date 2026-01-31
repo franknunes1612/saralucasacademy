@@ -32,6 +32,8 @@ const FALLBACK_CONTENT: Record<string, { pt: string; en: string }> = {
   // Academy
   "academy.hero.title": { pt: "Academy", en: "Academy" },
   "academy.hero.subtitle": { pt: "Cursos, programas e aulas gravadas para transformar a sua saúde", en: "Courses, programs and recorded classes to transform your health" },
+  "academy.hero.headline": { pt: "Transforma a tua relação com a alimentação", en: "Transform your relationship with food" },
+  "academy.hero.subheadline": { pt: "Para quem quer aprender a comer bem, com autonomia e sem dietas restritivas. Guiado por uma nutricionista certificada.", en: "For those who want to learn to eat well, with autonomy and without restrictive diets. Guided by a certified nutritionist." },
   "academy.search.placeholder": { pt: "Pesquisar conteúdo...", en: "Search content..." },
   "academy.filter.all": { pt: "Todos", en: "All" },
   "academy.filter.courses": { pt: "Cursos", en: "Courses" },
