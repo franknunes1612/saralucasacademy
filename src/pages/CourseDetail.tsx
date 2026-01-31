@@ -27,7 +27,10 @@ type ExtendedAcademyItem = AcademyItem & {
 };
 
 export default function CourseDetail() {
-  const { courseId } = useParams<{ courseId: string }>();
+  const { courseId, programId } = useParams<{ courseId?: string; programId?: string }>();
+  const itemId = courseId || programId;
+  const isProgram = !!programId;
+  
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
   const { language } = useLanguage();
@@ -38,21 +41,26 @@ export default function CourseDetail() {
   const [isCheckingOut, setIsCheckingOut] = useState(false);
   const [isVerifyingPayment, setIsVerifyingPayment] = useState(false);
 
-  // Fetch course details
-  const { data: allItems, isLoading: isLoadingCourse } = useAcademyItems("course");
+  // Fetch item details (works for both courses and programs)
+  const { data: allCourses, isLoading: isLoadingCourses } = useAcademyItems("course");
+  const { data: allPrograms, isLoading: isLoadingPrograms } = useAcademyItems("program");
+  
   const course = useMemo(() => {
-    return allItems?.find((item) => item.id === courseId) as ExtendedAcademyItem | undefined;
-  }, [allItems, courseId]);
+    const items = isProgram ? allPrograms : allCourses;
+    return items?.find((item) => item.id === itemId) as ExtendedAcademyItem | undefined;
+  }, [allCourses, allPrograms, itemId, isProgram]);
+  
+  const isLoadingCourse = isProgram ? isLoadingPrograms : isLoadingCourses;
 
   // Fetch lessons
-  const { data: lessons, isLoading: isLoadingLessons } = useCourseLessons(courseId);
+  const { data: lessons, isLoading: isLoadingLessons } = useCourseLessons(itemId);
 
   // Check purchase status
-  const { hasPurchased, isLoading: isLoadingPurchase } = useHasPurchased(courseId || "");
+  const { hasPurchased, isLoading: isLoadingPurchase } = useHasPurchased(itemId || "");
 
   // Get progress
   const { completedLessonIds, completedCount, progressPercentage } = useCourseProgress(
-    courseId || "",
+    itemId || "",
     lessons?.length || 0
   );
 
@@ -60,9 +68,9 @@ export default function CourseDetail() {
   const { markComplete, isPending: isMarkingComplete } = useMarkLessonComplete();
 
   const handleMarkComplete = useCallback(async () => {
-    if (!currentLesson || !courseId || isMarkingComplete) return;
-    await markComplete(currentLesson.id, courseId);
-  }, [currentLesson, courseId, markComplete, isMarkingComplete]);
+    if (!currentLesson || !itemId || isMarkingComplete) return;
+    await markComplete(currentLesson.id, itemId);
+  }, [currentLesson, itemId, markComplete, isMarkingComplete]);
 
   // Handle payment verification when returning from Stripe
   useEffect(() => {
@@ -151,7 +159,7 @@ export default function CourseDetail() {
 
     try {
       const { data, error } = await supabase.functions.invoke("create-course-checkout", {
-        body: { courseId },
+        body: { courseId: itemId },
       });
 
       if (error) throw error;
