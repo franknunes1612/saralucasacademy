@@ -32,9 +32,16 @@ type ExtendedAcademyItem = AcademyItem & {
 };
 
 export default function CourseDetail() {
-  const { courseId, programId } = useParams<{ courseId?: string; programId?: string }>();
-  const itemId = courseId || programId;
+  const { courseId, programId, ebookId, bundleId } = useParams<{ 
+    courseId?: string; 
+    programId?: string; 
+    ebookId?: string;
+    bundleId?: string;
+  }>();
+  const itemId = courseId || programId || ebookId || bundleId;
   const isProgram = !!programId;
+  const isEbook = !!ebookId;
+  const isBundle = !!bundleId;
   
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
