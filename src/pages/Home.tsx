@@ -9,6 +9,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { useUserProfile } from "@/hooks/useUserProfile";
 import { SaraLucasLogo } from "@/components/brand/SaraLucasLogo";
 import { RecommendedProductsSection } from "@/components/home/RecommendedProductsSection";
+import { WhyAcademySection } from "@/components/home/WhyAcademySection";
 import { LanguageToggle } from "@/components/LanguageToggle";
 import { AuthModal } from "@/components/auth/AuthModal";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -138,6 +139,9 @@ export default function Home() {
         </div>
       </div>
 
+      {/* Why Academy Section - Trust & Authority */}
+      <WhyAcademySection />
+
       {/* Quick Actions */}
       <div className="grid grid-cols-2 gap-3 mb-6">
         <button
@@ -251,30 +255,7 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Value Proposition */}
-      <section className="result-card p-5">
-        <h3 className="font-semibold text-white mb-3">
-          {t({ pt: "Porque a Sara Lucas Academy?", en: "Why Sara Lucas Academy?" })}
-        </h3>
-        <ul className="space-y-2">
-          <li className="flex items-start gap-2 text-sm text-white/80">
-            <span className="text-success mt-0.5">✓</span>
-            {t({ pt: "Conteúdo criado por nutricionista certificada", en: "Content created by certified nutritionist" })}
-          </li>
-          <li className="flex items-start gap-2 text-sm text-white/80">
-            <span className="text-success mt-0.5">✓</span>
-            {t({ pt: "Acesso vitalício aos materiais comprados", en: "Lifetime access to purchased materials" })}
-          </li>
-          <li className="flex items-start gap-2 text-sm text-white/80">
-            <span className="text-success mt-0.5">✓</span>
-            {t({ pt: "Ferramentas práticas incluídas", en: "Practical tools included" })}
-          </li>
-          <li className="flex items-start gap-2 text-sm text-white/80">
-            <span className="text-success mt-0.5">✓</span>
-            {t({ pt: "Suporte por WhatsApp / Email", en: "WhatsApp / Email support" })}
-          </li>
-        </ul>
-      </section>
+      {/* Value Proposition removed - now using WhyAcademySection above */}
 
       {/* Auth Modal */}
       <AuthModal open={showAuthModal} onOpenChange={setShowAuthModal} />
