@@ -1,5 +1,5 @@
 import { useNavigate, Link } from "react-router-dom";
-import { ArrowLeft, LogOut, ChefHat, FileText, Sparkles, ShoppingBag, Heart, CreditCard, MessageCircle, Play, MessageSquareQuote } from "lucide-react";
+import { ArrowLeft, LogOut, ChefHat, FileText, Sparkles, ShoppingBag, Heart, CreditCard, MessageCircle, Play, MessageSquareQuote, Store } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { useLanguage } from "@/hooks/useLanguage";
 
