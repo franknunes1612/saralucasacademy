@@ -1,3 +1,4 @@
+import React from "react";
 import { motion } from "framer-motion";
 import { Dumbbell, Apple, Calendar, Sparkles, GraduationCap, Zap } from "lucide-react";
 import { useCmsContent } from "@/hooks/useCmsContent";
@@ -23,14 +24,15 @@ interface CourseCategoryFilterProps {
   onCategoryChange: (category: string) => void;
 }
 
-export function CourseCategoryFilter({
+export const CourseCategoryFilter = React.forwardRef<HTMLDivElement, CourseCategoryFilterProps>(
+  function CourseCategoryFilter({
   activeCategory,
   onCategoryChange,
-}: CourseCategoryFilterProps) {
+}, ref) {
   const cms = useCmsContent();
 
   return (
-    <div className="mb-6">
+    <div ref={ref} className="mb-6">
       <h2 className="text-sm font-medium text-white/70 mb-3 px-1">
         {cms.get("academy.categories.title")}
       </h2>
@@ -62,4 +64,4 @@ export function CourseCategoryFilter({
       </div>
     </div>
   );
-}
+});

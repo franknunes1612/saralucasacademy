@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import { Droplets, Plus, Minus, RotateCcw, Settings, Bell, BellOff } from "lucide-react";
 import { useLanguage } from "@/hooks/useLanguage";
 import { useWaterReminders } from "@/hooks/useWaterReminders";
@@ -68,9 +68,11 @@ interface WaterGlassProps {
   justFilled?: boolean;
 }
 
-function WaterGlass({ filled, index, justFilled }: WaterGlassProps) {
+const WaterGlass = React.forwardRef<HTMLDivElement, WaterGlassProps>(
+  function WaterGlass({ filled, index, justFilled }, ref) {
   return (
     <div
+      ref={ref}
       className={`
         relative w-8 h-10 rounded-b-lg border-2 transition-all duration-300
         ${filled 
@@ -132,7 +134,7 @@ function WaterGlass({ filled, index, justFilled }: WaterGlassProps) {
       )}
     </div>
   );
-}
+});
 
 export function WaterTracker() {
   const { t } = useLanguage();
