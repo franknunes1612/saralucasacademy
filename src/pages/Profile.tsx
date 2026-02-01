@@ -16,7 +16,10 @@ import {
   ChevronRight,
   BookOpen,
   CheckCircle2,
-  Loader2
+  Loader2,
+  Video,
+  Users,
+  Package
 } from "lucide-react";
 import { useLanguage } from "@/hooks/useLanguage";
 import { useAuth } from "@/hooks/useAuth";
@@ -221,40 +224,153 @@ export default function Profile() {
             </div>
           </motion.div>
 
-          {/* Purchased Courses */}
+          {/* Purchased Items - Grouped by Type */}
           {purchases && purchases.length > 0 && (
-            <motion.div
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.1 }}
-              className="mb-6"
-            >
-              <h3 className="text-sm font-medium text-white/70 mb-3 px-1">
-                {t({ pt: "Meus Cursos", en: "My Courses" })}
-              </h3>
-              <div className="space-y-2">
-                {purchases.map((purchase) => (
-                  <button
-                    key={purchase.id}
-                    onClick={() => navigate(`/learn/course/${purchase.course_id}`)}
-                    className="result-card p-4 w-full flex items-center gap-4 hover:bg-white/5 transition-colors text-left"
-                  >
-                    <div className="p-2 rounded-xl bg-[hsl(155_40%_45%)]/20">
-                      <BookOpen className="h-5 w-5 text-[hsl(155_40%_55%)]" />
-                    </div>
-                    <div className="flex-1">
-                      <span className="font-medium text-white">
-                        {t({ pt: "Curso", en: "Course" })}
-                      </span>
-                      <p className="text-xs text-white/50">
-                        {new Date(purchase.purchase_date).toLocaleDateString()}
-                      </p>
-                    </div>
-                    <CheckCircle2 className="h-5 w-5 text-[hsl(155_40%_55%)]" />
-                  </button>
-                ))}
-              </div>
-            </motion.div>
+            <>
+              {/* Ebooks */}
+              {purchases.filter(p => p.item_type === "ebook").length > 0 && (
+                <motion.div
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.1 }}
+                  className="mb-6"
+                >
+                  <h3 className="text-sm font-medium text-white/70 mb-3 px-1">
+                    {t({ pt: "Meus Ebooks", en: "My Ebooks" })}
+                  </h3>
+                  <div className="space-y-2">
+                    {purchases.filter(p => p.item_type === "ebook").map((purchase) => (
+                      <button
+                        key={purchase.id}
+                        onClick={() => navigate(`/learn/ebook/${purchase.course_id}`)}
+                        className="result-card p-4 w-full flex items-center gap-4 hover:bg-white/5 transition-colors text-left"
+                      >
+                        <div className="p-2 rounded-xl bg-blue-500/20">
+                          <FileText className="h-5 w-5 text-blue-400" />
+                        </div>
+                        <div className="flex-1">
+                          <span className="font-medium text-white">
+                            {language === "pt" ? purchase.title_pt : purchase.title_en}
+                          </span>
+                          <p className="text-xs text-white/50">
+                            {new Date(purchase.purchase_date).toLocaleDateString()}
+                          </p>
+                        </div>
+                        <CheckCircle2 className="h-5 w-5 text-[hsl(155_40%_55%)]" />
+                      </button>
+                    ))}
+                  </div>
+                </motion.div>
+              )}
+
+              {/* Courses */}
+              {purchases.filter(p => p.item_type === "course").length > 0 && (
+                <motion.div
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.12 }}
+                  className="mb-6"
+                >
+                  <h3 className="text-sm font-medium text-white/70 mb-3 px-1">
+                    {t({ pt: "Meus Cursos", en: "My Courses" })}
+                  </h3>
+                  <div className="space-y-2">
+                    {purchases.filter(p => p.item_type === "course").map((purchase) => (
+                      <button
+                        key={purchase.id}
+                        onClick={() => navigate(`/learn/course/${purchase.course_id}`)}
+                        className="result-card p-4 w-full flex items-center gap-4 hover:bg-white/5 transition-colors text-left"
+                      >
+                        <div className="p-2 rounded-xl bg-purple-500/20">
+                          <Video className="h-5 w-5 text-purple-400" />
+                        </div>
+                        <div className="flex-1">
+                          <span className="font-medium text-white">
+                            {language === "pt" ? purchase.title_pt : purchase.title_en}
+                          </span>
+                          <p className="text-xs text-white/50">
+                            {new Date(purchase.purchase_date).toLocaleDateString()}
+                          </p>
+                        </div>
+                        <CheckCircle2 className="h-5 w-5 text-[hsl(155_40%_55%)]" />
+                      </button>
+                    ))}
+                  </div>
+                </motion.div>
+              )}
+
+              {/* Programs */}
+              {purchases.filter(p => p.item_type === "program").length > 0 && (
+                <motion.div
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.14 }}
+                  className="mb-6"
+                >
+                  <h3 className="text-sm font-medium text-white/70 mb-3 px-1">
+                    {t({ pt: "Meus Programas", en: "My Programs" })}
+                  </h3>
+                  <div className="space-y-2">
+                    {purchases.filter(p => p.item_type === "program").map((purchase) => (
+                      <button
+                        key={purchase.id}
+                        onClick={() => navigate(`/learn/program/${purchase.course_id}`)}
+                        className="result-card p-4 w-full flex items-center gap-4 hover:bg-white/5 transition-colors text-left"
+                      >
+                        <div className="p-2 rounded-xl bg-orange-500/20">
+                          <Users className="h-5 w-5 text-orange-400" />
+                        </div>
+                        <div className="flex-1">
+                          <span className="font-medium text-white">
+                            {language === "pt" ? purchase.title_pt : purchase.title_en}
+                          </span>
+                          <p className="text-xs text-white/50">
+                            {new Date(purchase.purchase_date).toLocaleDateString()}
+                          </p>
+                        </div>
+                        <CheckCircle2 className="h-5 w-5 text-[hsl(155_40%_55%)]" />
+                      </button>
+                    ))}
+                  </div>
+                </motion.div>
+              )}
+
+              {/* Bundles */}
+              {purchases.filter(p => p.item_type === "bundle").length > 0 && (
+                <motion.div
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.16 }}
+                  className="mb-6"
+                >
+                  <h3 className="text-sm font-medium text-white/70 mb-3 px-1">
+                    {t({ pt: "Meus Pacotes", en: "My Bundles" })}
+                  </h3>
+                  <div className="space-y-2">
+                    {purchases.filter(p => p.item_type === "bundle").map((purchase) => (
+                      <button
+                        key={purchase.id}
+                        onClick={() => navigate(`/learn/bundle/${purchase.course_id}`)}
+                        className="result-card p-4 w-full flex items-center gap-4 hover:bg-white/5 transition-colors text-left"
+                      >
+                        <div className="p-2 rounded-xl bg-[hsl(155_40%_45%)]/20">
+                          <Package className="h-5 w-5 text-[hsl(155_40%_55%)]" />
+                        </div>
+                        <div className="flex-1">
+                          <span className="font-medium text-white">
+                            {language === "pt" ? purchase.title_pt : purchase.title_en}
+                          </span>
+                          <p className="text-xs text-white/50">
+                            {new Date(purchase.purchase_date).toLocaleDateString()}
+                          </p>
+                        </div>
+                        <CheckCircle2 className="h-5 w-5 text-[hsl(155_40%_55%)]" />
+                      </button>
+                    ))}
+                  </div>
+                </motion.div>
+              )}
+            </>
           )}
 
           {/* Menu Items */}
