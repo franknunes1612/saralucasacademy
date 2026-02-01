@@ -17,11 +17,11 @@ const CATEGORY_LABELS: Record<string, { pt: string; en: string }> = {
 };
 
 const CATEGORY_COLORS: Record<string, string> = {
-  training: "bg-[hsl(340_40%_50%)]/20 text-[hsl(340_50%_70%)]",
-  nutrition: "bg-[hsl(30_40%_50%)]/20 text-[hsl(30_50%_70%)]",
-  course: "bg-[hsl(280_40%_50%)]/20 text-[hsl(280_50%_70%)]",
-  consultation: "bg-[hsl(200_40%_50%)]/20 text-[hsl(200_50%_70%)]",
-  general: "bg-white/10 text-white/70",
+  training: "bg-[hsl(340_50%_45%)]/30 text-[hsl(340_60%_85%)]",
+  nutrition: "bg-[hsl(30_60%_45%)]/30 text-[hsl(30_70%_80%)]",
+  course: "bg-[hsl(280_50%_50%)]/30 text-[hsl(280_60%_85%)]",
+  consultation: "bg-[hsl(200_50%_45%)]/30 text-[hsl(200_60%_85%)]",
+  general: "bg-white/15 text-white/90",
 };
 
 export function TestimonialCard({ testimonial, className }: TestimonialCardProps) {
