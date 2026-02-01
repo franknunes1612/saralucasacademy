@@ -5,6 +5,7 @@ import { useLanguage } from "@/hooks/useLanguage";
 import { useAdminAcademyItems, AcademyItem, AcademyItemType } from "@/hooks/useAcademyItems";
 import { useAdminCourseLessons, CourseLesson } from "@/hooks/useCourseLessons";
 import { AcademyImageUpload } from "@/components/admin/AcademyImageUpload";
+import { EbookFileUpload } from "@/components/admin/EbookFileUpload";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -515,21 +516,12 @@ export default function AdminAcademy() {
             </div>
           </div>
 
-          {/* Download URL (for ebooks) */}
+          {/* PDF Upload (for ebooks) */}
           {formData.item_type === "ebook" && (
-            <div>
-              <label className="text-sm text-white/70 mb-1 block">
-                {t({ pt: "URL do Ficheiro (PDF)", en: "File URL (PDF)" })}
-              </label>
-              <Input
-                value={formData.download_url || ""}
-                onChange={(e) => setFormData({ ...formData, download_url: e.target.value || null })}
-                placeholder="https://... (link direto para o PDF)"
-              />
-              <p className="text-xs text-white/50 mt-1">
-                {t({ pt: "Cole aqui o link do Google Drive, Dropbox ou outro serviço", en: "Paste here the Google Drive, Dropbox or other service link" })}
-              </p>
-            </div>
+            <EbookFileUpload
+              currentFileUrl={formData.download_url}
+              onFileChange={(url) => setFormData({ ...formData, download_url: url })}
+            />
           )}
 
           {/* Purchase Link (external) */}
