@@ -62,9 +62,10 @@ export function AcademyCard({ item, compact = false }: AcademyCardProps) {
     if (item.item_type === "course" || item.item_type === "program") {
       const itemType = item.item_type === "program" ? "program" : "course";
       navigate(`/learn/${itemType}/${item.id}`);
-    } else if (item.item_type === "ebook" || item.item_type === "bundle") {
-      // Navigate to course detail page which can handle all types
-      navigate(`/learn/course/${item.id}`);
+    } else if (item.item_type === "ebook") {
+      navigate(`/learn/ebook/${item.id}`);
+    } else if (item.item_type === "bundle") {
+      navigate(`/learn/bundle/${item.id}`);
     } else if (item.purchase_link) {
       // Fallback for external links
       window.open(item.purchase_link, "_blank", "noopener,noreferrer");
