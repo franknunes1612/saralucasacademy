@@ -1,4 +1,3 @@
-import { useNavigate } from "react-router-dom";
 import { useLanguage } from "@/hooks/useLanguage";
 import { useCmsContent } from "@/hooks/useCmsContent";
 import { 
@@ -10,8 +9,7 @@ import {
   Sparkles,
   Users,
   TrendingUp,
-  Shield,
-  ChevronRight
+  Shield
 } from "lucide-react";
 
 const ICON_MAP: Record<string, React.ComponentType<{ className?: string }>> = {
@@ -32,7 +30,6 @@ const ICON_MAP: Record<string, React.ComponentType<{ className?: string }>> = {
  * All content controlled via CMS (home.whyAcademy.*)
  */
 export function WhyAcademySection() {
-  const navigate = useNavigate();
   const { language } = useLanguage();
   const cms = useCmsContent();
 
@@ -68,14 +65,8 @@ export function WhyAcademySection() {
     en: "Certified Nutritionist & Personal Trainer",
   });
 
-  // CTA enabled
-  const ctaEnabled = cms.get("home.whyAcademy.ctaEnabled", { pt: "true", en: "true" }) === "true";
-  const ctaText = cms.get("home.whyAcademy.ctaText", {
-    pt: "Explorar a Academia",
-    en: "Explore the Academy",
-  });
-
   // Feature cards (pipe-separated: icon|title|description)
+
   const featuresRaw = cms.get("home.whyAcademy.features", {
     pt: "award|Orientação Certificada|Acompanhamento por profissional com formação em nutrição e treino|target|Método Comprovado|Estratégias testadas que geram resultados reais e sustentáveis|book|Ciência & Experiência|Conteúdo baseado em evidência científica e prática clínica|heart|Resultados Duradouros|Transformações que respeitam o teu corpo e estilo de vida",
     en: "award|Certified Guidance|Support from a professional trained in nutrition and training|target|Proven Method|Tested strategies that generate real and sustainable results|book|Science & Experience|Content based on scientific evidence and clinical practice|heart|Lasting Results|Transformations that respect your body and lifestyle",
@@ -95,53 +86,45 @@ export function WhyAcademySection() {
   }
 
   return (
-    <section className="mb-6 -mx-4">
-      {/* Full-width premium container */}
+    <section className="py-12 -mx-4">
+      {/* Full-width container with seamless pink gradient */}
       <div className="relative overflow-hidden">
-        {/* Brand pink gradient background - matches site design system */}
-        <div className="absolute inset-0 bg-gradient-to-br from-primary via-primary/95 to-secondary" />
+        {/* Seamless brand pink gradient - no breaks or blocks */}
+        <div className="absolute inset-0 bg-gradient-to-b from-primary/90 via-primary to-primary/95" />
         
-        {/* Subtle overlay for depth - admin adjustable */}
-        <div 
-          className="absolute inset-0 bg-black"
-          style={{ opacity: parseInt(overlayOpacity) / 100 * 0.15 }}
-        />
-
-        {/* Subtle decorative elements */}
+        {/* Soft glow elements for depth */}
         <div className="absolute top-0 left-0 w-full h-full pointer-events-none">
-          <div className="absolute -top-20 -right-20 w-56 h-56 bg-white/10 rounded-full blur-3xl" />
-          <div className="absolute -bottom-16 -left-16 w-48 h-48 bg-secondary/20 rounded-full blur-3xl" />
+          <div className="absolute -top-32 -right-32 w-72 h-72 bg-white/8 rounded-full blur-3xl" />
+          <div className="absolute -bottom-24 -left-24 w-64 h-64 bg-white/5 rounded-full blur-3xl" />
         </div>
 
         {/* Content */}
-        <div className="relative z-10 px-4 py-10 max-w-lg mx-auto">
-          {/* Badge pill - High contrast */}
-          <div className="flex justify-center mb-5">
-            <span className="inline-flex items-center gap-2 px-5 py-2 rounded-full bg-white/15 backdrop-blur-sm border border-white/25 text-xs font-bold text-white uppercase tracking-wider shadow-lg">
-              <Sparkles className="h-3.5 w-3.5 text-[hsl(30,50%,70%)]" />
+        <div className="relative z-10 px-5 py-10 max-w-lg mx-auto">
+          {/* Badge pill */}
+          <div className="flex justify-center mb-6">
+            <span className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-white/20 backdrop-blur-sm border border-white/30 text-xs font-bold text-white uppercase tracking-wider">
+              <Sparkles className="h-3.5 w-3.5 text-white" />
               {badge}
             </span>
           </div>
 
-          {/* Main title - PURE WHITE, BOLD, LARGE */}
+          {/* Main title - Pure white, maximum contrast */}
           <h2 
-            className="text-3xl sm:text-4xl font-black text-white text-center mb-4 tracking-tight leading-tight"
-            style={{ textShadow: "0 3px 12px rgba(0,0,0,0.4)" }}
+            className="text-3xl sm:text-4xl font-black text-white text-center mb-4 tracking-tight leading-tight drop-shadow-lg"
           >
             {title}
           </h2>
 
-          {/* Emotional subtitle - HIGH CONTRAST */}
+          {/* Subtitle - High opacity white */}
           <p 
-            className="text-base sm:text-lg text-white text-center mb-8 leading-relaxed max-w-md mx-auto font-semibold"
-            style={{ textShadow: "0 2px 6px rgba(0,0,0,0.3)" }}
+            className="text-base sm:text-lg text-white/95 text-center mb-8 leading-relaxed max-w-md mx-auto font-medium drop-shadow-md"
           >
             {subtitle}
           </p>
 
-          {/* Authority badge - SOLID, VISIBLE */}
-          <div className="flex justify-center mb-8">
-            <div className="inline-flex items-center gap-2.5 px-5 py-2.5 rounded-full bg-[hsl(30,40%,55%)] shadow-lg border border-[hsl(30,45%,65%)]">
+          {/* Authority badge - Soft white pill */}
+          <div className="flex justify-center mb-10">
+            <div className="inline-flex items-center gap-2.5 px-5 py-2.5 rounded-full bg-white/25 backdrop-blur-sm border border-white/35 shadow-lg">
               <Award className="h-5 w-5 text-white" />
               <span className="text-sm font-bold text-white tracking-wide">
                 {authority}
@@ -149,48 +132,36 @@ export function WhyAcademySection() {
             </div>
           </div>
 
-          {/* Feature Cards Grid - SOLID WHITE CARDS */}
-          <div className="grid grid-cols-2 gap-4 mb-8">
+          {/* Feature Cards Grid - Elevated white cards */}
+          <div className="grid grid-cols-2 gap-4">
             {features.map((feature, index) => {
               const IconComponent = ICON_MAP[feature.icon] || CheckCircle2;
               return (
                 <div
                   key={index}
-                  className="group relative rounded-2xl p-5 bg-white shadow-xl hover:shadow-2xl transition-all duration-300 border border-gray-100"
+                  className="group relative rounded-2xl p-5 bg-white shadow-lg hover:shadow-xl transition-all duration-300 border border-white/80"
+                  style={{ 
+                    boxShadow: '0 8px 32px -8px rgba(0,0,0,0.15), 0 4px 12px -4px rgba(0,0,0,0.1)' 
+                  }}
                 >
-                  {/* Icon container - STRONG ACCENT COLOR */}
-                  <div className="mb-4 p-3 w-fit rounded-xl bg-gradient-to-br from-[hsl(340,40%,50%)] to-[hsl(25,35%,45%)] shadow-md">
-                    <IconComponent className="h-6 w-6 text-white" />
+                  {/* Icon container - Brand pink accent */}
+                  <div className="mb-4 p-3 w-fit rounded-xl bg-primary/15 border border-primary/20">
+                    <IconComponent className="h-6 w-6 text-primary" />
                   </div>
 
-                  {/* Title - DARK, BOLD */}
-                  <h3 className="text-sm font-extrabold text-gray-900 mb-2 leading-tight">
+                  {/* Title - Strong dark text */}
+                  <h3 className="text-sm font-extrabold text-foreground mb-2 leading-tight">
                     {feature.title}
                   </h3>
 
-                  {/* Description - READABLE DARK TEXT */}
-                  <p className="text-xs text-gray-600 leading-relaxed font-medium">
+                  {/* Description - Readable dark gray */}
+                  <p className="text-xs text-muted-foreground leading-relaxed font-medium">
                     {feature.description}
                   </p>
                 </div>
               );
             })}
           </div>
-
-          {/* CTA Button - STRONG, SOLID, IMPOSSIBLE TO MISS */}
-          {ctaEnabled && (
-            <div className="flex justify-center">
-              <button
-                onClick={() => navigate("/learn")}
-                className="group inline-flex items-center gap-2.5 px-8 py-4 rounded-full bg-white hover:bg-gray-50 shadow-xl hover:shadow-2xl transition-all duration-300 border-2 border-white/50"
-              >
-                <span className="text-base font-black text-gray-900">
-                  {ctaText}
-                </span>
-                <ChevronRight className="h-5 w-5 text-[hsl(340,40%,50%)] group-hover:translate-x-1 transition-transform" />
-              </button>
-            </div>
-          )}
         </div>
       </div>
     </section>
