@@ -75,7 +75,7 @@ function WaterGlass({ filled, index, justFilled }: WaterGlassProps) {
         relative w-8 h-10 rounded-b-lg border-2 transition-all duration-300
         ${filled 
           ? "border-secondary bg-secondary/20" 
-          : "border-white/20 bg-white/5"
+          : "border-white/40 bg-white/10"
         }
         ${justFilled ? "animate-bounce" : ""}
       `}
@@ -89,7 +89,7 @@ function WaterGlass({ filled, index, justFilled }: WaterGlassProps) {
         className={`
           absolute -right-1.5 top-1/2 -translate-y-1/2 w-1.5 h-4 
           rounded-r-full border-2 border-l-0
-          ${filled ? "border-secondary" : "border-white/20"}
+          ${filled ? "border-secondary" : "border-white/40"}
         `}
       />
       
@@ -229,7 +229,7 @@ export function WaterTracker() {
                 className="p-2 rounded-lg hover:bg-white/10 transition-colors"
                 aria-label={t({ pt: "Definições", en: "Settings" })}
               >
-                <Settings className="h-4 w-4 text-white/40" />
+                <Settings className="h-4 w-4 text-white/70" />
               </button>
             </PopoverTrigger>
             <PopoverContent 
@@ -335,7 +335,7 @@ export function WaterTracker() {
             className="p-2 rounded-lg hover:bg-white/10 transition-colors"
             aria-label={t({ pt: "Reiniciar", en: "Reset" })}
           >
-            <RotateCcw className="h-4 w-4 text-white/40" />
+            <RotateCcw className="h-4 w-4 text-white/70" />
           </button>
         </div>
       </div>
@@ -355,9 +355,9 @@ export function WaterTracker() {
       {/* Progress Text */}
       <div className="text-center mb-4">
         <span className="text-3xl font-bold text-white">{cupsConsumed}</span>
-        <span className="text-lg text-white/40 mx-1">/</span>
-        <span className="text-lg text-white/60">{cupsGoal}</span>
-        <span className="text-sm text-white/40 ml-2">
+        <span className="text-lg text-white/60 mx-1">/</span>
+        <span className="text-lg text-white/80">{cupsGoal}</span>
+        <span className="text-sm text-white/70 ml-2">
           {t({ pt: "copos", en: "cups" })}
         </span>
       </div>
@@ -397,7 +397,7 @@ export function WaterTracker() {
       </div>
 
       {/* Quick tip */}
-      <p className="text-xs text-white/50 text-center mt-4">
+      <p className="text-xs text-white/70 text-center mt-4">
         {t({
           pt: "Toca no + cada vez que bebes um copo 💧",
           en: "Tap + each time you drink a glass 💧",
