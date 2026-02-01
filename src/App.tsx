@@ -14,7 +14,6 @@ import { useCmsContent } from "@/hooks/useCmsContent";
 // Pages
 import Home from "./pages/Home";
 import Learn from "./pages/Learn";
-import AcademyStore from "./pages/AcademyStore";
 import CourseDetail from "./pages/CourseDetail";
 import Tools from "./pages/Tools";
 import Profile from "./pages/Profile";
@@ -227,7 +226,6 @@ const App = () => (
               {/* Main navigation routes */}
               <Route path="/" element={<Home />} />
               <Route path="/learn" element={<Learn />} />
-              <Route path="/learn/store" element={<AcademyStore />} />
               <Route path="/learn/course/:courseId" element={<CourseDetail />} />
               <Route path="/learn/program/:programId" element={<CourseDetail />} />
               <Route path="/tools" element={<Tools />} />
