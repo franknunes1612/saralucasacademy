@@ -1,7 +1,7 @@
 import { useState, useMemo } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { motion } from "framer-motion";
-import { ArrowLeft, BookOpen, PlayCircle, Calendar, Package, Search, Sparkles } from "lucide-react";
+import { ArrowLeft, BookOpen, PlayCircle, Calendar, Package, Search, Sparkles, ShoppingBag } from "lucide-react";
 import { useLanguage } from "@/hooks/useLanguage";
 import { useCmsContent } from "@/hooks/useCmsContent";
 import { useAcademyItems, AcademyItemType, AcademyItem } from "@/hooks/useAcademyItems";
@@ -241,8 +241,21 @@ export default function Learn() {
         )}
       </div>
 
+      {/* Store CTA */}
+      <div className="mt-6">
+        <button
+          onClick={() => navigate("/learn/store")}
+          className="w-full py-4 rounded-xl bg-gradient-to-r from-primary/20 to-secondary/20 border border-white/10 flex items-center justify-center gap-3 hover:from-primary/30 hover:to-secondary/30 transition-all"
+        >
+          <ShoppingBag className="h-5 w-5 text-white/80" />
+          <span className="font-medium text-white">
+            {cms.get("academy.store.cta") || (language === "pt" ? "Ver Loja & Recursos Premium" : "View Store & Premium Resources")}
+          </span>
+        </button>
+      </div>
+
       {/* Info Banner */}
-      <div className="mt-6 p-4 rounded-xl bg-white/5 border border-white/10">
+      <div className="mt-4 p-4 rounded-xl bg-white/5 border border-white/10">
         <p className="text-sm text-white text-center">
           {cms.get("academy.footer.disclaimer")}
         </p>

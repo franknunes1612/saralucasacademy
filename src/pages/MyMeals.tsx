@@ -12,7 +12,7 @@ import { FoodItemsList } from "@/components/FoodItemsList";
 import { MacrosBadge } from "@/components/MacrosBadge";
 import { MealToneBadge } from "@/components/MealToneBadge";
 
-import { ArrowLeft, Trash2, Camera, Bell, BellOff, HelpCircle, ChefHat, Sparkles } from "lucide-react";
+import { ArrowLeft, Trash2, Camera, Bell, BellOff, HelpCircle, ChefHat } from "lucide-react";
 import { safeNumber, getCalorieValue, ensureMacros } from "@/lib/nutritionUtils";
 
 function calculateTotalCalories(meals: SavedMeal[]): number {
@@ -165,15 +165,6 @@ export default function MyMeals() {
         </div>
         
         <div className="flex items-center gap-1">
-          {/* Premium */}
-          <button
-            onClick={() => navigate("/premium")}
-            className="p-2 rounded-xl hover:bg-white/10 transition-colors"
-            aria-label="Premium features"
-          >
-            <Sparkles className="h-5 w-5 text-amber-400" />
-          </button>
-
           {/* How it works */}
           <button
             onClick={() => navigate("/how-it-works")}

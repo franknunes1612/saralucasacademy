@@ -1153,9 +1153,9 @@ export default function Index() {
           <SaraLucasLogo size="md" />
           <div className="flex items-center gap-1">
             <button
-              onClick={() => navigate("/premium")}
+              onClick={() => navigate("/learn/store")}
               className="p-2 rounded-xl hover:bg-white/10 transition-colors"
-              aria-label="Premium features"
+              aria-label="Store"
             >
               <Sparkles className="h-5 w-5 text-primary" />
             </button>
@@ -1309,10 +1309,10 @@ export default function Index() {
                 </div>
               )}
 
-              {/* Premium promotion - subtle */}
+              {/* Academy Store promotion - subtle */}
               <div className="mt-5">
                 <button
-                  onClick={() => navigate("/premium")}
+                  onClick={() => navigate("/learn/store")}
                   className="w-full p-4 rounded-xl bg-gradient-to-r from-primary/20 to-secondary/20 border border-white/10 text-left hover:from-primary/30 hover:to-secondary/30 transition-all"
                 >
                   <div className="flex items-center gap-3">
