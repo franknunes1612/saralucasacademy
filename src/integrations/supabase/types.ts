@@ -18,6 +18,8 @@ export type Database = {
         Row: {
           badge_en: string | null
           badge_pt: string | null
+          button_text_en: string | null
+          button_text_pt: string | null
           category: string
           cover_emoji: string | null
           cover_image_url: string | null
@@ -36,6 +38,8 @@ export type Database = {
           original_price: number | null
           price: number
           purchase_link: string | null
+          stripe_price_id: string | null
+          stripe_product_id: string | null
           subtitle_en: string | null
           subtitle_pt: string | null
           title_en: string
@@ -50,6 +54,8 @@ export type Database = {
         Insert: {
           badge_en?: string | null
           badge_pt?: string | null
+          button_text_en?: string | null
+          button_text_pt?: string | null
           category?: string
           cover_emoji?: string | null
           cover_image_url?: string | null
@@ -68,6 +74,8 @@ export type Database = {
           original_price?: number | null
           price?: number
           purchase_link?: string | null
+          stripe_price_id?: string | null
+          stripe_product_id?: string | null
           subtitle_en?: string | null
           subtitle_pt?: string | null
           title_en: string
@@ -82,6 +90,8 @@ export type Database = {
         Update: {
           badge_en?: string | null
           badge_pt?: string | null
+          button_text_en?: string | null
+          button_text_pt?: string | null
           category?: string
           cover_emoji?: string | null
           cover_image_url?: string | null
@@ -100,6 +110,8 @@ export type Database = {
           original_price?: number | null
           price?: number
           purchase_link?: string | null
+          stripe_price_id?: string | null
+          stripe_product_id?: string | null
           subtitle_en?: string | null
           subtitle_pt?: string | null
           title_en?: string
@@ -300,15 +312,20 @@ export type Database = {
           badge_en: string | null
           badge_pt: string | null
           billing_type: string
+          button_text_en: string | null
+          button_text_pt: string | null
           created_at: string
           currency: string
           display_order: number
+          enable_purchase: boolean | null
           features_en: string[]
           features_pt: string[]
           icon: string | null
           id: string
           is_active: boolean
           price: number
+          stripe_price_id: string | null
+          stripe_product_id: string | null
           subtitle_en: string | null
           subtitle_pt: string | null
           title_en: string
@@ -320,15 +337,20 @@ export type Database = {
           badge_en?: string | null
           badge_pt?: string | null
           billing_type: string
+          button_text_en?: string | null
+          button_text_pt?: string | null
           created_at?: string
           currency?: string
           display_order?: number
+          enable_purchase?: boolean | null
           features_en?: string[]
           features_pt?: string[]
           icon?: string | null
           id?: string
           is_active?: boolean
           price: number
+          stripe_price_id?: string | null
+          stripe_product_id?: string | null
           subtitle_en?: string | null
           subtitle_pt?: string | null
           title_en: string
@@ -340,15 +362,20 @@ export type Database = {
           badge_en?: string | null
           badge_pt?: string | null
           billing_type?: string
+          button_text_en?: string | null
+          button_text_pt?: string | null
           created_at?: string
           currency?: string
           display_order?: number
+          enable_purchase?: boolean | null
           features_en?: string[]
           features_pt?: string[]
           icon?: string | null
           id?: string
           is_active?: boolean
           price?: number
+          stripe_price_id?: string | null
+          stripe_product_id?: string | null
           subtitle_en?: string | null
           subtitle_pt?: string | null
           title_en?: string
@@ -441,6 +468,8 @@ export type Database = {
       recommended_products: {
         Row: {
           brand: string | null
+          button_text_en: string | null
+          button_text_pt: string | null
           category: string
           created_at: string
           description_en: string | null
@@ -457,6 +486,8 @@ export type Database = {
         }
         Insert: {
           brand?: string | null
+          button_text_en?: string | null
+          button_text_pt?: string | null
           category: string
           created_at?: string
           description_en?: string | null
@@ -473,6 +504,8 @@ export type Database = {
         }
         Update: {
           brand?: string | null
+          button_text_en?: string | null
+          button_text_pt?: string | null
           category?: string
           created_at?: string
           description_en?: string | null
@@ -546,6 +579,8 @@ export type Database = {
       store_items: {
         Row: {
           brand: string | null
+          button_text_en: string | null
+          button_text_pt: string | null
           category: string
           created_at: string
           currency: string
@@ -562,10 +597,14 @@ export type Database = {
           purchase_link: string | null
           purchase_type: string
           rating: number | null
+          stripe_price_id: string | null
+          stripe_product_id: string | null
           updated_at: string
         }
         Insert: {
           brand?: string | null
+          button_text_en?: string | null
+          button_text_pt?: string | null
           category: string
           created_at?: string
           currency?: string
@@ -582,10 +621,14 @@ export type Database = {
           purchase_link?: string | null
           purchase_type?: string
           rating?: number | null
+          stripe_price_id?: string | null
+          stripe_product_id?: string | null
           updated_at?: string
         }
         Update: {
           brand?: string | null
+          button_text_en?: string | null
+          button_text_pt?: string | null
           category?: string
           created_at?: string
           currency?: string
@@ -602,6 +645,8 @@ export type Database = {
           purchase_link?: string | null
           purchase_type?: string
           rating?: number | null
+          stripe_price_id?: string | null
+          stripe_product_id?: string | null
           updated_at?: string
         }
         Relationships: []

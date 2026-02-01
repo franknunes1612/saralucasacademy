@@ -23,7 +23,13 @@ export default function AdminPremium() {
 
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editingOffer, setEditingOffer] = useState<PremiumOffer | null>(null);
-  const [formData, setFormData] = useState<Partial<PremiumOfferInsert>>({
+  const [formData, setFormData] = useState<Partial<PremiumOfferInsert> & { 
+    stripe_product_id?: string; 
+    stripe_price_id?: string;
+    button_text_pt?: string;
+    button_text_en?: string;
+    enable_purchase?: boolean;
+  }>({
     title_pt: "",
     title_en: "",
     subtitle_pt: "",
@@ -39,6 +45,11 @@ export default function AdminPremium() {
     accent_color: "bg-primary",
     is_active: true,
     display_order: 0,
+    stripe_product_id: "",
+    stripe_price_id: "",
+    button_text_pt: "Comprar",
+    button_text_en: "Buy",
+    enable_purchase: true,
   });
   const [featuresTextPt, setFeaturesTextPt] = useState("");
   const [featuresTextEn, setFeaturesTextEn] = useState("");
@@ -60,6 +71,11 @@ export default function AdminPremium() {
       accent_color: "bg-primary",
       is_active: true,
       display_order: offers?.length || 0,
+      stripe_product_id: "",
+      stripe_price_id: "",
+      button_text_pt: "Comprar",
+      button_text_en: "Buy",
+      enable_purchase: true,
     });
     setFeaturesTextPt("");
     setFeaturesTextEn("");
@@ -71,7 +87,7 @@ export default function AdminPremium() {
     setIsDialogOpen(true);
   };
 
-  const openEditDialog = (offer: PremiumOffer) => {
+  const openEditDialog = (offer: PremiumOffer & { stripe_product_id?: string; stripe_price_id?: string; button_text_pt?: string; button_text_en?: string; enable_purchase?: boolean }) => {
     setEditingOffer(offer);
     setFormData({
       title_pt: offer.title_pt,
@@ -89,6 +105,11 @@ export default function AdminPremium() {
       accent_color: offer.accent_color || "bg-primary",
       is_active: offer.is_active,
       display_order: offer.display_order,
+      stripe_product_id: offer.stripe_product_id || "",
+      stripe_price_id: offer.stripe_price_id || "",
+      button_text_pt: offer.button_text_pt || "Comprar",
+      button_text_en: offer.button_text_en || "Buy",
+      enable_purchase: offer.enable_purchase !== false,
     });
     setFeaturesTextPt(offer.features_pt.join("\n"));
     setFeaturesTextEn(offer.features_en.join("\n"));
@@ -426,6 +447,61 @@ export default function AdminPremium() {
                 placeholder="Personalized plan&#10;Unlimited access&#10;Priority support"
                 rows={4}
               />
+            </div>
+
+            {/* Stripe Configuration Section */}
+            <div className="border-t border-white/10 pt-4 mt-4">
+              <h4 className="text-sm font-medium text-white mb-3 flex items-center gap-2">
+                💳 {t({ pt: "Configuração Stripe", en: "Stripe Configuration" })}
+              </h4>
+              
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="text-xs text-white/60 mb-1 block">Stripe Product ID</label>
+                  <Input
+                    value={formData.stripe_product_id || ""}
+                    onChange={(e) => setFormData({ ...formData, stripe_product_id: e.target.value })}
+                    placeholder="prod_xxxxx"
+                    className="font-mono text-xs"
+                  />
+                </div>
+                <div>
+                  <label className="text-xs text-white/60 mb-1 block">Stripe Price ID</label>
+                  <Input
+                    value={formData.stripe_price_id || ""}
+                    onChange={(e) => setFormData({ ...formData, stripe_price_id: e.target.value })}
+                    placeholder="price_xxxxx"
+                    className="font-mono text-xs"
+                  />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-3 mt-3">
+                <div>
+                  <label className="text-xs text-white/60 mb-1 block">{t({ pt: "Texto botão (PT)", en: "Button text (PT)" })}</label>
+                  <Input
+                    value={formData.button_text_pt || ""}
+                    onChange={(e) => setFormData({ ...formData, button_text_pt: e.target.value })}
+                    placeholder="Comprar"
+                  />
+                </div>
+                <div>
+                  <label className="text-xs text-white/60 mb-1 block">{t({ pt: "Texto botão (EN)", en: "Button text (EN)" })}</label>
+                  <Input
+                    value={formData.button_text_en || ""}
+                    onChange={(e) => setFormData({ ...formData, button_text_en: e.target.value })}
+                    placeholder="Buy"
+                  />
+                </div>
+              </div>
+
+              <div className="flex items-center justify-between mt-3">
+                <label className="text-sm text-white/80">{t({ pt: "Permitir compra", en: "Enable purchase" })}</label>
+                <Switch
+                  checked={formData.enable_purchase !== false}
+                  onCheckedChange={(checked) => setFormData({ ...formData, enable_purchase: checked })}
+                />
+              </div>
             </div>
 
             {/* Active toggle */}
