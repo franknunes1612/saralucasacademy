@@ -43,6 +43,7 @@ import AdminOnboarding from "./pages/AdminOnboarding";
 import AdminTestimonials from "./pages/AdminTestimonials";
 import NotFound from "./pages/NotFound";
 import { NutritionistFAB } from "./components/NutritionistFAB";
+import { Footer } from "./components/Footer";
 
 const queryClient = new QueryClient();
 
@@ -63,6 +64,18 @@ function NutritionistFABWrapper() {
   if (!shouldShow) return null;
   
   return <NutritionistFAB />;
+}
+
+// Footer wrapper that hides on admin routes
+function FooterWrapper() {
+  const location = useLocation();
+  
+  // Hide on admin routes and scan
+  const hideOnRoutes = location.pathname.startsWith("/admin") || location.pathname === "/scan";
+  
+  if (hideOnRoutes) return null;
+  
+  return <Footer />;
 }
 
 // App entry flow manager - now CMS-controlled
@@ -294,6 +307,7 @@ const App = () => (
               <Route path="*" element={<NotFound />} />
             </Routes>
             <BottomNav />
+            <FooterWrapper />
             <NutritionistFABWrapper />
           </AppEntryFlow>
         </BrowserRouter>
