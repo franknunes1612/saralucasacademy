@@ -225,7 +225,7 @@ export default function Home() {
             onClick={() => navigate("/learn?type=course")}
             className="result-card p-4 text-center hover:bg-white/5 transition-colors"
           >
-            <GraduationCap className="h-6 w-6 text-white mx-auto mb-2" />
+            <GraduationCap className="h-6 w-6 text-secondary mx-auto mb-2" />
             <span className="text-sm font-medium text-white">
               {t({ pt: "Cursos", en: "Courses" })}
             </span>
@@ -243,7 +243,7 @@ export default function Home() {
             onClick={() => navigate("/learn?type=bundle")}
             className="result-card p-4 text-center hover:bg-white/5 transition-colors"
           >
-            <Sparkles className="h-6 w-6 text-warning mx-auto mb-2" />
+            <Sparkles className="h-6 w-6 text-amber-400 mx-auto mb-2" />
             <span className="text-sm font-medium text-white">
               {t({ pt: "Bundles", en: "Bundles" })}
             </span>
