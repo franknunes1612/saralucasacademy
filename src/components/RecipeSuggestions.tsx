@@ -59,7 +59,7 @@ export function RecipeSuggestions({ mealTone }: RecipeSuggestionsProps) {
         </div>
         <button
           onClick={() => navigate("/recipes")}
-          className="text-xs text-primary flex items-center gap-1 hover:underline"
+          className="text-xs text-white/80 flex items-center gap-1 hover:text-white transition-colors"
         >
           {t({ pt: "Ver todas", en: "See all" })}
           <ChevronRight className="h-3 w-3" />

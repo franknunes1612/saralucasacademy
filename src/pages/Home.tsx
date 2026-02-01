@@ -180,7 +180,7 @@ export default function Home() {
             </h2>
             <button
               onClick={() => navigate("/learn")}
-              className="text-xs text-white/60 hover:text-white/80 flex items-center gap-1"
+              className="text-xs text-white/80 hover:text-white flex items-center gap-1 transition-colors"
             >
               {t({ pt: "Ver tudo", en: "See all" })}
               <ChevronRight className="h-3 w-3" />
