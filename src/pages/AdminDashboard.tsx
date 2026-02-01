@@ -1,5 +1,5 @@
 import { useNavigate, Link } from "react-router-dom";
-import { ArrowLeft, LogOut, ChefHat, FileText, Sparkles, ShoppingBag, Heart, CreditCard, MessageCircle, Play, MessageSquareQuote, Store } from "lucide-react";
+import { ArrowLeft, LogOut, ChefHat, FileText, Sparkles, ShoppingBag, Heart, CreditCard, MessageCircle, Play, MessageSquareQuote, Store, Crown } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { useLanguage } from "@/hooks/useLanguage";
 
@@ -34,6 +34,13 @@ export default function AdminDashboard() {
       icon: ChefHat,
       path: "/admin/recipes",
       color: "bg-orange-500/20 text-orange-400",
+    },
+    {
+      title: { pt: "Ofertas Premium", en: "Premium Offers" },
+      description: { pt: "Planos e serviços premium", en: "Premium plans and services" },
+      icon: Crown,
+      path: "/admin/premium",
+      color: "bg-yellow-500/20 text-yellow-400",
     },
     {
       title: { pt: "Loja / Produtos", en: "Store / Products" },
