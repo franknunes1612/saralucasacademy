@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import type { User, Session } from "@supabase/supabase-js";
+import { toast } from "sonner";
 
 interface AuthState {
   user: User | null;
@@ -59,6 +60,27 @@ export function useAuth() {
     }
   }, []);
 
+  // Claim any pending guest purchases for the user
+  const claimGuestPurchases = useCallback(async (accessToken: string) => {
+    try {
+      const response = await supabase.functions.invoke("claim-guest-purchases", {
+        headers: { Authorization: `Bearer ${accessToken}` },
+      });
+
+      if (response.error) {
+        console.error("[Auth] Claim guest purchases error:", response.error);
+        return;
+      }
+
+      const data = response.data;
+      if (data?.claimed && data.claimed > 0) {
+        toast.success(data.message || `Access granted to ${data.claimed} course(s)!`);
+      }
+    } catch (err) {
+      console.error("[Auth] Claim guest purchases exception:", err);
+    }
+  }, []);
+
   useEffect(() => {
     let isMounted = true;
 
@@ -102,9 +124,13 @@ export function useAuth() {
           isAdmin: false, // Reset admin until verified
         }));
 
-        // Check admin role
-        if (user && user.email) {
-          const isAdmin = await resolveAdminStatus(user.id, user.email);
+        // Check admin role and claim guest purchases
+        if (user && user.email && session?.access_token) {
+          // Run admin check and guest purchase claim in parallel
+          const [isAdmin] = await Promise.all([
+            resolveAdminStatus(user.id, user.email),
+            claimGuestPurchases(session.access_token),
+          ]);
           if (isMounted) {
             setState(prev => ({
               ...prev,
@@ -140,9 +166,12 @@ export function useAuth() {
         isAdmin: false,
       }));
 
-      // Check admin role
-      if (user && user.email) {
-        const isAdmin = await resolveAdminStatus(user.id, user.email);
+      // Check admin role and claim guest purchases on initial load
+      if (user && user.email && session?.access_token) {
+        const [isAdmin] = await Promise.all([
+          resolveAdminStatus(user.id, user.email),
+          claimGuestPurchases(session.access_token),
+        ]);
         if (isMounted) {
           setState(prev => ({
             ...prev,
@@ -164,7 +193,7 @@ export function useAuth() {
       isMounted = false;
       subscription.unsubscribe();
     };
-  }, [checkAdminRole, bootstrapAdminRole]);
+  }, [checkAdminRole, bootstrapAdminRole, claimGuestPurchases]);
 
   const signIn = async (email: string, password: string) => {
     const { error } = await supabase.auth.signInWithPassword({
