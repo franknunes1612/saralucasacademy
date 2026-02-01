@@ -47,8 +47,8 @@ export function useCheckout(options: UseCheckoutOptions = {}) {
       if (error) throw error;
       
       if (data?.url) {
-        // Open Stripe checkout in new tab
-        window.open(data.url, "_blank", "noopener,noreferrer");
+        // Redirect to Stripe checkout (same tab to avoid popup blockers)
+        window.location.href = data.url;
         options.onSuccess?.();
       } else {
         throw new Error("No checkout URL received");

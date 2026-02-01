@@ -94,6 +94,9 @@ export function useAdminAcademyItems() {
       if (error) throw error;
       return data as AcademyItem[];
     },
+    // Prevent aggressive refetching while editing in admin
+    staleTime: 30 * 1000, // Consider data fresh for 30 seconds
+    refetchOnWindowFocus: false,
   });
 
   const createMutation = useMutation({
