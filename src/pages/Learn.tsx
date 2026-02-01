@@ -243,7 +243,7 @@ export default function Learn() {
 
       {/* Info Banner */}
       <div className="mt-6 p-4 rounded-xl bg-white/5 border border-white/10">
-        <p className="text-xs text-white/70 text-center">
+        <p className="text-sm text-white text-center">
           {cms.get("academy.footer.disclaimer")}
         </p>
       </div>

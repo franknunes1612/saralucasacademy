@@ -397,7 +397,7 @@ export function WaterTracker() {
       </div>
 
       {/* Quick tip */}
-      <p className="text-xs text-white/70 text-center mt-4">
+      <p className="text-sm text-white text-center mt-4">
         {t({
           pt: "Toca no + cada vez que bebes um copo 💧",
           en: "Tap + each time you drink a glass 💧",

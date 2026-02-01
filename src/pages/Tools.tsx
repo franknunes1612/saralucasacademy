@@ -68,7 +68,7 @@ export default function Tools() {
         <h1 className="text-xl font-bold text-white tracking-tight">
           {t({ pt: "Ferramentas", en: "Tools" })}
         </h1>
-        <p className="text-xs text-white/80">
+        <p className="text-sm text-white">
           {t({ pt: "Apoio à tua jornada nutricional", en: "Support your nutrition journey" })}
         </p>
       </div>
@@ -91,9 +91,9 @@ export default function Tools() {
             </div>
             <div className="flex-1">
               <h3 className="font-semibold text-white">{t(tool.title)}</h3>
-              <p className="text-sm text-white/80">{t(tool.description)}</p>
+              <p className="text-sm text-white">{t(tool.description)}</p>
             </div>
-            <ChevronRight className="h-5 w-5 text-white/30" />
+            <ChevronRight className="h-5 w-5 text-white/60" />
           </button>
         ))}
       </div>
@@ -106,7 +106,7 @@ export default function Tools() {
             <h3 className="font-semibold text-white mb-1">
               {t({ pt: "Ferramentas de apoio", en: "Support tools" })}
             </h3>
-            <p className="text-sm text-white/70">
+            <p className="text-sm text-white">
               {t({
                 pt: "Estas ferramentas complementam a tua aprendizagem na Academia. Usa o scanner para entender melhor os alimentos do dia a dia.",
                 en: "These tools complement your learning in the Academy. Use the scanner to better understand everyday foods.",

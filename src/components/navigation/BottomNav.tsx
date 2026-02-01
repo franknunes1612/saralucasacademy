@@ -63,11 +63,11 @@ export function BottomNav() {
                 "flex flex-col items-center gap-0.5 px-4 py-2 rounded-xl transition-all duration-200",
                 active
                   ? "bg-white/20 text-white"
-                  : "text-white/60 hover:text-white/80"
+                  : "text-white/80 hover:text-white"
               )}
             >
               <item.icon className={cn("h-5 w-5", active && "scale-110")} />
-              <span className="text-[10px] font-medium">{t(item.label)}</span>
+              <span className="text-[11px] font-semibold">{t(item.label)}</span>
             </button>
           );
         })}
