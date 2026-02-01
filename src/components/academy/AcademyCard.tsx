@@ -79,15 +79,17 @@ export function AcademyCard({ item, compact = false }: AcademyCardProps) {
         className="result-card p-4 w-40 flex-shrink-0 text-left hover:scale-[1.02] transition-transform"
       >
         {/* Cover */}
-        <div className="aspect-[4/3] rounded-xl bg-white/10 flex items-center justify-center mb-3 overflow-hidden">
+        <div className="rounded-xl bg-white/10 flex items-center justify-center mb-3 overflow-hidden">
           {item.cover_image_url ? (
             <img
               src={item.cover_image_url}
               alt={title}
-              className="w-full h-full object-cover object-top"
+              className="w-full h-auto"
             />
           ) : (
-            <span className="text-4xl">{item.cover_emoji || "📚"}</span>
+            <div className="aspect-[4/3] w-full flex items-center justify-center">
+              <span className="text-4xl">{item.cover_emoji || "📚"}</span>
+            </div>
           )}
         </div>
 
@@ -126,15 +128,17 @@ export function AcademyCard({ item, compact = false }: AcademyCardProps) {
     >
       <div className="flex gap-4">
         {/* Cover */}
-        <div className="w-20 h-20 rounded-xl bg-white/10 flex items-center justify-center flex-shrink-0 overflow-hidden">
+        <div className="w-24 rounded-xl bg-white/10 flex items-center justify-center flex-shrink-0 overflow-hidden">
           {item.cover_image_url ? (
             <img
               src={item.cover_image_url}
               alt={title}
-              className="w-full h-full object-cover object-top"
+              className="w-full h-auto"
             />
           ) : (
-            <span className="text-3xl">{item.cover_emoji || "📚"}</span>
+            <div className="w-20 h-20 flex items-center justify-center">
+              <span className="text-3xl">{item.cover_emoji || "📚"}</span>
+            </div>
           )}
         </div>
 
