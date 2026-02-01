@@ -1,3 +1,4 @@
+import React from "react";
 import { motion } from "framer-motion";
 import { MessageSquareQuote } from "lucide-react";
 import {
@@ -21,13 +22,14 @@ interface TestimonialsSectionProps {
   maxItems?: number;
 }
 
-export function TestimonialsSection({
+export const TestimonialsSection = React.forwardRef<HTMLElement, TestimonialsSectionProps>(
+  function TestimonialsSection({
   productId,
   location = "academy",
   title,
   className,
   maxItems = 6,
-}: TestimonialsSectionProps) {
+}, ref) {
   const { t } = useLanguage();
   const cms = useCmsContent();
   const isMobile = useIsMobile();
@@ -45,7 +47,7 @@ export function TestimonialsSection({
   });
 
   return (
-    <section className={cn("py-6", className)}>
+    <section ref={ref} className={cn("py-6", className)}>
       {/* Section Header */}
       <motion.div
         initial={{ opacity: 0, y: 10 }}
@@ -118,4 +120,4 @@ export function TestimonialsSection({
       )}
     </section>
   );
-}
+});

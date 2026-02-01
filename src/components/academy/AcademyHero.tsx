@@ -1,3 +1,4 @@
+import React from "react";
 import { motion, Variants, Easing } from "framer-motion";
 import { ChevronRight, Award, Dumbbell, Utensils, BookOpen, GraduationCap, Heart, Sparkles, Target } from "lucide-react";
 import { useNavigate } from "react-router-dom";
@@ -18,7 +19,8 @@ const TAG_ICON_MAP: Record<string, React.ComponentType<{ className?: string }>> 
 // Easing curve for smooth animations
 const easeOut: Easing = [0.25, 0.1, 0.25, 1];
 
-export function AcademyHero() {
+export const AcademyHero = React.forwardRef<HTMLDivElement>(
+  function AcademyHero(_props, ref) {
   const cms = useCmsContent();
   const navigate = useNavigate();
 
@@ -71,6 +73,7 @@ export function AcademyHero() {
 
   return (
     <motion.div
+      ref={ref}
       initial="hidden"
       animate="visible"
       variants={containerVariants}
@@ -218,4 +221,4 @@ export function AcademyHero() {
       </div>
     </motion.div>
   );
-}
+});
