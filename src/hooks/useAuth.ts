@@ -87,17 +87,21 @@ export function useAuth() {
     // Helper to resolve admin status with timeout
     const resolveAdminStatus = async (userId: string, email: string): Promise<boolean> => {
       try {
-        // Add timeout to prevent hanging (8 seconds to allow for slow initial loads)
+        // Reduced timeout to 3 seconds to improve perceived performance
         const timeoutPromise = new Promise<boolean>((resolve) => {
           setTimeout(() => {
             console.warn("[Auth] Admin check timed out");
             resolve(false);
-          }, 8000);
+          }, 3000);
         });
 
         const adminCheckPromise = (async () => {
-          await bootstrapAdminRole(userId, email);
-          return await checkAdminRole(userId);
+          // Run bootstrap and check in parallel instead of sequentially
+          const [, isAdmin] = await Promise.all([
+            bootstrapAdminRole(userId, email),
+            checkAdminRole(userId),
+          ]);
+          return isAdmin;
         })();
 
         return await Promise.race([adminCheckPromise, timeoutPromise]);

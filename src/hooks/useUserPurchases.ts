@@ -62,6 +62,8 @@ export function useUserPurchases() {
       })) as UserPurchase[];
     },
     enabled: !!user,
+    staleTime: 2 * 60 * 1000, // 2 minutes - purchases may update after checkout
+    gcTime: 10 * 60 * 1000, // Keep in cache for 10 minutes
   });
 }
 

@@ -46,6 +46,8 @@ export function useUserProfile() {
       return data as UserProfile;
     },
     enabled: !!user,
+    staleTime: 5 * 60 * 1000, // 5 minutes - profile rarely changes
+    gcTime: 10 * 60 * 1000, // Keep in cache for 10 minutes
   });
 }
 
