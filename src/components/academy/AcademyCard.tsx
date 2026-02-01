@@ -84,7 +84,7 @@ export function AcademyCard({ item, compact = false }: AcademyCardProps) {
             <img
               src={item.cover_image_url}
               alt={title}
-              className="w-full h-full object-cover"
+              className="w-full h-full object-cover object-top"
             />
           ) : (
             <span className="text-4xl">{item.cover_emoji || "📚"}</span>
@@ -131,7 +131,7 @@ export function AcademyCard({ item, compact = false }: AcademyCardProps) {
             <img
               src={item.cover_image_url}
               alt={title}
-              className="w-full h-full object-cover"
+              className="w-full h-full object-cover object-top"
             />
           ) : (
             <span className="text-3xl">{item.cover_emoji || "📚"}</span>
