@@ -96,83 +96,80 @@ export function WhyAcademySection() {
 
   return (
     <section className="mb-6 -mx-4">
-      {/* Full-width premium container with gradient */}
+      {/* Full-width premium container - STRONG SOLID BACKGROUND */}
       <div className="relative overflow-hidden">
-        {/* Base gradient background */}
-        <div className="absolute inset-0 bg-gradient-to-br from-secondary/25 via-primary/15 to-[hsl(30,35%,75%)]/30" />
+        {/* Deep, rich gradient background - NOT pastel */}
+        <div className="absolute inset-0 bg-gradient-to-br from-[hsl(340,35%,45%)] via-[hsl(25,30%,40%)] to-[hsl(340,30%,38%)]" />
         
-        {/* Dark overlay for contrast */}
+        {/* Dark overlay for extra depth */}
         <div 
-          className="absolute inset-0 bg-black/[0.12]"
-          style={{ opacity: parseInt(overlayOpacity) / 100 }}
+          className="absolute inset-0 bg-black"
+          style={{ opacity: parseInt(overlayOpacity) / 100 * 0.3 }}
         />
 
-        {/* Decorative background elements */}
+        {/* Subtle decorative elements - muted */}
         <div className="absolute top-0 left-0 w-full h-full pointer-events-none">
-          <div className="absolute -top-20 -right-20 w-48 h-48 bg-secondary/15 rounded-full blur-3xl" />
-          <div className="absolute -bottom-16 -left-16 w-40 h-40 bg-primary/12 rounded-full blur-3xl" />
+          <div className="absolute -top-20 -right-20 w-56 h-56 bg-white/5 rounded-full blur-3xl" />
+          <div className="absolute -bottom-16 -left-16 w-48 h-48 bg-[hsl(30,40%,50%)]/10 rounded-full blur-3xl" />
         </div>
 
         {/* Content */}
-        <div className="relative z-10 px-4 py-8 max-w-lg mx-auto">
-          {/* Badge pill - Strong contrast */}
-          <div className="flex justify-center mb-4">
-            <span className="inline-flex items-center gap-1.5 px-4 py-1.5 rounded-full bg-white/20 backdrop-blur-md border border-white/30 text-xs font-semibold text-white shadow-sm">
-              <Sparkles className="h-3 w-3 text-white" />
+        <div className="relative z-10 px-4 py-10 max-w-lg mx-auto">
+          {/* Badge pill - High contrast */}
+          <div className="flex justify-center mb-5">
+            <span className="inline-flex items-center gap-2 px-5 py-2 rounded-full bg-white/15 backdrop-blur-sm border border-white/25 text-xs font-bold text-white uppercase tracking-wider shadow-lg">
+              <Sparkles className="h-3.5 w-3.5 text-[hsl(30,50%,70%)]" />
               {badge}
             </span>
           </div>
 
-          {/* Main title - Bold, Strong White with text shadow */}
+          {/* Main title - PURE WHITE, BOLD, LARGE */}
           <h2 
-            className="text-2xl sm:text-3xl font-extrabold text-white text-center mb-3 tracking-tight leading-tight"
-            style={{ textShadow: "0 2px 8px rgba(0,0,0,0.25)" }}
+            className="text-3xl sm:text-4xl font-black text-white text-center mb-4 tracking-tight leading-tight"
+            style={{ textShadow: "0 3px 12px rgba(0,0,0,0.4)" }}
           >
             {title}
           </h2>
 
-          {/* Emotional subtitle - High opacity */}
+          {/* Emotional subtitle - HIGH CONTRAST */}
           <p 
-            className="text-sm sm:text-base text-white text-center mb-6 leading-relaxed max-w-md mx-auto font-medium opacity-95"
-            style={{ textShadow: "0 1px 4px rgba(0,0,0,0.2)" }}
+            className="text-base sm:text-lg text-white text-center mb-8 leading-relaxed max-w-md mx-auto font-semibold"
+            style={{ textShadow: "0 2px 6px rgba(0,0,0,0.3)" }}
           >
             {subtitle}
           </p>
 
-          {/* Authority badge - Clear and readable */}
-          <div className="flex justify-center mb-6">
-            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-white/25 backdrop-blur-md border border-white/35 shadow-sm">
-              <Award className="h-4 w-4 text-white" />
-              <span className="text-xs font-bold text-white tracking-wide">
+          {/* Authority badge - SOLID, VISIBLE */}
+          <div className="flex justify-center mb-8">
+            <div className="inline-flex items-center gap-2.5 px-5 py-2.5 rounded-full bg-[hsl(30,40%,55%)] shadow-lg border border-[hsl(30,45%,65%)]">
+              <Award className="h-5 w-5 text-white" />
+              <span className="text-sm font-bold text-white tracking-wide">
                 {authority}
               </span>
             </div>
           </div>
 
-          {/* Feature Cards Grid - High opacity cards */}
-          <div className="grid grid-cols-2 gap-3 mb-6">
+          {/* Feature Cards Grid - SOLID WHITE CARDS */}
+          <div className="grid grid-cols-2 gap-4 mb-8">
             {features.map((feature, index) => {
               const IconComponent = ICON_MAP[feature.icon] || CheckCircle2;
               return (
                 <div
                   key={index}
-                  className="group relative rounded-2xl p-4 border border-white/20 shadow-lg hover:shadow-xl transition-all duration-300"
-                  style={{ 
-                    backgroundColor: `rgba(255, 252, 250, ${parseInt(cardOpacity) / 100})`,
-                  }}
+                  className="group relative rounded-2xl p-5 bg-white shadow-xl hover:shadow-2xl transition-all duration-300 border border-gray-100"
                 >
-                  {/* Icon container */}
-                  <div className="mb-3 p-2.5 w-fit rounded-xl bg-gradient-to-br from-primary/30 to-secondary/40 group-hover:from-primary/40 group-hover:to-secondary/50 transition-colors shadow-sm">
-                    <IconComponent className="h-5 w-5 text-primary" />
+                  {/* Icon container - STRONG ACCENT COLOR */}
+                  <div className="mb-4 p-3 w-fit rounded-xl bg-gradient-to-br from-[hsl(340,40%,50%)] to-[hsl(25,35%,45%)] shadow-md">
+                    <IconComponent className="h-6 w-6 text-white" />
                   </div>
 
-                  {/* Title - Strong contrast */}
-                  <h3 className="text-sm font-bold text-foreground mb-1.5 leading-tight">
+                  {/* Title - DARK, BOLD */}
+                  <h3 className="text-sm font-extrabold text-gray-900 mb-2 leading-tight">
                     {feature.title}
                   </h3>
 
-                  {/* Description - Readable */}
-                  <p className="text-[11px] text-muted-foreground leading-snug font-medium">
+                  {/* Description - READABLE DARK TEXT */}
+                  <p className="text-xs text-gray-600 leading-relaxed font-medium">
                     {feature.description}
                   </p>
                 </div>
@@ -180,17 +177,17 @@ export function WhyAcademySection() {
             })}
           </div>
 
-          {/* Soft CTA - Strong visibility */}
+          {/* CTA Button - STRONG, SOLID, IMPOSSIBLE TO MISS */}
           {ctaEnabled && (
             <div className="flex justify-center">
               <button
                 onClick={() => navigate("/learn")}
-                className="group inline-flex items-center gap-2 px-6 py-3 rounded-full bg-white/95 hover:bg-white border border-white/50 shadow-lg hover:shadow-xl transition-all duration-300"
+                className="group inline-flex items-center gap-2.5 px-8 py-4 rounded-full bg-white hover:bg-gray-50 shadow-xl hover:shadow-2xl transition-all duration-300 border-2 border-white/50"
               >
-                <span className="text-sm font-bold text-foreground">
+                <span className="text-base font-black text-gray-900">
                   {ctaText}
                 </span>
-                <ChevronRight className="h-4 w-4 text-primary group-hover:translate-x-0.5 transition-transform" />
+                <ChevronRight className="h-5 w-5 text-[hsl(340,40%,50%)] group-hover:translate-x-1 transition-transform" />
               </button>
             </div>
           )}
