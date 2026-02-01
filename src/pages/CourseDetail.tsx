@@ -181,14 +181,15 @@ export default function CourseDetail() {
 
       if (error) throw error;
       if (data?.url) {
-        window.open(data.url, "_blank", "noopener,noreferrer");
+        // Use location.href instead of window.open to avoid popup blockers
+        window.location.href = data.url;
       }
     } catch (error) {
       const message = error instanceof Error ? error.message : "Checkout failed";
       toast.error(message);
-    } finally {
       setIsCheckingOut(false);
     }
+    // Don't reset isCheckingOut on success - page will redirect
   };
 
   const handleShare = async () => {
