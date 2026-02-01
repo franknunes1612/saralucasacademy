@@ -208,6 +208,53 @@ export type Database = {
           },
         ]
       }
+      guest_purchases: {
+        Row: {
+          amount_paid: number | null
+          claimed_at: string | null
+          claimed_by: string | null
+          course_id: string
+          created_at: string
+          currency: string | null
+          guest_email: string
+          id: string
+          status: string
+          stripe_session_id: string
+        }
+        Insert: {
+          amount_paid?: number | null
+          claimed_at?: string | null
+          claimed_by?: string | null
+          course_id: string
+          created_at?: string
+          currency?: string | null
+          guest_email: string
+          id?: string
+          status?: string
+          stripe_session_id: string
+        }
+        Update: {
+          amount_paid?: number | null
+          claimed_at?: string | null
+          claimed_by?: string | null
+          course_id?: string
+          created_at?: string
+          currency?: string | null
+          guest_email?: string
+          id?: string
+          status?: string
+          stripe_session_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "guest_purchases_course_id_fkey"
+            columns: ["course_id"]
+            isOneToOne: false
+            referencedRelation: "academy_items"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       onboarding_slides: {
         Row: {
           created_at: string

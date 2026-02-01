@@ -27,7 +27,7 @@ serve(async (req) => {
     const supabaseServiceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY");
     if (!supabaseUrl || !supabaseServiceKey) throw new Error("Supabase config missing");
 
-    // Use service role to write to user_purchases
+    // Use service role to write to user_purchases and guest_purchases
     const supabaseClient = createClient(supabaseUrl, supabaseServiceKey, {
       auth: { persistSession: false },
     });
@@ -40,9 +40,9 @@ serve(async (req) => {
     // Initialize Stripe
     const stripe = new Stripe(stripeKey, { apiVersion: "2025-08-27.basil" });
 
-    // Retrieve session
+    // Retrieve session with customer details
     const session = await stripe.checkout.sessions.retrieve(sessionId, {
-      expand: ["payment_intent"],
+      expand: ["payment_intent", "customer"],
     });
 
     logStep("Session retrieved", { 
@@ -50,6 +50,8 @@ serve(async (req) => {
       paymentStatus: session.payment_status,
       userId: session.metadata?.user_id,
       courseId: session.metadata?.course_id,
+      isGuest: session.metadata?.is_guest,
+      customerEmail: session.customer_details?.email,
     });
 
     if (session.payment_status !== "paid") {
@@ -64,10 +66,65 @@ serve(async (req) => {
 
     const userId = session.metadata?.user_id;
     const courseId = session.metadata?.course_id;
+    const isGuest = session.metadata?.is_guest === "true";
+    const customerEmail = session.customer_details?.email;
 
-    if (!userId || !courseId) {
-      throw new Error("Missing user_id or course_id in session metadata");
+    if (!courseId) {
+      throw new Error("Missing course_id in session metadata");
     }
+
+    // Handle guest checkout - store in guest_purchases table
+    if (isGuest || !userId) {
+      if (!customerEmail) {
+        throw new Error("Missing customer email for guest purchase");
+      }
+
+      logStep("Processing guest purchase", { email: customerEmail, courseId });
+
+      // Store guest purchase for later claim
+      const { data: guestPurchase, error: guestError } = await supabaseClient
+        .from("guest_purchases")
+        .upsert({
+          guest_email: customerEmail.toLowerCase(),
+          course_id: courseId,
+          stripe_session_id: session.id,
+          amount_paid: session.amount_total ? session.amount_total / 100 : null,
+          currency: session.currency?.toUpperCase() || "EUR",
+          status: "pending",
+        }, {
+          onConflict: "stripe_session_id",
+        })
+        .select()
+        .single();
+
+      if (guestError) {
+        logStep("Error storing guest purchase", { error: guestError.message });
+        throw new Error(`Failed to store guest purchase: ${guestError.message}`);
+      }
+
+      logStep("Guest purchase stored successfully", { 
+        purchaseId: guestPurchase.id,
+        email: customerEmail,
+      });
+
+      return new Response(JSON.stringify({ 
+        success: true,
+        isGuest: true,
+        guestPurchase: {
+          id: guestPurchase.id,
+          course_id: guestPurchase.course_id,
+          email: customerEmail,
+          status: guestPurchase.status,
+        },
+        message: "Purchase recorded. Please create an account or log in with this email to access your course."
+      }), {
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+        status: 200,
+      });
+    }
+
+    // Handle authenticated user purchase
+    logStep("Processing authenticated user purchase", { userId, courseId });
 
     // Grant access by inserting into user_purchases
     const { data: purchase, error: insertError } = await supabaseClient
@@ -95,6 +152,7 @@ serve(async (req) => {
 
     return new Response(JSON.stringify({ 
       success: true,
+      isGuest: false,
       purchase: {
         id: purchase.id,
         course_id: purchase.course_id,
