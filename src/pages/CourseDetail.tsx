@@ -295,7 +295,7 @@ export default function CourseDetail() {
               <img
                 src={course.cover_image_url}
                 alt={title}
-                className="w-full h-full object-cover rounded-2xl"
+                className="w-full h-full object-cover object-top rounded-2xl"
               />
             ) : (
               <span className="text-8xl">{course.cover_emoji || "🎓"}</span>
