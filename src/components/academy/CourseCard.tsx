@@ -133,7 +133,7 @@ export function CourseCard({ course, featured = false, index = 0 }: CourseCardPr
                   {formatPrice(course.price)}
                 </span>
                 {course.original_price && course.original_price > course.price && (
-                  <span className="text-sm text-white/50 line-through">
+                  <span className="text-sm text-white/70 line-through">
                     {formatPrice(course.original_price)}
                   </span>
                 )}
@@ -195,7 +195,7 @@ export function CourseCard({ course, featured = false, index = 0 }: CourseCardPr
           </div>
 
           {/* Metadata row */}
-          <div className="flex items-center gap-3 text-[10px] text-white/50 mb-2">
+          <div className="flex items-center gap-3 text-[10px] text-white/70 mb-2">
             {course.total_duration_minutes && course.total_duration_minutes > 0 && (
               <span>{formatTotalDuration(course.total_duration_minutes)}</span>
             )}

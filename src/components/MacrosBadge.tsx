@@ -91,7 +91,7 @@ export function MacrosBadge({
 
       {/* Educational description */}
       {showDescription && (
-        <p className="text-[11px] text-white/50 text-center leading-relaxed">
+        <p className="text-[11px] text-white/70 text-center leading-relaxed">
           Protein helps muscle repair • Carbs provide energy • Fat supports hormones
         </p>
       )}

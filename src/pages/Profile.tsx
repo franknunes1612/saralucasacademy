@@ -319,7 +319,7 @@ export default function Profile() {
 
           <div className="flex items-center gap-4">
             <div className="flex-1 h-px bg-white/10" />
-            <span className="text-xs text-white/40">
+            <span className="text-xs text-white/70">
               {t({ pt: "ou", en: "or" })}
             </span>
             <div className="flex-1 h-px bg-white/10" />
