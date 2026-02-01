@@ -22,19 +22,19 @@ export function useAuth() {
 
   const checkAdminRole = useCallback(async (userId: string): Promise<boolean> => {
     try {
-      const { data, error } = await supabase
-        .from("user_roles")
-        .select("role")
-        .eq("user_id", userId)
-        .eq("role", "admin")
-        .maybeSingle();
+      // Use the has_role RPC function which is SECURITY DEFINER and bypasses RLS
+      // This avoids race conditions where the JWT isn't fully applied yet
+      const { data, error } = await supabase.rpc("has_role", {
+        _user_id: userId,
+        _role: "admin",
+      });
 
       if (error) {
         console.error("[Auth] Check admin role error:", error);
         return false;
       }
 
-      return data !== null;
+      return data === true;
     } catch (err) {
       console.error("[Auth] Check admin role exception:", err);
       return false;
