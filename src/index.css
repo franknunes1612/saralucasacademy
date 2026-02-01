@@ -15,24 +15,24 @@
   :root {
     /* Pink-first design - warm dusty rose background */
     --background: 340 45% 72%;
-    --foreground: 340 30% 20%;
+    --foreground: 0 0% 100%;
 
-    --card: 0 0% 100%;
-    --card-foreground: 340 30% 20%;
+    --card: 340 40% 78%;
+    --card-foreground: 0 0% 100%;
 
-    --popover: 0 0% 100%;
-    --popover-foreground: 340 30% 20%;
+    --popover: 340 38% 75%;
+    --popover-foreground: 0 0% 100%;
 
-    /* Primary - Brand pink (visible on white cards) */
-    --primary: 340 45% 55%;
-    --primary-foreground: 0 0% 100%;
+    /* Primary - Lighter blush pink */
+    --primary: 340 55% 82%;
+    --primary-foreground: 340 40% 25%;
 
     /* Secondary - Deeper dusty rose */
-    --secondary: 335 35% 50%;
+    --secondary: 335 35% 58%;
     --secondary-foreground: 0 0% 100%;
 
-    --muted: 340 30% 90%;
-    --muted-foreground: 340 25% 40%;
+    --muted: 340 30% 68%;
+    --muted-foreground: 0 0% 100% / 0.75;
 
     /* Accent - Soft cream/blush highlight */
     --accent: 340 50% 85%;
@@ -47,9 +47,9 @@
     --warning: 38 70% 55%;
     --warning-foreground: 0 0% 100%;
 
-    --border: 340 25% 85%;
-    --input: 340 30% 88%;
-    --ring: 340 45% 55%;
+    --border: 340 30% 65%;
+    --input: 340 35% 70%;
+    --ring: 0 0% 100%;
 
     --radius: 1rem;
 

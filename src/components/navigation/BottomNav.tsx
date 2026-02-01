@@ -52,7 +52,7 @@ export function BottomNav() {
 
   return (
     <nav className="fixed bottom-0 left-0 right-0 z-50 safe-bottom">
-      <div className="bg-white/95 backdrop-blur-lg shadow-lg border-t border-border mx-3 mb-3 px-2 py-2 flex items-center justify-around rounded-2xl">
+      <div className="glass-card mx-3 mb-3 px-2 py-2 flex items-center justify-around">
         {NAV_ITEMS.map((item) => {
           const active = isActive(item.path);
           return (
@@ -62,8 +62,8 @@ export function BottomNav() {
               className={cn(
                 "flex flex-col items-center gap-0.5 px-4 py-2 rounded-xl transition-all duration-200",
                 active
-                  ? "bg-primary/15 text-primary"
-                  : "text-muted-foreground hover:text-foreground"
+                  ? "bg-white/20 text-white"
+                  : "text-white/60 hover:text-white/80"
               )}
             >
               <item.icon className={cn("h-5 w-5", active && "scale-110")} />

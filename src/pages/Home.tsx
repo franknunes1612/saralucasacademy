@@ -9,7 +9,6 @@ import { useAuth } from "@/hooks/useAuth";
 import { useUserProfile } from "@/hooks/useUserProfile";
 import { SaraLucasLogo } from "@/components/brand/SaraLucasLogo";
 import { RecommendedProductsSection } from "@/components/home/RecommendedProductsSection";
-import { WhyAcademySection } from "@/components/home/WhyAcademySection";
 import { LanguageToggle } from "@/components/LanguageToggle";
 import { AuthModal } from "@/components/auth/AuthModal";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -50,7 +49,7 @@ export default function Home() {
       <div className="flex items-center justify-between mb-6">
         <div>
           <SaraLucasLogo size="lg" />
-          <p className="text-sm text-muted-foreground mt-0.5">
+          <p className="text-sm text-white/70 mt-0.5">
             {t({ pt: "Academia de Nutrição & Treino", en: "Nutrition & Training Academy" })}
           </p>
         </div>
@@ -60,18 +59,18 @@ export default function Home() {
             href={INSTAGRAM_URL}
             target="_blank"
             rel="noopener noreferrer"
-            className="p-2 rounded-xl hover:bg-muted transition-colors"
+            className="p-2 rounded-xl hover:bg-white/10 transition-colors"
             aria-label="Instagram"
           >
-            <Instagram className="h-5 w-5 text-muted-foreground hover:text-foreground transition-colors" />
+            <Instagram className="h-5 w-5 text-white/70 hover:text-white transition-colors" />
           </a>
           {user ? (
             <button
               onClick={() => navigate("/profile")}
-              className="rounded-full hover:ring-2 hover:ring-primary/30 transition-all"
+              className="rounded-full hover:ring-2 hover:ring-white/30 transition-all"
               aria-label={t({ pt: "Perfil", en: "Profile" })}
             >
-              <Avatar className="h-9 w-9 border-2 border-border">
+              <Avatar className="h-9 w-9 border-2 border-white/20">
                 <AvatarImage src={profile?.avatar_url || undefined} alt={profile?.display_name || "User"} />
                 <AvatarFallback className="bg-primary/20 text-primary text-xs font-medium">
                   {getInitials()}
@@ -81,26 +80,26 @@ export default function Home() {
           ) : (
             <button
               onClick={() => setShowAuthModal(true)}
-              className="p-2 rounded-xl hover:bg-muted transition-colors"
+              className="p-2 rounded-xl hover:bg-white/10 transition-colors"
               aria-label={t({ pt: "Entrar", en: "Sign In" })}
             >
-              <LogIn className="h-5 w-5 text-muted-foreground hover:text-foreground transition-colors" />
+              <LogIn className="h-5 w-5 text-white/70 hover:text-white transition-colors" />
             </button>
           )}
           {isAdmin && (
             <button
               onClick={() => navigate("/admin/dashboard")}
-              className="p-2 rounded-xl hover:bg-muted transition-colors"
+              className="p-2 rounded-xl hover:bg-white/10 transition-colors"
               aria-label="Admin"
             >
-              <Sparkles className="h-5 w-5 text-muted-foreground" />
+              <Sparkles className="h-5 w-5 text-white/60" />
             </button>
           )}
         </div>
       </div>
 
       {/* Hero Card with Sara's Photo */}
-      <div className="bg-white rounded-2xl p-6 mb-6 overflow-hidden shadow-lg border border-border/50">
+      <div className="result-card p-6 mb-6 overflow-hidden">
         <div className="flex gap-4">
           {/* Portrait */}
           <div className="flex-shrink-0 w-24 h-28 rounded-2xl overflow-hidden bg-gradient-to-br from-primary/20 to-secondary/20">
@@ -113,13 +112,13 @@ export default function Home() {
           
           {/* Content */}
           <div className="flex-1 min-w-0">
-            <h2 className="text-lg font-bold text-foreground leading-tight mb-1">
+            <h2 className="text-lg font-bold text-white leading-tight mb-1">
               {t({ pt: "Olá, sou a Sara Lucas", en: "Hi, I'm Sara Lucas" })}
             </h2>
-            <p className="text-sm text-primary font-medium mb-2">
+            <p className="text-sm text-white/70 mb-2">
               {t({ pt: "Nutricionista / Personal Trainer Certificada", en: "Certified Nutritionist / Personal Trainer" })}
             </p>
-            <p className="text-xs text-muted-foreground line-clamp-2">
+            <p className="text-xs text-white/60 line-clamp-2">
               {t({
                 pt: "Ajudo-te a transformar a tua alimentação e alcançar os teus objetivos.",
                 en: "I help you transform your nutrition and reach your goals.",
@@ -128,7 +127,7 @@ export default function Home() {
           </div>
         </div>
         
-        <div className="mt-4 pt-4 border-t border-border">
+        <div className="mt-4 pt-4 border-t border-white/10">
           <button
             onClick={() => navigate("/learn")}
             className="btn-primary w-full py-3 flex items-center justify-center gap-2"
@@ -139,37 +138,34 @@ export default function Home() {
         </div>
       </div>
 
-      {/* Why Academy Section - Trust & Authority */}
-      <WhyAcademySection />
-
       {/* Quick Actions */}
       <div className="grid grid-cols-2 gap-3 mb-6">
         <button
           onClick={() => navigate("/tools")}
-          className="bg-white rounded-2xl p-4 text-left hover:shadow-lg transition-all shadow-md border border-border/50"
+          className="result-card p-4 text-left hover:bg-white/5 transition-colors"
         >
           <div className="p-3 rounded-xl bg-success/20 text-success w-fit mb-2">
             <Utensils className="h-5 w-5" />
           </div>
-          <h3 className="font-bold text-foreground text-sm mb-0.5">
+          <h3 className="font-semibold text-white text-sm mb-0.5">
             {t({ pt: "Ferramentas", en: "Tools" })}
           </h3>
-          <p className="text-[11px] text-muted-foreground">
+          <p className="text-[11px] text-white/60">
             {t({ pt: "Scanner de alimentos e mais", en: "Food scanner and more" })}
           </p>
         </button>
 
         <button
           onClick={handleWhatsApp}
-          className="bg-white rounded-2xl p-4 text-left hover:shadow-lg transition-all shadow-md border border-border/50"
+          className="result-card p-4 text-left hover:bg-white/5 transition-colors"
         >
           <div className="p-3 rounded-xl bg-secondary/20 text-secondary w-fit mb-2">
             <MessageCircle className="h-5 w-5" />
           </div>
-          <h3 className="font-bold text-foreground text-sm mb-0.5">
+          <h3 className="font-semibold text-white text-sm mb-0.5">
             {t({ pt: "Consulta", en: "Consultation" })}
           </h3>
-          <p className="text-[11px] text-muted-foreground">
+          <p className="text-[11px] text-white/60">
             {t({ pt: "Falar com nutricionista", en: "Talk to nutritionist" })}
           </p>
         </button>
@@ -179,12 +175,12 @@ export default function Home() {
       {(isLoading || (featuredItems && featuredItems.length > 0)) && (
         <section className="mb-6">
           <div className="flex items-center justify-between mb-3">
-            <h2 className="font-bold text-foreground">
+            <h2 className="font-semibold text-white">
               {t({ pt: "Em Destaque", en: "Featured" })}
             </h2>
             <button
               onClick={() => navigate("/learn")}
-              className="text-xs text-muted-foreground hover:text-foreground flex items-center gap-1 font-medium"
+              className="text-xs text-white/60 hover:text-white/80 flex items-center gap-1"
             >
               {t({ pt: "Ver tudo", en: "See all" })}
               <ChevronRight className="h-3 w-3" />
@@ -212,50 +208,73 @@ export default function Home() {
 
       {/* Categories Preview */}
       <section className="mb-6">
-        <h2 className="font-bold text-foreground mb-3">
+        <h2 className="font-semibold text-white mb-3">
           {t({ pt: "Categorias", en: "Categories" })}
         </h2>
         <div className="grid grid-cols-2 gap-3">
           <button
             onClick={() => navigate("/learn?type=ebook")}
-            className="bg-white rounded-2xl p-4 text-center hover:shadow-lg transition-all shadow-md border border-border/50"
+            className="result-card p-4 text-center hover:bg-white/5 transition-colors"
           >
             <BookOpen className="h-6 w-6 text-secondary mx-auto mb-2" />
-            <span className="text-sm font-bold text-foreground">
+            <span className="text-sm font-medium text-white">
               {t({ pt: "Ebooks", en: "Ebooks" })}
             </span>
           </button>
           <button
             onClick={() => navigate("/learn?type=course")}
-            className="bg-white rounded-2xl p-4 text-center hover:shadow-lg transition-all shadow-md border border-border/50"
+            className="result-card p-4 text-center hover:bg-white/5 transition-colors"
           >
             <GraduationCap className="h-6 w-6 text-primary mx-auto mb-2" />
-            <span className="text-sm font-bold text-foreground">
+            <span className="text-sm font-medium text-white">
               {t({ pt: "Cursos", en: "Courses" })}
             </span>
           </button>
           <button
             onClick={() => navigate("/learn?type=program")}
-            className="bg-white rounded-2xl p-4 text-center hover:shadow-lg transition-all shadow-md border border-border/50"
+            className="result-card p-4 text-center hover:bg-white/5 transition-colors"
           >
             <Users className="h-6 w-6 text-success mx-auto mb-2" />
-            <span className="text-sm font-bold text-foreground">
+            <span className="text-sm font-medium text-white">
               {t({ pt: "Programas", en: "Programs" })}
             </span>
           </button>
           <button
             onClick={() => navigate("/learn?type=bundle")}
-            className="bg-white rounded-2xl p-4 text-center hover:shadow-lg transition-all shadow-md border border-border/50"
+            className="result-card p-4 text-center hover:bg-white/5 transition-colors"
           >
             <Sparkles className="h-6 w-6 text-warning mx-auto mb-2" />
-            <span className="text-sm font-bold text-foreground">
+            <span className="text-sm font-medium text-white">
               {t({ pt: "Bundles", en: "Bundles" })}
             </span>
           </button>
         </div>
       </section>
 
-      {/* Value Proposition removed - now using WhyAcademySection above */}
+      {/* Value Proposition */}
+      <section className="result-card p-5">
+        <h3 className="font-semibold text-white mb-3">
+          {t({ pt: "Porque a Sara Lucas Academy?", en: "Why Sara Lucas Academy?" })}
+        </h3>
+        <ul className="space-y-2">
+          <li className="flex items-start gap-2 text-sm text-white/80">
+            <span className="text-success mt-0.5">✓</span>
+            {t({ pt: "Conteúdo criado por nutricionista certificada", en: "Content created by certified nutritionist" })}
+          </li>
+          <li className="flex items-start gap-2 text-sm text-white/80">
+            <span className="text-success mt-0.5">✓</span>
+            {t({ pt: "Acesso vitalício aos materiais comprados", en: "Lifetime access to purchased materials" })}
+          </li>
+          <li className="flex items-start gap-2 text-sm text-white/80">
+            <span className="text-success mt-0.5">✓</span>
+            {t({ pt: "Ferramentas práticas incluídas", en: "Practical tools included" })}
+          </li>
+          <li className="flex items-start gap-2 text-sm text-white/80">
+            <span className="text-success mt-0.5">✓</span>
+            {t({ pt: "Suporte por WhatsApp / Email", en: "WhatsApp / Email support" })}
+          </li>
+        </ul>
+      </section>
 
       {/* Auth Modal */}
       <AuthModal open={showAuthModal} onOpenChange={setShowAuthModal} />

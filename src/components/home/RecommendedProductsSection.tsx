@@ -22,10 +22,10 @@ function ProductCard({ product, language }: ProductCardProps) {
     <button
       onClick={handleClick}
       disabled={!product.external_link}
-      className="bg-white rounded-2xl p-4 text-left hover:shadow-lg transition-all duration-200 flex flex-col h-full min-w-[160px] w-40 flex-shrink-0 group border border-border/50 shadow-md"
+      className="result-card p-4 text-left hover:bg-white/5 transition-all duration-200 flex flex-col h-full min-w-[160px] w-40 flex-shrink-0 group"
     >
       {/* Image */}
-      <div className="w-full aspect-square rounded-xl bg-muted mb-3 overflow-hidden flex items-center justify-center">
+      <div className="w-full aspect-square rounded-xl bg-white/10 mb-3 overflow-hidden flex items-center justify-center">
         {product.image_url ? (
           <img
             src={product.image_url}
@@ -39,25 +39,25 @@ function ProductCard({ product, language }: ProductCardProps) {
 
       {/* Brand tag */}
       {product.brand && (
-        <span className="text-[10px] text-primary font-bold uppercase tracking-wide mb-1">
+        <span className="text-[10px] text-primary font-medium uppercase tracking-wide mb-1">
           {product.brand}
         </span>
       )}
 
       {/* Name */}
-      <h4 className="font-bold text-foreground text-sm leading-tight mb-1 line-clamp-2">
+      <h4 className="font-semibold text-white text-sm leading-tight mb-1 line-clamp-2">
         {name}
       </h4>
 
       {/* Description */}
       {description && (
-        <p className="text-[11px] text-muted-foreground line-clamp-2 mb-3 flex-1">
+        <p className="text-[11px] text-white/60 line-clamp-2 mb-3 flex-1">
           {description}
         </p>
       )}
 
       {/* CTA */}
-      <div className="flex items-center gap-1 text-xs text-primary font-bold mt-auto pt-2">
+      <div className="flex items-center gap-1 text-xs text-primary font-medium mt-auto pt-2">
         <span>{language === "pt" ? "Ver Produto" : "View Product"}</span>
         <ExternalLink className="h-3 w-3" />
       </div>
@@ -79,13 +79,13 @@ export function RecommendedProductsSection() {
       {/* Header */}
       <div className="flex items-center gap-2 mb-3">
         <Package className="h-4 w-4 text-primary" />
-        <h2 className="font-bold text-foreground">
+        <h2 className="font-semibold text-white">
           {t({ pt: "Produtos Recomendados da Semana", en: "Weekly Recommended Products" })}
         </h2>
       </div>
 
       {/* Subtitle */}
-      <p className="text-sm text-muted-foreground mb-4 font-medium">
+      <p className="text-xs text-white/60 mb-4">
         {t({
           pt: "Selecionados pela Sara Lucas para ti",
           en: "Hand-picked by Sara Lucas for you",
