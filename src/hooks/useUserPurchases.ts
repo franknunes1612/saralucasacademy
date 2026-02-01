@@ -19,6 +19,7 @@ export interface UserPurchase {
   title_pt?: string;
   title_en?: string;
   purchase_link?: string;
+  download_url?: string;
   cover_image_url?: string;
 }
 
@@ -39,6 +40,7 @@ export function useUserPurchases() {
             title_pt,
             title_en,
             purchase_link,
+            download_url,
             cover_image_url
           )
         `)
@@ -54,6 +56,7 @@ export function useUserPurchases() {
         title_pt: purchase.academy_items?.title_pt,
         title_en: purchase.academy_items?.title_en,
         purchase_link: purchase.academy_items?.purchase_link,
+        download_url: purchase.academy_items?.download_url,
         cover_image_url: purchase.academy_items?.cover_image_url,
         academy_items: undefined, // Remove nested object
       })) as UserPurchase[];
