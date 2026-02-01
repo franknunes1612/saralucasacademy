@@ -309,7 +309,7 @@ export function WaterTracker() {
                       </div>
 
                       {/* Quiet hours info */}
-                      <p className="text-xs text-white/40">
+                      <p className="text-xs text-white/70">
                         {t({ 
                           pt: `Silenciado: ${reminderSettings.quietStart}h - ${reminderSettings.quietEnd}h`, 
                           en: `Quiet hours: ${reminderSettings.quietStart}:00 - ${reminderSettings.quietEnd}:00` 

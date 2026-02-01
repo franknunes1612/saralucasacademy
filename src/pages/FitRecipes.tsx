@@ -139,7 +139,7 @@ export default function FitRecipes() {
       </div>
 
       {/* Personalized guidance hint */}
-      <p className="text-xs text-white/50 text-center mb-4">
+      <p className="text-xs text-white/70 text-center mb-4">
         {t({
           pt: "Toque no botão de chat para falar com um nutricionista",
           en: "Tap the chat button for personalized nutrition advice",

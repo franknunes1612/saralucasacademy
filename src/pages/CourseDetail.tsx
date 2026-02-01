@@ -236,7 +236,7 @@ export default function CourseDetail() {
           {hasPurchased && lessons && lessons.length > 0 && (
             <div className="flex items-center gap-2 mt-1">
               <Progress value={progressPercentage} className="h-1 flex-1 bg-white/10" />
-              <span className="text-[10px] text-white/50">{progressPercentage}%</span>
+              <span className="text-[10px] text-white/70">{progressPercentage}%</span>
             </div>
           )}
         </div>
@@ -357,7 +357,7 @@ export default function CourseDetail() {
               </span>
             </div>
             <Progress value={progressPercentage} className="h-2 bg-white/10" />
-            <p className="text-xs text-white/50 mt-2">
+            <p className="text-xs text-white/70 mt-2">
               {progressPercentage === 100
                 ? cms.get("academy.detail.courseComplete")
                 : `${progressPercentage}% ${cms.get("academy.detail.completed")}`}
@@ -405,7 +405,7 @@ export default function CourseDetail() {
                       : cms.get("academy.detail.formatVideo") || "Aulas em vídeo com acesso vitalício"}
                   </p>
                   {lessons && lessons.length > 0 && (
-                    <p className="text-xs text-white/50">
+                    <p className="text-xs text-white/70">
                       {lessons.length} {cms.get("academy.course.lessons")}
                       {course.total_duration_minutes && course.total_duration_minutes > 0 && (
                         <> • {formatTotalDuration(course.total_duration_minutes)}</>
@@ -423,7 +423,7 @@ export default function CourseDetail() {
                   <p className="text-sm text-white font-medium">
                     {cms.get("academy.detail.formatEbook") || "Ebook digital para download"}
                   </p>
-                  <p className="text-xs text-white/50">PDF</p>
+                  <p className="text-xs text-white/70">PDF</p>
                 </div>
               </>
             ) : (
@@ -533,7 +533,7 @@ export default function CourseDetail() {
 
         {/* Info Banner */}
         <div className="p-4 rounded-xl bg-white/5 border border-white/10">
-          <p className="text-xs text-white/50 text-center">
+          <p className="text-xs text-white/70 text-center">
             {cms.get("academy.detail.lifetimeAccess")}
           </p>
         </div>
@@ -553,7 +553,7 @@ export default function CourseDetail() {
                 <span className="text-lg font-bold text-[hsl(155_40%_55%)]">
                   {cms.get("academy.detail.unlocked")}
                 </span>
-                <p className="text-xs text-white/50">
+                <p className="text-xs text-white/70">
                   {completedCount}/{lessons?.length || 0} {cms.get("academy.detail.lessonsCompleted")}
                 </p>
               </>
@@ -564,12 +564,12 @@ export default function CourseDetail() {
                     {formatPrice(course.price)}
                   </span>
                   {course.original_price && course.original_price > course.price && (
-                    <span className="text-sm text-white/50 line-through">
+                    <span className="text-sm text-white/70 line-through">
                       {formatPrice(course.original_price)}
                     </span>
                   )}
                 </div>
-                <p className="text-xs text-white/50">
+                <p className="text-xs text-white/70">
                   {cms.get("academy.detail.accessLabel")}
                 </p>
               </>

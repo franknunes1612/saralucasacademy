@@ -135,11 +135,11 @@ export function PortionSlider({
             step={5}
             className="flex-1"
           />
-          <span className="text-xs text-white/50 w-8">+40%</span>
+          <span className="text-xs text-white/70 w-8">+40%</span>
         </div>
         
         {/* Helper text */}
-        <p className="text-xs text-white/40 text-center mt-2">
+        <p className="text-xs text-white/70 text-center mt-2">
           {lowConfidence 
             ? "Portion size has a big impact here. Adjust if needed."
             : "Adjust if the portion looks different to you."
