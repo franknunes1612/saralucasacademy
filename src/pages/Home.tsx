@@ -49,7 +49,7 @@ export default function Home() {
       <div className="flex items-center justify-between mb-6">
         <div>
           <SaraLucasLogo size="lg" />
-          <p className="text-sm text-white/70 mt-0.5">
+          <p className="text-sm text-white mt-0.5">
             {t({ pt: "Academia de Nutrição & Treino", en: "Nutrition & Training Academy" })}
           </p>
         </div>
@@ -62,7 +62,7 @@ export default function Home() {
             className="p-2 rounded-xl hover:bg-white/10 transition-colors"
             aria-label="Instagram"
           >
-            <Instagram className="h-5 w-5 text-white/70 hover:text-white transition-colors" />
+            <Instagram className="h-5 w-5 text-white hover:text-white/80 transition-colors" />
           </a>
           {user ? (
             <button
@@ -83,7 +83,7 @@ export default function Home() {
               className="p-2 rounded-xl hover:bg-white/10 transition-colors"
               aria-label={t({ pt: "Entrar", en: "Sign In" })}
             >
-              <LogIn className="h-5 w-5 text-white/70 hover:text-white transition-colors" />
+              <LogIn className="h-5 w-5 text-white hover:text-white/80 transition-colors" />
             </button>
           )}
           {isAdmin && (
@@ -92,7 +92,7 @@ export default function Home() {
               className="p-2 rounded-xl hover:bg-white/10 transition-colors"
               aria-label="Admin"
             >
-              <Sparkles className="h-5 w-5 text-white/60" />
+              <Sparkles className="h-5 w-5 text-white/80" />
             </button>
           )}
         </div>
@@ -118,7 +118,7 @@ export default function Home() {
             <p className="text-sm text-white mb-2">
               {t({ pt: "Nutricionista / Personal Trainer Certificada", en: "Certified Nutritionist / Personal Trainer" })}
             </p>
-            <p className="text-xs text-white/80 line-clamp-2">
+            <p className="text-xs text-white line-clamp-2">
               {t({
                 pt: "Ajudo-te a transformar a tua alimentação e alcançar os teus objetivos.",
                 en: "I help you transform your nutrition and reach your goals.",
@@ -150,7 +150,7 @@ export default function Home() {
           <h3 className="font-semibold text-white text-sm mb-0.5">
             {t({ pt: "Ferramentas", en: "Tools" })}
           </h3>
-          <p className="text-[11px] text-white/80">
+          <p className="text-[11px] text-white">
             {t({ pt: "Scanner de alimentos e mais", en: "Food scanner and more" })}
           </p>
         </button>
@@ -165,7 +165,7 @@ export default function Home() {
           <h3 className="font-semibold text-white text-sm mb-0.5">
             {t({ pt: "Consulta", en: "Consultation" })}
           </h3>
-          <p className="text-[11px] text-white/80">
+          <p className="text-[11px] text-white">
             {t({ pt: "Falar com nutricionista", en: "Talk to nutritionist" })}
           </p>
         </button>
@@ -180,7 +180,7 @@ export default function Home() {
             </h2>
             <button
               onClick={() => navigate("/learn")}
-              className="text-xs text-white/80 hover:text-white flex items-center gap-1 transition-colors"
+              className="text-xs text-white hover:text-white/80 flex items-center gap-1 transition-colors"
             >
               {t({ pt: "Ver tudo", en: "See all" })}
               <ChevronRight className="h-3 w-3" />
@@ -257,19 +257,19 @@ export default function Home() {
           {t({ pt: "Porque a Sara Lucas Academy?", en: "Why Sara Lucas Academy?" })}
         </h3>
         <ul className="space-y-2">
-          <li className="flex items-start gap-2 text-sm text-white/80">
+          <li className="flex items-start gap-2 text-sm text-white">
             <span className="text-success mt-0.5">✓</span>
             {t({ pt: "Conteúdo criado por nutricionista certificada", en: "Content created by certified nutritionist" })}
           </li>
-          <li className="flex items-start gap-2 text-sm text-white/80">
+          <li className="flex items-start gap-2 text-sm text-white">
             <span className="text-success mt-0.5">✓</span>
             {t({ pt: "Acesso vitalício aos materiais comprados", en: "Lifetime access to purchased materials" })}
           </li>
-          <li className="flex items-start gap-2 text-sm text-white/80">
+          <li className="flex items-start gap-2 text-sm text-white">
             <span className="text-success mt-0.5">✓</span>
             {t({ pt: "Ferramentas práticas incluídas", en: "Practical tools included" })}
           </li>
-          <li className="flex items-start gap-2 text-sm text-white/80">
+          <li className="flex items-start gap-2 text-sm text-white">
             <span className="text-success mt-0.5">✓</span>
             {t({ pt: "Suporte por WhatsApp / Email", en: "WhatsApp / Email support" })}
           </li>
