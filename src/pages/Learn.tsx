@@ -9,6 +9,7 @@ import { AcademyHero } from "@/components/academy/AcademyHero";
 import { CourseCard } from "@/components/academy/CourseCard";
 import { CourseCategoryFilter } from "@/components/academy/CourseCategoryFilter";
 import { AcademyCard } from "@/components/academy/AcademyCard";
+import { TestimonialsSection } from "@/components/testimonials/TestimonialsSection";
 import { Skeleton } from "@/components/ui/skeleton";
 import { cn } from "@/lib/utils";
 
@@ -125,7 +126,13 @@ export default function Learn() {
       </div>
 
       {/* Hero Section (only on main view) */}
-      {activeType === "all" && !searchQuery && <AcademyHero />}
+      {activeType === "all" && !searchQuery && (
+        <>
+          <AcademyHero />
+          {/* Testimonials Section - below hero */}
+          <TestimonialsSection location="academy" className="mb-4" />
+        </>
+      )}
 
       {/* Search */}
       <div className="relative mb-4">

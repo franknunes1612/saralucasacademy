@@ -1,5 +1,5 @@
 import { useNavigate, Link } from "react-router-dom";
-import { ArrowLeft, LogOut, ChefHat, FileText, Sparkles, ShoppingBag, Heart, CreditCard, MessageCircle, Play } from "lucide-react";
+import { ArrowLeft, LogOut, ChefHat, FileText, Sparkles, ShoppingBag, Heart, CreditCard, MessageCircle, Play, MessageSquareQuote } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { useLanguage } from "@/hooks/useLanguage";
 
@@ -69,6 +69,13 @@ export default function AdminDashboard() {
       icon: Play,
       path: "/admin/onboarding",
       color: "bg-amber-500/20 text-amber-400",
+    },
+    {
+      title: { pt: "Testemunhos", en: "Testimonials" },
+      description: { pt: "Gerir testemunhos de clientes", en: "Manage customer testimonials" },
+      icon: MessageSquareQuote,
+      path: "/admin/testimonials",
+      color: "bg-rose-500/20 text-rose-400",
     },
   ];
 
