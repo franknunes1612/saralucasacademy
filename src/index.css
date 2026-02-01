@@ -53,13 +53,13 @@
 
     --radius: 1rem;
 
-    /* Macro colors - pastel versions for pink background */
-    /* Pastel Blue = Protein */
-    --macro-protein: 210 60% 75%;
-    /* Pastel Peach = Carbs */
-    --macro-carbs: 25 70% 75%;
-    /* Pastel Lavender = Fat */
-    --macro-fat: 275 50% 78%;
+    /* Macro colors - stronger versions for better legibility on pink */
+    /* Blue = Protein - more saturated and darker */
+    --macro-protein: 210 80% 55%;
+    /* Peach/Orange = Carbs - more saturated and warmer */
+    --macro-carbs: 30 85% 55%;
+    /* Lavender = Fat - more saturated */
+    --macro-fat: 270 65% 65%;
 
     /* Calorie tiers - soft pastels */
     --calorie-low: 155 45% 55%;
