@@ -29,6 +29,7 @@ export type Database = {
           description_pt: string | null
           difficulty_level: string | null
           display_order: number
+          download_url: string | null
           duration_label: string | null
           id: string
           instructor_name: string | null
@@ -65,6 +66,7 @@ export type Database = {
           description_pt?: string | null
           difficulty_level?: string | null
           display_order?: number
+          download_url?: string | null
           duration_label?: string | null
           id?: string
           instructor_name?: string | null
@@ -101,6 +103,7 @@ export type Database = {
           description_pt?: string | null
           difficulty_level?: string | null
           display_order?: number
+          download_url?: string | null
           duration_label?: string | null
           id?: string
           instructor_name?: string | null

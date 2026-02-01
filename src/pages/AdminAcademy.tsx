@@ -39,6 +39,7 @@ interface ExtendedFormData {
   currency: string;
   original_price: number | null;
   purchase_link: string | null;
+  download_url: string | null;
   is_active: boolean;
   is_featured: boolean;
   display_order: number;
@@ -70,6 +71,7 @@ const EMPTY_ITEM: ExtendedFormData = {
   currency: "EUR",
   original_price: null,
   purchase_link: null,
+  download_url: null,
   is_active: false,
   is_featured: false,
   display_order: 0,
@@ -126,6 +128,7 @@ export default function AdminAcademy() {
       currency: item.currency,
       original_price: item.original_price,
       purchase_link: item.purchase_link,
+      download_url: (item as any).download_url || null,
       is_active: item.is_active,
       is_featured: item.is_featured,
       display_order: item.display_order,
@@ -512,15 +515,32 @@ export default function AdminAcademy() {
             </div>
           </div>
 
-          {/* Purchase Link */}
+          {/* Download URL (for ebooks) */}
+          {formData.item_type === "ebook" && (
+            <div>
+              <label className="text-sm text-white/70 mb-1 block">
+                {t({ pt: "URL do Ficheiro (PDF)", en: "File URL (PDF)" })}
+              </label>
+              <Input
+                value={formData.download_url || ""}
+                onChange={(e) => setFormData({ ...formData, download_url: e.target.value || null })}
+                placeholder="https://... (link direto para o PDF)"
+              />
+              <p className="text-xs text-white/50 mt-1">
+                {t({ pt: "Cole aqui o link do Google Drive, Dropbox ou outro serviço", en: "Paste here the Google Drive, Dropbox or other service link" })}
+              </p>
+            </div>
+          )}
+
+          {/* Purchase Link (external) */}
           <div>
             <label className="text-sm text-white/70 mb-1 block">
-              {t({ pt: "Link de Compra", en: "Purchase Link" })}
+              {t({ pt: "Link de Compra Externo", en: "External Purchase Link" })}
             </label>
             <Input
               value={formData.purchase_link || ""}
               onChange={(e) => setFormData({ ...formData, purchase_link: e.target.value || null })}
-              placeholder="https://..."
+              placeholder="https://... (opcional)"
             />
           </div>
 

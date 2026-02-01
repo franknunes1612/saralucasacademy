@@ -587,9 +587,9 @@ export default function CourseDetail() {
           </div>
 
           {hasPurchased ? (
-            course.item_type === "ebook" && course.purchase_link ? (
+            course.item_type === "ebook" && (course as any).download_url ? (
               <a
-                href={course.purchase_link}
+                href={(course as any).download_url}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="flex items-center gap-2 px-6 py-3 rounded-xl bg-white text-[hsl(340_45%_45%)] font-semibold shadow-lg hover:bg-white/90 transition-colors"
