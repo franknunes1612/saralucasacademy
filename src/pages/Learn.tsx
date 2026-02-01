@@ -1,13 +1,14 @@
 import { useState, useMemo } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { motion } from "framer-motion";
-import { ArrowLeft, BookOpen, PlayCircle, Calendar, Package, Search, Sparkles, ShoppingBag, Dumbbell, Heart, Lock, ExternalLink } from "lucide-react";
+import { ArrowLeft, BookOpen, PlayCircle, Calendar, Package, Search, Sparkles, ShoppingBag, Dumbbell, Heart, ShoppingCart, ExternalLink, Loader2 } from "lucide-react";
 import { useLanguage } from "@/hooks/useLanguage";
 import { useCmsContent } from "@/hooks/useCmsContent";
 import { useAcademyItems, AcademyItemType, AcademyItem } from "@/hooks/useAcademyItems";
 import { useStoreItems, type StoreItem } from "@/hooks/useStoreItems";
 import { usePremiumOffers, type PremiumOffer } from "@/hooks/usePremiumOffers";
 import { useRecommendedProducts, type RecommendedProduct } from "@/hooks/useRecommendedProducts";
+import { useCheckout } from "@/hooks/useCheckout";
 import { AcademyHero } from "@/components/academy/AcademyHero";
 import { CourseCard } from "@/components/academy/CourseCard";
 import { CourseCategoryFilter } from "@/components/academy/CourseCategoryFilter";
@@ -26,11 +27,24 @@ type ExtendedAcademyItem = AcademyItem & {
 type TabType = AcademyItemType | "all" | "store";
 
 // Store Components
-function PremiumOfferCard({ offer, language }: { offer: PremiumOffer; language: "pt" | "en" }) {
+function PremiumOfferCard({ 
+  offer, 
+  language,
+  onPurchase,
+  isLoading 
+}: { 
+  offer: PremiumOffer & { stripe_price_id?: string; enable_purchase?: boolean; button_text_pt?: string; button_text_en?: string }; 
+  language: "pt" | "en";
+  onPurchase: (id: string) => void;
+  isLoading: boolean;
+}) {
   const title = language === "pt" ? offer.title_pt : offer.title_en;
   const subtitle = language === "pt" ? offer.subtitle_pt : offer.subtitle_en;
   const badge = language === "pt" ? offer.badge_pt : offer.badge_en;
   const features = language === "pt" ? offer.features_pt : offer.features_en;
+  const buttonText = language === "pt" 
+    ? (offer.button_text_pt || "Comprar") 
+    : (offer.button_text_en || "Buy");
 
   const billingLabel = {
     "one-time": language === "pt" ? "pagamento único" : "one-time",
@@ -40,6 +54,8 @@ function PremiumOfferCard({ offer, language }: { offer: PremiumOffer; language: 
 
   const currencySymbol = offer.currency === "EUR" ? "€" : offer.currency === "USD" ? "$" : "£";
   const priceDisplay = `${currencySymbol}${Number(offer.price).toFixed(2)}${billingLabel.startsWith("/") ? billingLabel : ""}`;
+
+  const canPurchase = offer.enable_purchase !== false;
 
   return (
     <motion.div
@@ -82,23 +98,52 @@ function PremiumOfferCard({ offer, language }: { offer: PremiumOffer; language: 
             <span className="text-xs text-white/50 ml-1">({billingLabel})</span>
           )}
         </div>
-        <button className="btn-primary px-5 py-2.5 rounded-xl text-sm font-medium flex items-center gap-1.5">
-          <Lock className="h-3.5 w-3.5" />
-          {language === "pt" ? "Desbloquear" : "Unlock"}
-        </button>
+        {canPurchase && (
+          <button 
+            onClick={() => onPurchase(offer.id)}
+            disabled={isLoading}
+            className="btn-primary px-5 py-2.5 rounded-xl text-sm font-medium flex items-center gap-1.5 disabled:opacity-50"
+          >
+            {isLoading ? (
+              <Loader2 className="h-3.5 w-3.5 animate-spin" />
+            ) : (
+              <ShoppingCart className="h-3.5 w-3.5" />
+            )}
+            {buttonText}
+          </button>
+        )}
       </div>
     </motion.div>
   );
 }
 
-function StoreItemCard({ item, language }: { item: StoreItem; language: "pt" | "en" }) {
+function StoreItemCard({ 
+  item, 
+  language,
+  onPurchase,
+  isLoading
+}: { 
+  item: StoreItem & { stripe_price_id?: string; button_text_pt?: string; button_text_en?: string }; 
+  language: "pt" | "en";
+  onPurchase: (id: string) => void;
+  isLoading: boolean;
+}) {
   const name = language === "pt" ? item.name_pt : item.name_en;
   const description = language === "pt" ? item.description_pt : item.description_en;
   const currencySymbol = item.currency === "EUR" ? "€" : item.currency === "USD" ? "$" : "£";
+  const buttonText = language === "pt" 
+    ? (item.button_text_pt || "Comprar") 
+    : (item.button_text_en || "Buy");
 
-  const handlePurchase = () => {
-    if (item.purchase_link) {
-      window.open(item.purchase_link, "_blank", "noopener,noreferrer");
+  // Determine if we should use Stripe or external link
+  const hasStripePrice = !!item.stripe_price_id;
+  const hasExternalLink = !!item.purchase_link;
+
+  const handleClick = () => {
+    if (hasStripePrice) {
+      onPurchase(item.id);
+    } else if (hasExternalLink) {
+      window.open(item.purchase_link!, "_blank", "noopener,noreferrer");
     }
   };
 
@@ -123,13 +168,20 @@ function StoreItemCard({ item, language }: { item: StoreItem; language: "pt" | "
             <span className="text-sm font-semibold text-white">
               {currencySymbol}{Number(item.price).toFixed(2)}
             </span>
-            {item.purchase_link && (
+            {(hasStripePrice || hasExternalLink) && (
               <button
-                onClick={handlePurchase}
-                className="flex items-center gap-1 px-3 py-1.5 rounded-lg bg-primary text-primary-foreground text-xs font-medium hover:bg-primary/90 transition-colors"
+                onClick={handleClick}
+                disabled={isLoading && hasStripePrice}
+                className="flex items-center gap-1 px-3 py-1.5 rounded-lg bg-primary text-primary-foreground text-xs font-medium hover:bg-primary/90 transition-colors disabled:opacity-50"
               >
-                {language === "pt" ? "Comprar" : "Buy"}
-                <ExternalLink className="h-3 w-3" />
+                {isLoading && hasStripePrice ? (
+                  <Loader2 className="h-3 w-3 animate-spin" />
+                ) : hasStripePrice ? (
+                  <ShoppingCart className="h-3 w-3" />
+                ) : (
+                  <ExternalLink className="h-3 w-3" />
+                )}
+                {buttonText}
               </button>
             )}
           </div>
@@ -214,6 +266,7 @@ export default function Learn() {
   const [searchQuery, setSearchQuery] = useState("");
   const [categoryFilter, setCategoryFilter] = useState("all");
   const [favorites, setFavorites] = useState<Set<string>>(new Set());
+  const [checkoutProductId, setCheckoutProductId] = useState<string | null>(null);
 
   const activeType = (searchParams.get("type") as TabType) || "all";
   const isStoreTab = activeType === "store";
@@ -226,6 +279,22 @@ export default function Learn() {
   const { data: premiumOffers, isLoading: offersLoading } = usePremiumOffers();
   const { data: storeItems, isLoading: storeLoading } = useStoreItems();
   const { data: recommendedProducts, isLoading: productsLoading } = useRecommendedProducts();
+
+  // Checkout hook
+  const { checkout, isLoading: isCheckingOut } = useCheckout({
+    onSuccess: () => setCheckoutProductId(null),
+    onError: () => setCheckoutProductId(null),
+  });
+
+  const handlePremiumPurchase = (offerId: string) => {
+    setCheckoutProductId(offerId);
+    checkout(offerId, "premium_offer", true);
+  };
+
+  const handleStorePurchase = (itemId: string) => {
+    setCheckoutProductId(itemId);
+    checkout(itemId, "store_item", true);
+  };
 
   // Type filters with CMS labels - now includes Store
   const TYPE_FILTERS = useMemo(() => [
@@ -421,7 +490,13 @@ export default function Learn() {
                     {language === "pt" ? "Planos & Serviços" : "Plans & Services"}
                   </h3>
                   {premiumOffers.map((offer) => (
-                    <PremiumOfferCard key={offer.id} offer={offer} language={language} />
+                    <PremiumOfferCard 
+                      key={offer.id} 
+                      offer={offer} 
+                      language={language}
+                      onPurchase={handlePremiumPurchase}
+                      isLoading={isCheckingOut && checkoutProductId === offer.id}
+                    />
                   ))}
                 </div>
               )}
@@ -433,7 +508,13 @@ export default function Learn() {
                     {language === "pt" ? "Produtos Digitais" : "Digital Products"}
                   </h3>
                   {storeItems.map((item) => (
-                    <StoreItemCard key={item.id} item={item} language={language} />
+                    <StoreItemCard 
+                      key={item.id} 
+                      item={item} 
+                      language={language}
+                      onPurchase={handleStorePurchase}
+                      isLoading={isCheckingOut && checkoutProductId === item.id}
+                    />
                   ))}
                 </div>
               )}
