@@ -168,13 +168,13 @@ export default function RecipeDetail() {
               >
                 {categoryLabels[recipe.category][language]}
               </span>
-              <div className="flex items-center gap-1 text-xs text-white/60">
+              <div className="flex items-center gap-1 text-xs text-white/80">
                 <Clock className="h-3.5 w-3.5" />
                 <span>{recipe.prepTime} min</span>
               </div>
             </div>
-            <p className="text-sm text-white/70">{recipe.description[language]}</p>
-            <p className="text-xs text-white/50 mt-1">{recipe.portion[language]}</p>
+            <p className="text-sm text-white">{recipe.description[language]}</p>
+            <p className="text-xs text-white/80 mt-1">{recipe.portion[language]}</p>
           </div>
         </div>
       </div>
@@ -188,14 +188,14 @@ export default function RecipeDetail() {
           <div className="flex items-center justify-between">
             <div className="text-center flex-1">
               <p className="text-2xl font-bold text-white">~{recipe.calories}</p>
-              <p className="text-xs text-white/50">kcal</p>
+              <p className="text-xs text-white/80">kcal</p>
             </div>
             <div className="w-px h-10 bg-white/10" />
             <div className="text-center flex-1">
               <p className="text-lg font-semibold macro-protein">
                 {recipe.macros.protein}g
               </p>
-              <p className="text-xs text-white/50">
+              <p className="text-xs text-white">
                 {t({ pt: "Proteína", en: "Protein" })}
               </p>
             </div>
@@ -204,14 +204,14 @@ export default function RecipeDetail() {
               <p className="text-lg font-semibold macro-carbs">
                 {recipe.macros.carbs}g
               </p>
-              <p className="text-xs text-white/50">
+              <p className="text-xs text-white">
                 {t({ pt: "Carbos", en: "Carbs" })}
               </p>
             </div>
             <div className="w-px h-10 bg-white/10" />
             <div className="text-center flex-1">
               <p className="text-lg font-semibold macro-fat">{recipe.macros.fat}g</p>
-              <p className="text-xs text-white/50">
+              <p className="text-xs text-white">
                 {t({ pt: "Gordura", en: "Fat" })}
               </p>
             </div>
