@@ -10,22 +10,22 @@ const TYPE_CONFIG: Record<
 > = {
   ebook: {
     icon: BookOpen,
-    color: "bg-blue-500/20 text-blue-300",
+    color: "bg-blue-100 text-blue-700",
     label: { pt: "Ebook", en: "Ebook" },
   },
   course: {
     icon: PlayCircle,
-    color: "bg-purple-500/20 text-purple-300",
+    color: "bg-purple-100 text-purple-700",
     label: { pt: "Curso", en: "Course" },
   },
   program: {
     icon: Calendar,
-    color: "bg-green-500/20 text-green-300",
+    color: "bg-green-100 text-green-700",
     label: { pt: "Programa", en: "Program" },
   },
   bundle: {
     icon: Package,
-    color: "bg-orange-500/20 text-orange-300",
+    color: "bg-orange-100 text-orange-700",
     label: { pt: "Bundle", en: "Bundle" },
   },
 };
@@ -75,10 +75,10 @@ export function AcademyCard({ item, compact = false }: AcademyCardProps) {
     return (
       <button
         onClick={handleClick}
-        className="result-card p-4 w-40 flex-shrink-0 text-left hover:scale-[1.02] transition-transform"
+        className="bg-white rounded-2xl p-4 w-40 flex-shrink-0 text-left hover:shadow-lg transition-all shadow-md border border-border/50"
       >
         {/* Cover */}
-        <div className="aspect-[4/3] rounded-xl bg-white/10 flex items-center justify-center mb-3 overflow-hidden">
+        <div className="aspect-[4/3] rounded-xl bg-muted flex items-center justify-center mb-3 overflow-hidden">
           {item.cover_image_url ? (
             <img
               src={item.cover_image_url}
@@ -92,24 +92,24 @@ export function AcademyCard({ item, compact = false }: AcademyCardProps) {
 
         {/* Type badge */}
         <div className="flex items-center gap-1 mb-1">
-          <span className={cn("text-[10px] px-1.5 py-0.5 rounded-full font-medium", config.color)}>
+          <span className={cn("text-[10px] px-1.5 py-0.5 rounded-full font-bold", config.color)}>
             {t(config.label)}
           </span>
           {badge && (
-            <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-success/20 text-success font-medium">
+            <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-green-100 text-green-700 font-bold">
               {badge}
             </span>
           )}
         </div>
 
         {/* Title */}
-        <h3 className="font-semibold text-white text-sm line-clamp-2 mb-1">{title}</h3>
+        <h3 className="font-bold text-foreground text-sm line-clamp-2 mb-1">{title}</h3>
 
         {/* Price */}
         <div className="flex items-center gap-1.5">
-          <span className="text-sm font-bold text-white">{formatPrice(item.price)}</span>
+          <span className="text-sm font-bold text-primary">{formatPrice(item.price)}</span>
           {hasDiscount && (
-            <span className="text-[10px] text-white/50 line-through">
+            <span className="text-[10px] text-muted-foreground line-through">
               {formatPrice(item.original_price!)}
             </span>
           )}
@@ -121,11 +121,11 @@ export function AcademyCard({ item, compact = false }: AcademyCardProps) {
   return (
     <button
       onClick={handleClick}
-      className="result-card p-4 w-full text-left hover:bg-white/5 transition-colors"
+      className="bg-white rounded-2xl p-4 w-full text-left hover:shadow-lg transition-all shadow-md border border-border/50"
     >
       <div className="flex gap-4">
         {/* Cover */}
-        <div className="w-20 h-20 rounded-xl bg-white/10 flex items-center justify-center flex-shrink-0 overflow-hidden">
+        <div className="w-20 h-20 rounded-xl bg-muted flex items-center justify-center flex-shrink-0 overflow-hidden">
           {item.cover_image_url ? (
             <img
               src={item.cover_image_url}
@@ -141,39 +141,39 @@ export function AcademyCard({ item, compact = false }: AcademyCardProps) {
         <div className="flex-1 min-w-0">
           <div className="flex items-start justify-between gap-2 mb-1">
             <div className="flex items-center gap-1.5 flex-wrap">
-              <span className={cn("text-[10px] px-1.5 py-0.5 rounded-full font-medium", config.color)}>
+              <span className={cn("text-[10px] px-1.5 py-0.5 rounded-full font-bold", config.color)}>
                 {t(config.label)}
               </span>
               {badge && (
-                <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-success/20 text-success font-medium">
+                <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-green-100 text-green-700 font-bold">
                   {badge}
                 </span>
               )}
               {hasDiscount && (
-                <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-destructive/20 text-destructive font-medium">
+                <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-red-100 text-red-700 font-bold">
                   -{discountPercent}%
                 </span>
               )}
             </div>
             {item.purchase_link && (
-              <ExternalLink className="h-4 w-4 text-white/40 flex-shrink-0" />
+              <ExternalLink className="h-4 w-4 text-muted-foreground flex-shrink-0" />
             )}
           </div>
 
-          <h3 className="font-semibold text-white line-clamp-1 mb-0.5">{title}</h3>
+          <h3 className="font-bold text-foreground line-clamp-1 mb-0.5">{title}</h3>
 
           {subtitle && (
-            <p className="text-xs text-white/60 line-clamp-1 mb-1">{subtitle}</p>
+            <p className="text-xs text-muted-foreground line-clamp-1 mb-1">{subtitle}</p>
           )}
 
           {item.duration_label && (
-            <p className="text-[10px] text-white/50 mb-2">{item.duration_label}</p>
+            <p className="text-[10px] text-muted-foreground mb-2">{item.duration_label}</p>
           )}
 
           <div className="flex items-center gap-2">
-            <span className="text-base font-bold text-white">{formatPrice(item.price)}</span>
+            <span className="text-base font-bold text-primary">{formatPrice(item.price)}</span>
             {hasDiscount && (
-              <span className="text-xs text-white/50 line-through">
+              <span className="text-xs text-muted-foreground line-through">
                 {formatPrice(item.original_price!)}
               </span>
             )}
