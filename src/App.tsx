@@ -40,6 +40,7 @@ import TermsOfUse from "./pages/TermsOfUse";
 import Support from "./pages/Support";
 import AdminSupport from "./pages/AdminSupport";
 import AdminOnboarding from "./pages/AdminOnboarding";
+import AdminTestimonials from "./pages/AdminTestimonials";
 import NotFound from "./pages/NotFound";
 import { NutritionistFAB } from "./components/NutritionistFAB";
 
@@ -283,6 +284,11 @@ const App = () => (
                 </AdminAuthGuard>
               } />
               <Route path="/admin/onboarding" element={<AdminOnboarding />} />
+              <Route path="/admin/testimonials" element={
+                <AdminAuthGuard>
+                  <AdminTestimonials />
+                </AdminAuthGuard>
+              } />
               
               {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
               <Route path="*" element={<NotFound />} />

@@ -12,6 +12,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import { VideoPlayer } from "@/components/academy/VideoPlayer";
 import { LessonList } from "@/components/academy/LessonList";
+import { TestimonialsSection } from "@/components/testimonials/TestimonialsSection";
 import { Progress } from "@/components/ui/progress";
 import { Skeleton } from "@/components/ui/skeleton";
 import { toast } from "sonner";
@@ -526,6 +527,9 @@ export default function CourseDetail() {
             </button>
           </motion.div>
         )}
+
+        {/* Testimonials Section */}
+        <TestimonialsSection productId={itemId} location="academy" className="mt-4" />
 
         {/* Info Banner */}
         <div className="p-4 rounded-xl bg-white/5 border border-white/10">

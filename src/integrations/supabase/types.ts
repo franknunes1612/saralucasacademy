@@ -595,6 +595,65 @@ export type Database = {
         }
         Relationships: []
       }
+      testimonials: {
+        Row: {
+          category: string
+          created_at: string
+          display_order: number
+          id: string
+          is_active: boolean
+          linked_product_id: string | null
+          name: string
+          photo_url: string | null
+          rating: number | null
+          show_on_academy: boolean
+          show_on_homepage: boolean
+          text_en: string
+          text_pt: string
+          updated_at: string
+        }
+        Insert: {
+          category?: string
+          created_at?: string
+          display_order?: number
+          id?: string
+          is_active?: boolean
+          linked_product_id?: string | null
+          name: string
+          photo_url?: string | null
+          rating?: number | null
+          show_on_academy?: boolean
+          show_on_homepage?: boolean
+          text_en: string
+          text_pt: string
+          updated_at?: string
+        }
+        Update: {
+          category?: string
+          created_at?: string
+          display_order?: number
+          id?: string
+          is_active?: boolean
+          linked_product_id?: string | null
+          name?: string
+          photo_url?: string | null
+          rating?: number | null
+          show_on_academy?: boolean
+          show_on_homepage?: boolean
+          text_en?: string
+          text_pt?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "testimonials_linked_product_id_fkey"
+            columns: ["linked_product_id"]
+            isOneToOne: false
+            referencedRelation: "academy_items"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       user_lesson_progress: {
         Row: {
           completed: boolean
