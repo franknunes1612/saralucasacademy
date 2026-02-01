@@ -96,21 +96,21 @@ export function WhyAcademySection() {
 
   return (
     <section className="mb-6 -mx-4">
-      {/* Full-width premium container - STRONG SOLID BACKGROUND */}
+      {/* Full-width premium container */}
       <div className="relative overflow-hidden">
-        {/* Deep, rich gradient background - NOT pastel */}
-        <div className="absolute inset-0 bg-gradient-to-br from-[hsl(340,35%,45%)] via-[hsl(25,30%,40%)] to-[hsl(340,30%,38%)]" />
+        {/* Brand pink gradient background - matches site design system */}
+        <div className="absolute inset-0 bg-gradient-to-br from-primary via-primary/95 to-secondary" />
         
-        {/* Dark overlay for extra depth */}
+        {/* Subtle overlay for depth - admin adjustable */}
         <div 
           className="absolute inset-0 bg-black"
-          style={{ opacity: parseInt(overlayOpacity) / 100 * 0.3 }}
+          style={{ opacity: parseInt(overlayOpacity) / 100 * 0.15 }}
         />
 
-        {/* Subtle decorative elements - muted */}
+        {/* Subtle decorative elements */}
         <div className="absolute top-0 left-0 w-full h-full pointer-events-none">
-          <div className="absolute -top-20 -right-20 w-56 h-56 bg-white/5 rounded-full blur-3xl" />
-          <div className="absolute -bottom-16 -left-16 w-48 h-48 bg-[hsl(30,40%,50%)]/10 rounded-full blur-3xl" />
+          <div className="absolute -top-20 -right-20 w-56 h-56 bg-white/10 rounded-full blur-3xl" />
+          <div className="absolute -bottom-16 -left-16 w-48 h-48 bg-secondary/20 rounded-full blur-3xl" />
         </div>
 
         {/* Content */}
