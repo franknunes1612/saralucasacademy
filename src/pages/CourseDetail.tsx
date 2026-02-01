@@ -290,15 +290,17 @@ export default function CourseDetail() {
             )}
           </div>
         ) : (
-          <div className="aspect-video rounded-2xl bg-gradient-to-br from-[hsl(340_40%_65%)] to-[hsl(30_40%_70%)] flex items-center justify-center">
+          <div className="rounded-2xl bg-white/5 flex items-center justify-center overflow-hidden">
             {course.cover_image_url ? (
               <img
                 src={course.cover_image_url}
                 alt={title}
-                className="w-full h-full object-cover object-top rounded-2xl"
+                className="w-full h-auto rounded-2xl"
               />
             ) : (
-              <span className="text-8xl">{course.cover_emoji || "🎓"}</span>
+              <div className="aspect-video w-full flex items-center justify-center bg-gradient-to-br from-[hsl(340_40%_65%)] to-[hsl(30_40%_70%)] rounded-2xl">
+                <span className="text-8xl">{course.cover_emoji || "🎓"}</span>
+              </div>
             )}
           </div>
         )}
