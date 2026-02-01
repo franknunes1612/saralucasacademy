@@ -27,9 +27,9 @@ export function EbookFileUpload({
       return;
     }
 
-    // Validate file size (max 20MB)
-    if (file.size > 20 * 1024 * 1024) {
-      toast.error(t({ pt: "Ficheiro muito grande (máx. 20MB)", en: "File too large (max 20MB)" }));
+    // Validate file size (max 50MB)
+    if (file.size > 50 * 1024 * 1024) {
+      toast.error(t({ pt: "Ficheiro muito grande (máx. 50MB)", en: "File too large (max 50MB)" }));
       return;
     }
 
@@ -135,7 +135,7 @@ export function EbookFileUpload({
                 {t({ pt: "Clica para carregar PDF", en: "Click to upload PDF" })}
               </span>
               <span className="text-xs text-white/40">
-                {t({ pt: "Máximo 20MB", en: "Maximum 20MB" })}
+                {t({ pt: "Máximo 50MB", en: "Maximum 50MB" })}
               </span>
             </>
           )}
