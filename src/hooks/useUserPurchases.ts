@@ -14,6 +14,12 @@ export interface UserPurchase {
   status: string;
   created_at: string;
   updated_at: string;
+  // Joined fields from academy_items
+  item_type?: string;
+  title_pt?: string;
+  title_en?: string;
+  purchase_link?: string;
+  cover_image_url?: string;
 }
 
 export function useUserPurchases() {
@@ -26,12 +32,31 @@ export function useUserPurchases() {
       
       const { data, error } = await supabase
         .from("user_purchases")
-        .select("*")
+        .select(`
+          *,
+          academy_items:course_id (
+            item_type,
+            title_pt,
+            title_en,
+            purchase_link,
+            cover_image_url
+          )
+        `)
         .eq("user_id", user.id)
         .eq("status", "completed");
 
       if (error) throw error;
-      return data as UserPurchase[];
+      
+      // Flatten the joined data
+      return (data || []).map((purchase: any) => ({
+        ...purchase,
+        item_type: purchase.academy_items?.item_type,
+        title_pt: purchase.academy_items?.title_pt,
+        title_en: purchase.academy_items?.title_en,
+        purchase_link: purchase.academy_items?.purchase_link,
+        cover_image_url: purchase.academy_items?.cover_image_url,
+        academy_items: undefined, // Remove nested object
+      })) as UserPurchase[];
     },
     enabled: !!user,
   });

@@ -587,13 +587,25 @@ export default function CourseDetail() {
           </div>
 
           {hasPurchased ? (
-            <button
-              onClick={() => lessons?.[0] && handleLessonSelect(lessons[0])}
-              className="flex items-center gap-2 px-6 py-3 rounded-xl bg-white text-[hsl(340_45%_45%)] font-semibold shadow-lg hover:bg-white/90 transition-colors"
-            >
-              <BookOpen className="h-5 w-5" />
-              <span>{cms.get("academy.detail.continue")}</span>
-            </button>
+            course.item_type === "ebook" && course.purchase_link ? (
+              <a
+                href={course.purchase_link}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center gap-2 px-6 py-3 rounded-xl bg-white text-[hsl(340_45%_45%)] font-semibold shadow-lg hover:bg-white/90 transition-colors"
+              >
+                <Download className="h-5 w-5" />
+                <span>{language === "pt" ? "Abrir Ebook" : "Open Ebook"}</span>
+              </a>
+            ) : (
+              <button
+                onClick={() => lessons?.[0] && handleLessonSelect(lessons[0])}
+                className="flex items-center gap-2 px-6 py-3 rounded-xl bg-white text-[hsl(340_45%_45%)] font-semibold shadow-lg hover:bg-white/90 transition-colors"
+              >
+                <BookOpen className="h-5 w-5" />
+                <span>{cms.get("academy.detail.continue")}</span>
+              </button>
+            )
           ) : user ? (
             <button
               onClick={() => handlePurchase(false)}
