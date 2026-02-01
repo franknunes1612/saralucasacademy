@@ -28,7 +28,7 @@ const ICON_MAP: Record<string, React.ComponentType<{ className?: string }>> = {
 
 /**
  * Premium "Why Sara Lucas Academy?" section
- * High-impact, scroll-stopping design
+ * High-impact, scroll-stopping design with strong contrast
  * All content controlled via CMS (home.whyAcademy.*)
  */
 export function WhyAcademySection() {
@@ -39,6 +39,10 @@ export function WhyAcademySection() {
   // Check if section is enabled
   const isEnabled = cms.get("home.whyAcademy.enabled", { pt: "true", en: "true" }) === "true";
   if (!isEnabled) return null;
+
+  // Visual settings from CMS
+  const overlayOpacity = cms.get("home.whyAcademy.overlayOpacity", { pt: "15", en: "15" });
+  const cardOpacity = cms.get("home.whyAcademy.cardOpacity", { pt: "90", en: "90" });
 
   // Badge text
   const badge = cms.get("home.whyAcademy.badge", {
@@ -92,66 +96,83 @@ export function WhyAcademySection() {
 
   return (
     <section className="mb-6 -mx-4">
-      {/* Full-width premium container */}
-      <div className="relative overflow-hidden bg-gradient-to-br from-secondary/15 via-primary/8 to-[hsl(30,30%,85%)]/20 px-4 py-8">
+      {/* Full-width premium container with gradient */}
+      <div className="relative overflow-hidden">
+        {/* Base gradient background */}
+        <div className="absolute inset-0 bg-gradient-to-br from-secondary/25 via-primary/15 to-[hsl(30,35%,75%)]/30" />
+        
+        {/* Dark overlay for contrast */}
+        <div 
+          className="absolute inset-0 bg-black/[0.12]"
+          style={{ opacity: parseInt(overlayOpacity) / 100 }}
+        />
+
         {/* Decorative background elements */}
-        <div className="absolute top-0 left-0 w-full h-full">
-          <div className="absolute -top-20 -right-20 w-48 h-48 bg-secondary/10 rounded-full blur-3xl" />
-          <div className="absolute -bottom-16 -left-16 w-40 h-40 bg-primary/8 rounded-full blur-3xl" />
-          <div className="absolute top-1/2 right-1/4 w-24 h-24 bg-[hsl(30,40%,80%)]/15 rounded-full blur-2xl" />
+        <div className="absolute top-0 left-0 w-full h-full pointer-events-none">
+          <div className="absolute -top-20 -right-20 w-48 h-48 bg-secondary/15 rounded-full blur-3xl" />
+          <div className="absolute -bottom-16 -left-16 w-40 h-40 bg-primary/12 rounded-full blur-3xl" />
         </div>
 
         {/* Content */}
-        <div className="relative z-10 max-w-lg mx-auto">
-          {/* Badge pill */}
+        <div className="relative z-10 px-4 py-8 max-w-lg mx-auto">
+          {/* Badge pill - Strong contrast */}
           <div className="flex justify-center mb-4">
-            <span className="inline-flex items-center gap-1.5 px-4 py-1.5 rounded-full bg-white/10 backdrop-blur-sm border border-white/10 text-xs font-medium text-white/80">
-              <Sparkles className="h-3 w-3 text-secondary" />
+            <span className="inline-flex items-center gap-1.5 px-4 py-1.5 rounded-full bg-white/20 backdrop-blur-md border border-white/30 text-xs font-semibold text-white shadow-sm">
+              <Sparkles className="h-3 w-3 text-white" />
               {badge}
             </span>
           </div>
 
-          {/* Main title - Bold & Dominant */}
-          <h2 className="text-2xl sm:text-3xl font-bold text-white text-center mb-3 tracking-tight leading-tight">
+          {/* Main title - Bold, Strong White with text shadow */}
+          <h2 
+            className="text-2xl sm:text-3xl font-extrabold text-white text-center mb-3 tracking-tight leading-tight"
+            style={{ textShadow: "0 2px 8px rgba(0,0,0,0.25)" }}
+          >
             {title}
           </h2>
 
-          {/* Emotional subtitle */}
-          <p className="text-sm sm:text-base text-white/70 text-center mb-6 leading-relaxed max-w-md mx-auto font-light">
+          {/* Emotional subtitle - High opacity */}
+          <p 
+            className="text-sm sm:text-base text-white text-center mb-6 leading-relaxed max-w-md mx-auto font-medium opacity-95"
+            style={{ textShadow: "0 1px 4px rgba(0,0,0,0.2)" }}
+          >
             {subtitle}
           </p>
 
-          {/* Authority badge */}
+          {/* Authority badge - Clear and readable */}
           <div className="flex justify-center mb-6">
-            <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg bg-secondary/10 border border-secondary/20">
-              <Award className="h-4 w-4 text-secondary" />
-              <span className="text-xs font-medium text-secondary/90">
+            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-white/25 backdrop-blur-md border border-white/35 shadow-sm">
+              <Award className="h-4 w-4 text-white" />
+              <span className="text-xs font-bold text-white tracking-wide">
                 {authority}
               </span>
             </div>
           </div>
 
-          {/* Feature Cards Grid */}
+          {/* Feature Cards Grid - High opacity cards */}
           <div className="grid grid-cols-2 gap-3 mb-6">
             {features.map((feature, index) => {
               const IconComponent = ICON_MAP[feature.icon] || CheckCircle2;
               return (
                 <div
                   key={index}
-                  className="group relative bg-white/8 backdrop-blur-sm rounded-2xl p-4 border border-white/10 hover:bg-white/12 hover:border-white/20 transition-all duration-300"
+                  className="group relative rounded-2xl p-4 border border-white/20 shadow-lg hover:shadow-xl transition-all duration-300"
+                  style={{ 
+                    backgroundColor: `rgba(255, 252, 250, ${parseInt(cardOpacity) / 100})`,
+                  }}
                 >
                   {/* Icon container */}
-                  <div className="mb-3 p-2.5 w-fit rounded-xl bg-gradient-to-br from-secondary/25 to-primary/15 group-hover:from-secondary/35 group-hover:to-primary/25 transition-colors">
-                    <IconComponent className="h-5 w-5 text-secondary" />
+                  <div className="mb-3 p-2.5 w-fit rounded-xl bg-gradient-to-br from-primary/30 to-secondary/40 group-hover:from-primary/40 group-hover:to-secondary/50 transition-colors shadow-sm">
+                    <IconComponent className="h-5 w-5 text-primary" />
                   </div>
 
-                  {/* Title */}
-                  <h3 className="text-sm font-semibold text-white mb-1 leading-tight">
+                  {/* Title - Strong contrast */}
+                  <h3 className="text-sm font-bold text-foreground mb-1.5 leading-tight">
                     {feature.title}
                   </h3>
 
-                  {/* Description */}
-                  <p className="text-[11px] text-white/60 leading-snug">
+                  {/* Description - Readable */}
+                  <p className="text-[11px] text-muted-foreground leading-snug font-medium">
                     {feature.description}
                   </p>
                 </div>
@@ -159,17 +180,17 @@ export function WhyAcademySection() {
             })}
           </div>
 
-          {/* Soft CTA */}
+          {/* Soft CTA - Strong visibility */}
           {ctaEnabled && (
             <div className="flex justify-center">
               <button
                 onClick={() => navigate("/learn")}
-                className="group inline-flex items-center gap-2 px-6 py-3 rounded-full bg-white/10 hover:bg-white/15 border border-white/15 hover:border-white/25 backdrop-blur-sm transition-all duration-300"
+                className="group inline-flex items-center gap-2 px-6 py-3 rounded-full bg-white/95 hover:bg-white border border-white/50 shadow-lg hover:shadow-xl transition-all duration-300"
               >
-                <span className="text-sm font-medium text-white">
+                <span className="text-sm font-bold text-foreground">
                   {ctaText}
                 </span>
-                <ChevronRight className="h-4 w-4 text-white/70 group-hover:translate-x-0.5 transition-transform" />
+                <ChevronRight className="h-4 w-4 text-primary group-hover:translate-x-0.5 transition-transform" />
               </button>
             </div>
           )}
