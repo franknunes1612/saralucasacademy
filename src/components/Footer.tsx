@@ -28,7 +28,7 @@ export function Footer() {
     <footer className="w-full py-4 px-4 border-t border-white/5 bg-background/50 backdrop-blur-sm">
       <div className="max-w-lg mx-auto flex flex-col items-center gap-2">
         {/* Copyright text */}
-        <p className="text-xs text-white/40 font-light tracking-wide">
+        <p className="text-sm text-white/80 font-light tracking-wide">
           {copyrightText}
         </p>
 
@@ -37,14 +37,14 @@ export function Footer() {
           <div className="flex items-center gap-4">
             <Link
               to="/terms"
-              className="text-[10px] text-white/30 hover:text-white/50 transition-colors"
+              className="text-xs text-white/60 hover:text-white/90 transition-colors"
             >
               {language === "pt" ? "Termos de Uso" : "Terms of Use"}
             </Link>
-            <span className="text-white/20">•</span>
+            <span className="text-white/40">•</span>
             <Link
               to="/support"
-              className="text-[10px] text-white/30 hover:text-white/50 transition-colors"
+              className="text-xs text-white/60 hover:text-white/90 transition-colors"
             >
               {language === "pt" ? "Suporte" : "Support"}
             </Link>
