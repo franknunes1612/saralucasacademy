@@ -214,10 +214,10 @@ export function WaterTracker() {
             <Droplets className="h-5 w-5" />
           </div>
           <div>
-            <h3 className="font-semibold text-white">
+            <h3 className="text-lg font-semibold text-white">
               {t({ pt: "Hidratação", en: "Hydration" })}
             </h3>
-            <p className="text-xs text-white/60">
+            <p className="text-sm text-white/90">
               {t({ pt: `Meta: ${data.goal / 1000}L`, en: `Goal: ${data.goal / 1000}L` })}
             </p>
           </div>
