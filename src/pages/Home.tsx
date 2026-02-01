@@ -115,10 +115,10 @@ export default function Home() {
             <h2 className="text-lg font-bold text-white leading-tight mb-1">
               {t({ pt: "Olá, sou a Sara Lucas", en: "Hi, I'm Sara Lucas" })}
             </h2>
-            <p className="text-sm text-white/70 mb-2">
+            <p className="text-sm text-white mb-2">
               {t({ pt: "Nutricionista / Personal Trainer Certificada", en: "Certified Nutritionist / Personal Trainer" })}
             </p>
-            <p className="text-xs text-white/60 line-clamp-2">
+            <p className="text-xs text-white/80 line-clamp-2">
               {t({
                 pt: "Ajudo-te a transformar a tua alimentação e alcançar os teus objetivos.",
                 en: "I help you transform your nutrition and reach your goals.",
@@ -150,7 +150,7 @@ export default function Home() {
           <h3 className="font-semibold text-white text-sm mb-0.5">
             {t({ pt: "Ferramentas", en: "Tools" })}
           </h3>
-          <p className="text-[11px] text-white/60">
+          <p className="text-[11px] text-white/80">
             {t({ pt: "Scanner de alimentos e mais", en: "Food scanner and more" })}
           </p>
         </button>
@@ -165,7 +165,7 @@ export default function Home() {
           <h3 className="font-semibold text-white text-sm mb-0.5">
             {t({ pt: "Consulta", en: "Consultation" })}
           </h3>
-          <p className="text-[11px] text-white/60">
+          <p className="text-[11px] text-white/80">
             {t({ pt: "Falar com nutricionista", en: "Talk to nutritionist" })}
           </p>
         </button>
