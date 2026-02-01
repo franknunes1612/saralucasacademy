@@ -328,11 +328,11 @@ export default function Profile() {
           {/* Email/Password Auth */}
           <div className="result-card p-5">
             <Tabs value={authTab} onValueChange={(v) => setAuthTab(v as "login" | "signup")}>
-              <TabsList className="grid w-full grid-cols-2 bg-white/5">
-                <TabsTrigger value="login" className="data-[state=active]:bg-white/10">
+              <TabsList className="grid w-full grid-cols-2 bg-white/10">
+                <TabsTrigger value="login" className="text-white/80 data-[state=active]:bg-white/20 data-[state=active]:text-white">
                   {t({ pt: "Entrar", en: "Log In" })}
                 </TabsTrigger>
-                <TabsTrigger value="signup" className="data-[state=active]:bg-white/10">
+                <TabsTrigger value="signup" className="text-white/80 data-[state=active]:bg-white/20 data-[state=active]:text-white">
                   {t({ pt: "Criar Conta", en: "Sign Up" })}
                 </TabsTrigger>
               </TabsList>
@@ -340,13 +340,13 @@ export default function Profile() {
               <form onSubmit={handleEmailAuth} className="mt-4 space-y-4">
                 <div className="space-y-2">
                   <div className="relative">
-                    <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-white/40" />
+                    <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-white/60" />
                     <Input
                       type="email"
                       placeholder={t({ pt: "Email", en: "Email" })}
                       value={email}
                       onChange={(e) => setEmail(e.target.value)}
-                      className="pl-10 bg-white/5 border-white/10 text-white placeholder:text-white/40"
+                      className="pl-10 bg-white/5 border-white/10 text-white placeholder:text-white/60"
                       required
                     />
                   </div>
@@ -354,20 +354,20 @@ export default function Profile() {
 
                 <div className="space-y-2">
                   <div className="relative">
-                    <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-white/40" />
+                    <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-white/60" />
                     <Input
                       type={showPassword ? "text" : "password"}
                       placeholder={t({ pt: "Palavra-passe", en: "Password" })}
                       value={password}
                       onChange={(e) => setPassword(e.target.value)}
-                      className="pl-10 pr-10 bg-white/5 border-white/10 text-white placeholder:text-white/40"
+                      className="pl-10 pr-10 bg-white/5 border-white/10 text-white placeholder:text-white/60"
                       required
                       minLength={6}
                     />
                     <button
                       type="button"
                       onClick={() => setShowPassword(!showPassword)}
-                      className="absolute right-3 top-1/2 -translate-y-1/2 text-white/40 hover:text-white/60"
+                      className="absolute right-3 top-1/2 -translate-y-1/2 text-white/60 hover:text-white/80"
                     >
                       {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                     </button>
