@@ -39,7 +39,7 @@ function ProductCard({ product, language }: ProductCardProps) {
 
       {/* Brand tag */}
       {product.brand && (
-        <span className="text-[10px] text-primary font-medium uppercase tracking-wide mb-1">
+        <span className="text-[10px] text-white/70 font-medium uppercase tracking-wide mb-1">
           {product.brand}
         </span>
       )}
@@ -57,7 +57,7 @@ function ProductCard({ product, language }: ProductCardProps) {
       )}
 
       {/* CTA */}
-      <div className="flex items-center gap-1 text-xs text-primary font-medium mt-auto pt-2">
+      <div className="flex items-center gap-1 text-xs text-white/80 font-medium mt-auto pt-2 group-hover:text-white transition-colors">
         <span>{language === "pt" ? "Ver Produto" : "View Product"}</span>
         <ExternalLink className="h-3 w-3" />
       </div>
