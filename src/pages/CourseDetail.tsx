@@ -588,15 +588,13 @@ export default function CourseDetail() {
 
           {hasPurchased ? (
             course.item_type === "ebook" && (course as any).download_url ? (
-              <a
-                href={(course as any).download_url}
-                target="_blank"
-                rel="noopener noreferrer"
+              <button
+                onClick={() => navigate(`/learn/ebook/${itemId}/view`)}
                 className="flex items-center gap-2 px-6 py-3 rounded-xl bg-white text-[hsl(340_45%_45%)] font-semibold shadow-lg hover:bg-white/90 transition-colors"
               >
                 <Download className="h-5 w-5" />
                 <span>{language === "pt" ? "Abrir Ebook" : "Open Ebook"}</span>
-              </a>
+              </button>
             ) : (
               <button
                 onClick={() => lessons?.[0] && handleLessonSelect(lessons[0])}

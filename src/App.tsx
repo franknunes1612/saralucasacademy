@@ -15,6 +15,7 @@ import { useCmsContent } from "@/hooks/useCmsContent";
 import Home from "./pages/Home";
 import Learn from "./pages/Learn";
 import CourseDetail from "./pages/CourseDetail";
+import EbookViewer from "./pages/EbookViewer";
 import Tools from "./pages/Tools";
 import Profile from "./pages/Profile";
 import Scanner from "./pages/Index"; // Renamed from Index - the scanner page
@@ -229,6 +230,7 @@ const App = () => (
               <Route path="/learn/course/:courseId" element={<CourseDetail />} />
               <Route path="/learn/program/:programId" element={<CourseDetail />} />
               <Route path="/learn/ebook/:ebookId" element={<CourseDetail />} />
+              <Route path="/learn/ebook/:ebookId/view" element={<EbookViewer />} />
               <Route path="/learn/bundle/:bundleId" element={<CourseDetail />} />
               <Route path="/tools" element={<Tools />} />
               <Route path="/profile" element={<Profile />} />
