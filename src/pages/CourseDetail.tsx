@@ -53,24 +53,15 @@ export default function CourseDetail() {
   const [isCheckingOut, setIsCheckingOut] = useState(false);
   const [isVerifyingPayment, setIsVerifyingPayment] = useState(false);
 
-  // Fetch item details (works for courses, programs, ebooks, bundles)
-  const { data: allCourses, isLoading: isLoadingCourses } = useAcademyItems("course");
-  const { data: allPrograms, isLoading: isLoadingPrograms } = useAcademyItems("program");
-  const { data: allEbooks, isLoading: isLoadingEbooks } = useAcademyItems("ebook");
-  const { data: allBundles, isLoading: isLoadingBundles } = useAcademyItems("bundle");
+  // Determine item type from route
+  const itemType = isEbook ? "ebook" : isProgram ? "program" : isBundle ? "bundle" : "course";
+  
+  // Fetch only the relevant item type based on route (faster than fetching all)
+  const { data: items, isLoading: isLoadingCourse } = useAcademyItems(itemType);
   
   const course = useMemo(() => {
-    // Search in all item types
-    const allItems = [
-      ...(allCourses || []),
-      ...(allPrograms || []),
-      ...(allEbooks || []),
-      ...(allBundles || []),
-    ];
-    return allItems.find((item) => item.id === itemId) as ExtendedAcademyItem | undefined;
-  }, [allCourses, allPrograms, allEbooks, allBundles, itemId]);
-  
-  const isLoadingCourse = isLoadingCourses || isLoadingPrograms || isLoadingEbooks || isLoadingBundles;
+    return items?.find((item) => item.id === itemId) as ExtendedAcademyItem | undefined;
+  }, [items, itemId]);
 
   // Fetch lessons
   const { data: lessons, isLoading: isLoadingLessons } = useCourseLessons(itemId);
