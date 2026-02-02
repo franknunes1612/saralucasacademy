@@ -176,7 +176,7 @@ export default function EbookViewer() {
       >
         {/* Ebook Card */}
         <div className="max-w-md mx-auto">
-          <div className="rounded-3xl bg-gradient-to-br from-blue-500/20 to-purple-500/20 border border-white/10 p-8 text-center">
+          <div className="rounded-3xl bg-card border border-white/15 p-8 text-center shadow-lg">
             {/* Cover */}
             <div className="mb-6">
               {ebook.cover_image_url ? (
