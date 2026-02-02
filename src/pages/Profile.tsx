@@ -46,9 +46,11 @@ interface MenuItem {
 export default function Profile() {
   const navigate = useNavigate();
   const { t, language } = useLanguage();
+  // Only use isLoading for initial auth check, not isAdminLoading
+  // This prevents the page from blocking while admin role is being verified
   const { user, isAdmin, signOut, isLoading: authLoading } = useAuth();
-  const { data: profile } = useUserProfile();
-  const { data: purchases } = useUserPurchases();
+  const { data: profile, isLoading: profileLoading } = useUserProfile();
+  const { data: purchases, isLoading: purchasesLoading } = useUserPurchases();
   
   const [authTab, setAuthTab] = useState<"login" | "signup">("login");
   const [email, setEmail] = useState("");
@@ -167,7 +169,11 @@ export default function Profile() {
     });
   }
 
-  if (authLoading) {
+  // Only show full-page loading for initial auth state
+  // After that, show content progressively to avoid blocking
+  const showInitialLoading = authLoading && user === null;
+  
+  if (showInitialLoading) {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">
         <Loader2 className="h-8 w-8 animate-spin text-white/50" />
@@ -201,7 +207,9 @@ export default function Profile() {
           >
             <div className="flex items-center gap-4">
               <div className="w-14 h-14 rounded-full bg-gradient-to-br from-primary to-secondary flex items-center justify-center overflow-hidden">
-                {profile?.avatar_url ? (
+                {profileLoading ? (
+                  <Loader2 className="h-6 w-6 animate-spin text-white/50" />
+                ) : profile?.avatar_url ? (
                   <img 
                     src={profile.avatar_url} 
                     alt="Avatar" 
@@ -213,7 +221,11 @@ export default function Profile() {
               </div>
               <div className="flex-1">
                 <h2 className="font-semibold text-white">
-                  {profile?.display_name || user.email}
+                  {profileLoading ? (
+                    <span className="inline-block w-32 h-5 bg-white/10 rounded animate-pulse" />
+                  ) : (
+                    profile?.display_name || user.email
+                  )}
                 </h2>
                 <p className="text-sm text-white/60">
                   {isAdmin
@@ -225,7 +237,23 @@ export default function Profile() {
           </motion.div>
 
           {/* Purchased Items - Grouped by Type */}
-          {purchases && purchases.length > 0 && (
+          {purchasesLoading ? (
+            <motion.div
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.1 }}
+              className="mb-6 space-y-2"
+            >
+              <div className="h-4 w-24 bg-white/10 rounded animate-pulse mb-3" />
+              <div className="result-card p-4 flex items-center gap-4">
+                <div className="w-9 h-9 bg-white/10 rounded-xl animate-pulse" />
+                <div className="flex-1 space-y-2">
+                  <div className="h-4 w-32 bg-white/10 rounded animate-pulse" />
+                  <div className="h-3 w-20 bg-white/10 rounded animate-pulse" />
+                </div>
+              </div>
+            </motion.div>
+          ) : purchases && purchases.length > 0 ? (
             <>
               {/* Ebooks */}
               {purchases.filter(p => p.item_type === "ebook").length > 0 && (
@@ -371,7 +399,7 @@ export default function Profile() {
                 </motion.div>
               )}
             </>
-          )}
+          ) : null}
 
           {/* Menu Items */}
           <motion.div 
