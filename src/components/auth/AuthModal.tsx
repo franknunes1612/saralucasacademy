@@ -26,15 +26,32 @@ export function AuthModal({ open, onOpenChange }: AuthModalProps) {
   const handleGoogleSignIn = async () => {
     setLoading(true);
     try {
+      // Log for debugging Safari issues
+      console.log("[OAuth] Starting Google sign-in", {
+        origin: window.location.origin,
+        href: window.location.href,
+        userAgent: navigator.userAgent,
+        isSafari: /^((?!chrome|android).)*safari/i.test(navigator.userAgent),
+      });
+      
       sessionStorage.setItem("sara-lucas-oauth-skip-entry-flow", "1");
-      const { error } = await lovable.auth.signInWithOAuth("google", {
+      
+      const result = await lovable.auth.signInWithOAuth("google", {
         redirect_uri: window.location.origin,
       });
-      if (error) throw error;
+      
+      console.log("[OAuth] Google sign-in result:", {
+        redirected: result.redirected,
+        hasError: !!result.error,
+        errorMessage: result.error?.message,
+      });
+      
+      if (result.error) throw result.error;
     } catch (error: any) {
+      console.error("[OAuth] Google sign-in error:", error);
       toast({
         title: t({ pt: "Erro", en: "Error" }),
-        description: error.message,
+        description: error.message || t({ pt: "Erro ao iniciar sessão com Google", en: "Error signing in with Google" }),
         variant: "destructive",
       });
     } finally {
@@ -45,15 +62,32 @@ export function AuthModal({ open, onOpenChange }: AuthModalProps) {
   const handleAppleSignIn = async () => {
     setLoading(true);
     try {
+      // Log for debugging Safari issues
+      console.log("[OAuth] Starting Apple sign-in", {
+        origin: window.location.origin,
+        href: window.location.href,
+        userAgent: navigator.userAgent,
+        isSafari: /^((?!chrome|android).)*safari/i.test(navigator.userAgent),
+      });
+      
       sessionStorage.setItem("sara-lucas-oauth-skip-entry-flow", "1");
-      const { error } = await lovable.auth.signInWithOAuth("apple", {
+      
+      const result = await lovable.auth.signInWithOAuth("apple", {
         redirect_uri: window.location.origin,
       });
-      if (error) throw error;
+      
+      console.log("[OAuth] Apple sign-in result:", {
+        redirected: result.redirected,
+        hasError: !!result.error,
+        errorMessage: result.error?.message,
+      });
+      
+      if (result.error) throw result.error;
     } catch (error: any) {
+      console.error("[OAuth] Apple sign-in error:", error);
       toast({
         title: t({ pt: "Erro", en: "Error" }),
-        description: error.message,
+        description: error.message || t({ pt: "Erro ao iniciar sessão com Apple", en: "Error signing in with Apple" }),
         variant: "destructive",
       });
     } finally {
