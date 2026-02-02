@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import type { User, Session } from "@supabase/supabase-js";
 import { toast } from "sonner";
@@ -7,8 +7,59 @@ interface AuthState {
   user: User | null;
   session: Session | null;
   isLoading: boolean;
-  isAdminLoading: boolean; // Separate loading state for admin check
+  isAdminLoading: boolean;
   isAdmin: boolean;
+}
+
+// Cache admin status in sessionStorage with expiry
+const ADMIN_CACHE_KEY = "auth_admin_cache";
+const ADMIN_CACHE_TTL = 5 * 60 * 1000; // 5 minutes
+
+interface AdminCache {
+  userId: string;
+  isAdmin: boolean;
+  timestamp: number;
+}
+
+function getCachedAdminStatus(userId: string): boolean | null {
+  try {
+    const cached = sessionStorage.getItem(ADMIN_CACHE_KEY);
+    if (!cached) return null;
+    
+    const data: AdminCache = JSON.parse(cached);
+    const isExpired = Date.now() - data.timestamp > ADMIN_CACHE_TTL;
+    const isSameUser = data.userId === userId;
+    
+    if (isExpired || !isSameUser) {
+      sessionStorage.removeItem(ADMIN_CACHE_KEY);
+      return null;
+    }
+    
+    return data.isAdmin;
+  } catch {
+    return null;
+  }
+}
+
+function setCachedAdminStatus(userId: string, isAdmin: boolean): void {
+  try {
+    const data: AdminCache = {
+      userId,
+      isAdmin,
+      timestamp: Date.now(),
+    };
+    sessionStorage.setItem(ADMIN_CACHE_KEY, JSON.stringify(data));
+  } catch {
+    // Ignore storage errors
+  }
+}
+
+function clearAdminCache(): void {
+  try {
+    sessionStorage.removeItem(ADMIN_CACHE_KEY);
+  } catch {
+    // Ignore storage errors
+  }
 }
 
 export function useAuth() {
@@ -19,11 +70,19 @@ export function useAuth() {
     isAdminLoading: true,
     isAdmin: false,
   });
+  
+  // Track if we've already verified admin for this session
+  const adminVerifiedRef = useRef<string | null>(null);
 
   const checkAdminRole = useCallback(async (userId: string): Promise<boolean> => {
+    // Check cache first
+    const cached = getCachedAdminStatus(userId);
+    if (cached !== null) {
+      console.log("[Auth] Using cached admin status:", cached);
+      return cached;
+    }
+    
     try {
-      // Use the has_role RPC function which is SECURITY DEFINER and bypasses RLS
-      // This avoids race conditions where the JWT isn't fully applied yet
       const { data, error } = await supabase.rpc("has_role", {
         _user_id: userId,
         _role: "admin",
@@ -34,7 +93,9 @@ export function useAuth() {
         return false;
       }
 
-      return data === true;
+      const isAdmin = data === true;
+      setCachedAdminStatus(userId, isAdmin);
+      return isAdmin;
     } catch (err) {
       console.error("[Auth] Check admin role exception:", err);
       return false;
@@ -128,14 +189,32 @@ export function useAuth() {
           isAdmin: false, // Reset admin until verified
         }));
 
-        // Check admin role and claim guest purchases
+        // Skip admin check if already verified for this user
         if (user && user.email && session?.access_token) {
+          // Check if we already verified this user in this session
+          if (adminVerifiedRef.current === user.id) {
+            const cached = getCachedAdminStatus(user.id);
+            if (cached !== null) {
+              if (isMounted) {
+                setState(prev => ({
+                  ...prev,
+                  isAdmin: cached,
+                  isAdminLoading: false,
+                }));
+              }
+              // Still claim guest purchases
+              claimGuestPurchases(session.access_token);
+              return;
+            }
+          }
+          
           // Run admin check and guest purchase claim in parallel
           const [isAdmin] = await Promise.all([
             resolveAdminStatus(user.id, user.email),
             claimGuestPurchases(session.access_token),
           ]);
           if (isMounted) {
+            adminVerifiedRef.current = user.id;
             setState(prev => ({
               ...prev,
               isAdmin,
@@ -144,6 +223,7 @@ export function useAuth() {
           }
         } else {
           if (isMounted) {
+            adminVerifiedRef.current = null;
             setState(prev => ({
               ...prev,
               isAdmin: false,
@@ -172,11 +252,28 @@ export function useAuth() {
 
       // Check admin role and claim guest purchases on initial load
       if (user && user.email && session?.access_token) {
+        // Check cache first for instant admin status
+        const cached = getCachedAdminStatus(user.id);
+        if (cached !== null) {
+          adminVerifiedRef.current = user.id;
+          if (isMounted) {
+            setState(prev => ({
+              ...prev,
+              isAdmin: cached,
+              isAdminLoading: false,
+            }));
+          }
+          // Still claim guest purchases in background
+          claimGuestPurchases(session.access_token);
+          return;
+        }
+        
         const [isAdmin] = await Promise.all([
           resolveAdminStatus(user.id, user.email),
           claimGuestPurchases(session.access_token),
         ]);
         if (isMounted) {
+          adminVerifiedRef.current = user.id;
           setState(prev => ({
             ...prev,
             isAdmin,
@@ -185,6 +282,7 @@ export function useAuth() {
         }
       } else {
         if (isMounted) {
+          adminVerifiedRef.current = null;
           setState(prev => ({
             ...prev,
             isAdminLoading: false,
@@ -221,6 +319,9 @@ export function useAuth() {
   const signOut = async () => {
     const { error } = await supabase.auth.signOut();
     if (!error) {
+      // Clear admin cache on logout
+      clearAdminCache();
+      adminVerifiedRef.current = null;
       setState({
         user: null,
         session: null,
