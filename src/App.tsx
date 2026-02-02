@@ -111,6 +111,19 @@ function AppEntryFlow({ children }: { children: React.ReactNode }) {
 
   // Initialize flow based on settings
   useEffect(() => {
+    // Log OAuth callback detection for debugging Safari 404 issues
+    if (isOAuthCallback || isOAuthIntermediaryRoute) {
+      console.log("[OAuth Callback] Detected OAuth return", {
+        pathname: location.pathname,
+        search: location.search,
+        hash: location.hash?.substring(0, 50), // Truncate for security
+        hasCode: location.search.includes("code="),
+        hasAccessToken: location.hash.includes("access_token=") || location.search.includes("access_token="),
+        hasOAuthSkipFlag,
+        isOAuthIntermediaryRoute,
+      });
+    }
+
     // Skip for direct scan access, admin routes, OAuth callbacks, or if entry flow already done this session
     if (isDirectAccess || hasOAuthSkipFlag || isOAuthIntermediaryRoute || isScanRoute || isAdminRoute || isOAuthCallback || hasCompletedEntryFlow) {
       setShowSplash(false);
@@ -144,7 +157,7 @@ function AppEntryFlow({ children }: { children: React.ReactNode }) {
     }
 
     setIsReady(true);
-  }, [isDirectAccess, hasOAuthSkipFlag, isOAuthIntermediaryRoute, isScanRoute, isAdminRoute, isOAuthCallback, hasCompletedEntryFlow, cms.isLoading, splashEnabled, onboardingEnabled, showMode]);
+  }, [isDirectAccess, hasOAuthSkipFlag, isOAuthIntermediaryRoute, isScanRoute, isAdminRoute, isOAuthCallback, hasCompletedEntryFlow, cms.isLoading, splashEnabled, onboardingEnabled, showMode, location.pathname, location.search, location.hash]);
 
   const handleSplashComplete = useCallback(() => {
     setShowSplash(false);
