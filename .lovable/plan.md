@@ -1,35 +1,43 @@
 
-# Fix: Ebook/Bundle Navigation Routes
 
-## Issue
-When clicking on an ebook or bundle item in the Academy section, the app navigates to `/learn/course/...` instead of the correct route (`/learn/ebook/...` or `/learn/bundle/...`). This causes a 404 error even though the routes for ebooks and bundles were added.
+# Alterar Preço do Produto para €25
 
-## Root Cause
-In `src/components/academy/AcademyCard.tsx`, the `handleClick` function at lines 65-67 incorrectly routes ebooks and bundles to `/learn/course/`:
+## Objetivo
+Atualizar o preço do produto "Reset your body! - Ebook" de €12.00 para €25.00 no Stripe.
 
-```typescript
-} else if (item.item_type === "ebook" || item.item_type === "bundle") {
-  navigate(`/learn/course/${item.id}`);  // WRONG!
-}
+## Contexto Atual
+- **Produto**: Reset your body! - Ebook (`prod_TtxV8xB3ssXlCg`)
+- **Preço atual**: €12.00 (`price_1Sw9ahF0e6PD8myF5bogkKpl`)
+- **Preço desejado**: €25.00
+
+## Abordagem
+
+No Stripe, os preços são **imutáveis** - não podem ser editados diretamente. A solução é criar um novo preço e atualizar a referência na base de dados.
+
+## Passos de Implementação
+
+### 1. Criar Novo Preço no Stripe
+Usar a API do Stripe para criar um novo preço de €25.00 (2500 cêntimos) associado ao produto existente.
+
+### 2. Atualizar Base de Dados
+Atualizar a tabela `academy_items` para usar o novo `stripe_price_id` no ebook correspondente.
+
+### 3. (Opcional) Arquivar Preço Antigo
+O preço antigo de €12.00 pode ser mantido ou arquivado no Stripe para manter histórico de transações anteriores.
+
+---
+
+## Detalhes Técnicos
+
+**Criação do novo preço via Stripe API:**
+- `product_id`: prod_TtxV8xB3ssXlCg
+- `unit_amount`: 2500 (€25.00 em cêntimos)
+- `currency`: eur
+
+**Migração SQL:**
+```sql
+UPDATE academy_items 
+SET stripe_price_id = 'novo_price_id', price = 25.00
+WHERE stripe_product_id = 'prod_TtxV8xB3ssXlCg';
 ```
 
-## Solution
-Update the navigation logic to use the correct route path based on the item type:
-
-```typescript
-} else if (item.item_type === "ebook") {
-  navigate(`/learn/ebook/${item.id}`);
-} else if (item.item_type === "bundle") {
-  navigate(`/learn/bundle/${item.id}`);
-}
-```
-
-## Files to Change
-1. **src/components/academy/AcademyCard.tsx** (lines 65-67)
-   - Fix ebook navigation: `/learn/ebook/${item.id}`
-   - Fix bundle navigation: `/learn/bundle/${item.id}`
-
-## After Fix
-- Clicking the "Reset your body!" ebook will navigate to `/learn/ebook/581c7b00-...`
-- The `CourseDetail` component will correctly receive `ebookId` from `useParams()`
-- The Stripe checkout button will work as expected
