@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import { 
@@ -51,6 +51,24 @@ export default function Profile() {
   const { user, isAdmin, signOut, isLoading: authLoading } = useAuth();
   const { data: profile, isLoading: profileLoading } = useUserProfile();
   const { data: purchases, isLoading: purchasesLoading } = useUserPurchases();
+
+  // If the user lands on /profile with provider params (e.g. from a /~oauth flow),
+  // re-initiate the OAuth redirect so the session can be established.
+  useEffect(() => {
+    if (user) return;
+
+    const params = new URLSearchParams(window.location.search);
+    const provider = params.get("provider");
+    const redirectUri = params.get("redirect_uri") || undefined;
+
+    if (provider !== "google" && provider !== "apple") return;
+
+    sessionStorage.setItem(OAUTH_SKIP_ENTRY_FLOW_KEY, "1");
+
+    void lovable.auth.signInWithOAuth(provider, {
+      redirect_uri: redirectUri,
+    });
+  }, [user]);
   
   const [authTab, setAuthTab] = useState<"login" | "signup">("login");
   const [email, setEmail] = useState("");
