@@ -33,24 +33,27 @@ export function AuthModal({ open, onOpenChange }: AuthModalProps) {
         metadata: { redirect_uri: window.location.origin },
       });
 
-      // Log for debugging Safari issues
       console.log("[OAuth] Starting Google sign-in", {
         origin: window.location.origin,
-        href: window.location.href,
-        userAgent: navigator.userAgent,
-        isSafari: /^((?!chrome|android).)*safari/i.test(navigator.userAgent),
+        projectId: import.meta.env.VITE_SUPABASE_PROJECT_ID,
       });
       
       sessionStorage.setItem("sara-lucas-oauth-skip-entry-flow", "1");
       
-      const result = await lovable.auth.signInWithOAuth("google", {
+      // Use a timeout to prevent indefinite freezing
+      const timeoutPromise = new Promise((_, reject) => 
+        setTimeout(() => reject(new Error("OAuth timeout - please try again")), 30000)
+      );
+      
+      const resultPromise = lovable.auth.signInWithOAuth("google", {
         redirect_uri: window.location.origin,
       });
+      
+      const result = await Promise.race([resultPromise, timeoutPromise]) as Awaited<typeof resultPromise>;
       
       console.log("[OAuth] Google sign-in result:", {
         redirected: result.redirected,
         hasError: !!result.error,
-        errorMessage: result.error?.message,
       });
       
       if (result.error) throw result.error;
@@ -62,8 +65,8 @@ export function AuthModal({ open, onOpenChange }: AuthModalProps) {
       });
       console.error("[OAuth] Google sign-in error:", error);
       toast({
-        title: t({ pt: "Erro", en: "Error" }),
-        description: error.message || t({ pt: "Erro ao iniciar sessão com Google", en: "Error signing in with Google" }),
+        title: t({ pt: "Erro no Login Google", en: "Google Login Error" }),
+        description: error.message || t({ pt: "Erro ao iniciar sessão com Google. Tenta novamente.", en: "Error signing in with Google. Please try again." }),
         variant: "destructive",
       });
     } finally {
@@ -80,24 +83,27 @@ export function AuthModal({ open, onOpenChange }: AuthModalProps) {
         metadata: { redirect_uri: window.location.origin },
       });
 
-      // Log for debugging Safari issues
       console.log("[OAuth] Starting Apple sign-in", {
         origin: window.location.origin,
-        href: window.location.href,
-        userAgent: navigator.userAgent,
-        isSafari: /^((?!chrome|android).)*safari/i.test(navigator.userAgent),
+        projectId: import.meta.env.VITE_SUPABASE_PROJECT_ID,
       });
       
       sessionStorage.setItem("sara-lucas-oauth-skip-entry-flow", "1");
       
-      const result = await lovable.auth.signInWithOAuth("apple", {
+      // Use a timeout to prevent indefinite freezing
+      const timeoutPromise = new Promise((_, reject) => 
+        setTimeout(() => reject(new Error("OAuth timeout - please try again")), 30000)
+      );
+      
+      const resultPromise = lovable.auth.signInWithOAuth("apple", {
         redirect_uri: window.location.origin,
       });
+      
+      const result = await Promise.race([resultPromise, timeoutPromise]) as Awaited<typeof resultPromise>;
       
       console.log("[OAuth] Apple sign-in result:", {
         redirected: result.redirected,
         hasError: !!result.error,
-        errorMessage: result.error?.message,
       });
       
       if (result.error) throw result.error;
@@ -109,14 +115,15 @@ export function AuthModal({ open, onOpenChange }: AuthModalProps) {
       });
       console.error("[OAuth] Apple sign-in error:", error);
       toast({
-        title: t({ pt: "Erro", en: "Error" }),
-        description: error.message || t({ pt: "Erro ao iniciar sessão com Apple", en: "Error signing in with Apple" }),
+        title: t({ pt: "Erro no Login Apple", en: "Apple Login Error" }),
+        description: error.message || t({ pt: "Erro ao iniciar sessão com Apple. Tenta novamente.", en: "Error signing in with Apple. Please try again." }),
         variant: "destructive",
       });
     } finally {
       setLoading(false);
     }
   };
+
 
   const handleEmailAuth = async (e: React.FormEvent) => {
     e.preventDefault();
