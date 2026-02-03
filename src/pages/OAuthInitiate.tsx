@@ -1,21 +1,20 @@
 import { useEffect } from "react";
-import { useLocation, useNavigate } from "react-router-dom";
-import { lovable } from "@/integrations/lovable/index";
+import { useLocation } from "react-router-dom";
 import { logAuthDebugEvent } from "@/lib/authDebug";
-
-function isProvider(v: string | null): v is "google" | "apple" {
-  return v === "google" || v === "apple";
-}
 
 /**
  * Handles Lovable Cloud OAuth initiation route.
  *
- * If our SPA captures /~oauth/initiate, we must re-trigger the OAuth redirect,
- * otherwise users get stuck on this URL and never become logged in.
+ * In production, the initiate route is supposed to 302 to the Lovable OAuth broker.
+ * On SPA hosting, it may fall back to index.html. In that case we must perform
+ * the redirect ourselves, otherwise users get stuck here and never authenticate.
+ *
+ * IMPORTANT: Do NOT call lovable.auth.signInWithOAuth() from here.
+ * createLovableAuth (non-iframe) already navigated to /~oauth/initiate; calling it
+ * again causes an infinite refresh loop.
  */
 export default function OAuthInitiate() {
   const location = useLocation();
-  const navigate = useNavigate();
 
   useEffect(() => {
     void logAuthDebugEvent({
@@ -23,38 +22,20 @@ export default function OAuthInitiate() {
       metadata: { search: location.search },
     });
 
-    const params = new URLSearchParams(location.search);
-    const provider = params.get("provider");
-    const redirectUri = params.get("redirect_uri") || undefined;
-
-    if (!isProvider(provider)) {
-      // Unknown provider – return user to profile.
-      navigate("/profile?direct=1", { replace: true });
-      return;
-    }
-
     // Ensure entry flow is skipped after return.
     sessionStorage.setItem("sara-lucas-oauth-skip-entry-flow", "1");
 
+    // Redirect to the real broker.
+    const brokerUrl = `https://oauth.lovable.app/initiate${location.search || ""}`;
+
     void logAuthDebugEvent({
       stage: "oauth_initiate_start",
-      provider,
-      metadata: { redirect_uri: redirectUri },
+      metadata: { brokerUrl },
     });
 
-    // Fire-and-forget: this should redirect away to provider.
-    void lovable.auth
-      .signInWithOAuth(provider, {
-        redirect_uri: redirectUri,
-      })
-      .catch((error) => {
-        void logAuthDebugEvent({
-          stage: "oauth_initiate_error",
-          provider,
-          error,
-        });
-      });
-  }, [location.search, navigate]);
+    // Hard redirect (do not use navigate) so we leave the SPA.
+    window.location.replace(brokerUrl);
+  }, [location.search]);
 
   return (
     <div className="min-h-screen bg-background flex items-center justify-center">
