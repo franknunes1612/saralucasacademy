@@ -43,6 +43,7 @@ import AdminSupport from "./pages/AdminSupport";
 import AdminOnboarding from "./pages/AdminOnboarding";
 import AdminTestimonials from "./pages/AdminTestimonials";
 import NotFound from "./pages/NotFound";
+import OAuthReturn from "./pages/OAuthReturn";
 import { NutritionistFAB } from "./components/NutritionistFAB";
 import { Footer } from "./components/Footer";
 
@@ -321,8 +322,8 @@ const App = () => (
               } />
               
               {/* OAuth intermediary routes (Lovable Cloud OAuth return) - must be above catch-all */}
-              <Route path="/~oauth" element={<Home />} />
-              <Route path="/~oauth/*" element={<Home />} />
+              <Route path="/~oauth" element={<OAuthReturn />} />
+              <Route path="/~oauth/*" element={<OAuthReturn />} />
               
               {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
               <Route path="*" element={<NotFound />} />
