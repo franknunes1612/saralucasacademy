@@ -163,7 +163,7 @@ export default function Home() {
             <MessageCircle className="h-5 w-5" />
           </div>
           <h3 className="font-semibold text-white text-sm mb-0.5">
-            {t({ pt: "Consulta", en: "Consultation" })}
+            {t({ pt: "Marcar com nutricionista", en: "Book with nutritionist" })}
           </h3>
           <p className="text-[11px] text-white">
             {t({ pt: "Falar com nutricionista", en: "Talk to nutritionist" })}
