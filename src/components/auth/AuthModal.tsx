@@ -5,10 +5,10 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useLanguage } from "@/hooks/useLanguage";
 import { supabase } from "@/integrations/supabase/client";
-import { lovable } from "@/integrations/lovable/index";
 import { useToast } from "@/hooks/use-toast";
 import { Loader2, Apple, Mail, ArrowLeft } from "lucide-react";
 import { logAuthDebugEvent } from "@/lib/authDebug";
+import { buildLovableInitiateUrl, getLovableProjectId, LovableOAuthProvider } from "@/lib/lovableOAuth";
 
 interface AuthModalProps {
   open: boolean;
@@ -27,36 +27,26 @@ export function AuthModal({ open, onOpenChange }: AuthModalProps) {
   const handleGoogleSignIn = async () => {
     setLoading(true);
     try {
+      const projectId = getLovableProjectId();
+      const redirectUri = `${window.location.origin}/profile?direct=1`;
+
       void logAuthDebugEvent({
         stage: "authmodal_oauth_start",
         provider: "google",
-        metadata: { redirect_uri: window.location.origin },
+        metadata: { redirect_uri: redirectUri, project_id: projectId },
       });
 
-      console.log("[OAuth] Starting Google sign-in", {
-        origin: window.location.origin,
-        projectId: import.meta.env.VITE_SUPABASE_PROJECT_ID,
-      });
-      
       sessionStorage.setItem("sara-lucas-oauth-skip-entry-flow", "1");
-      
-      // Use a timeout to prevent indefinite freezing
-      const timeoutPromise = new Promise((_, reject) => 
-        setTimeout(() => reject(new Error("OAuth timeout - please try again")), 30000)
-      );
-      
-      const resultPromise = lovable.auth.signInWithOAuth("google", {
-        redirect_uri: window.location.origin,
+
+      // Deterministic hard redirect to the broker, always including project_id.
+      const brokerUrl = buildLovableInitiateUrl({
+        provider: "google" as LovableOAuthProvider,
+        redirectUri,
+        projectId,
       });
-      
-      const result = await Promise.race([resultPromise, timeoutPromise]) as Awaited<typeof resultPromise>;
-      
-      console.log("[OAuth] Google sign-in result:", {
-        redirected: result.redirected,
-        hasError: !!result.error,
-      });
-      
-      if (result.error) throw result.error;
+
+      window.location.assign(brokerUrl);
+      return;
     } catch (error: any) {
       void logAuthDebugEvent({
         stage: "authmodal_oauth_error",
@@ -77,36 +67,26 @@ export function AuthModal({ open, onOpenChange }: AuthModalProps) {
   const handleAppleSignIn = async () => {
     setLoading(true);
     try {
+      const projectId = getLovableProjectId();
+      const redirectUri = `${window.location.origin}/profile?direct=1`;
+
       void logAuthDebugEvent({
         stage: "authmodal_oauth_start",
         provider: "apple",
-        metadata: { redirect_uri: window.location.origin },
+        metadata: { redirect_uri: redirectUri, project_id: projectId },
       });
 
-      console.log("[OAuth] Starting Apple sign-in", {
-        origin: window.location.origin,
-        projectId: import.meta.env.VITE_SUPABASE_PROJECT_ID,
-      });
-      
       sessionStorage.setItem("sara-lucas-oauth-skip-entry-flow", "1");
-      
-      // Use a timeout to prevent indefinite freezing
-      const timeoutPromise = new Promise((_, reject) => 
-        setTimeout(() => reject(new Error("OAuth timeout - please try again")), 30000)
-      );
-      
-      const resultPromise = lovable.auth.signInWithOAuth("apple", {
-        redirect_uri: window.location.origin,
+
+      // Deterministic hard redirect to the broker, always including project_id.
+      const brokerUrl = buildLovableInitiateUrl({
+        provider: "apple" as LovableOAuthProvider,
+        redirectUri,
+        projectId,
       });
-      
-      const result = await Promise.race([resultPromise, timeoutPromise]) as Awaited<typeof resultPromise>;
-      
-      console.log("[OAuth] Apple sign-in result:", {
-        redirected: result.redirected,
-        hasError: !!result.error,
-      });
-      
-      if (result.error) throw result.error;
+
+      window.location.assign(brokerUrl);
+      return;
     } catch (error: any) {
       void logAuthDebugEvent({
         stage: "authmodal_oauth_error",
