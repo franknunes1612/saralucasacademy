@@ -8,6 +8,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { lovable } from "@/integrations/lovable/index";
 import { useToast } from "@/hooks/use-toast";
 import { Loader2, Apple, Mail, ArrowLeft } from "lucide-react";
+import { logAuthDebugEvent } from "@/lib/authDebug";
 
 interface AuthModalProps {
   open: boolean;
@@ -26,6 +27,12 @@ export function AuthModal({ open, onOpenChange }: AuthModalProps) {
   const handleGoogleSignIn = async () => {
     setLoading(true);
     try {
+      void logAuthDebugEvent({
+        stage: "authmodal_oauth_start",
+        provider: "google",
+        metadata: { redirect_uri: window.location.origin },
+      });
+
       // Log for debugging Safari issues
       console.log("[OAuth] Starting Google sign-in", {
         origin: window.location.origin,
@@ -48,6 +55,11 @@ export function AuthModal({ open, onOpenChange }: AuthModalProps) {
       
       if (result.error) throw result.error;
     } catch (error: any) {
+      void logAuthDebugEvent({
+        stage: "authmodal_oauth_error",
+        provider: "google",
+        error,
+      });
       console.error("[OAuth] Google sign-in error:", error);
       toast({
         title: t({ pt: "Erro", en: "Error" }),
@@ -62,6 +74,12 @@ export function AuthModal({ open, onOpenChange }: AuthModalProps) {
   const handleAppleSignIn = async () => {
     setLoading(true);
     try {
+      void logAuthDebugEvent({
+        stage: "authmodal_oauth_start",
+        provider: "apple",
+        metadata: { redirect_uri: window.location.origin },
+      });
+
       // Log for debugging Safari issues
       console.log("[OAuth] Starting Apple sign-in", {
         origin: window.location.origin,
@@ -84,6 +102,11 @@ export function AuthModal({ open, onOpenChange }: AuthModalProps) {
       
       if (result.error) throw result.error;
     } catch (error: any) {
+      void logAuthDebugEvent({
+        stage: "authmodal_oauth_error",
+        provider: "apple",
+        error,
+      });
       console.error("[OAuth] Apple sign-in error:", error);
       toast({
         title: t({ pt: "Erro", en: "Error" }),

@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import { 
   ArrowLeft, 
@@ -32,6 +32,7 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { toast } from "sonner";
+import { logAuthDebugEvent } from "@/lib/authDebug";
 
 const OAUTH_SKIP_ENTRY_FLOW_KEY = "sara-lucas-oauth-skip-entry-flow";
 
@@ -45,6 +46,7 @@ interface MenuItem {
 
 export default function Profile() {
   const navigate = useNavigate();
+  const location = useLocation();
   const { t, language } = useLanguage();
   // Only use isLoading for initial auth check, not isAdminLoading
   // This prevents the page from blocking while admin role is being verified
@@ -52,23 +54,33 @@ export default function Profile() {
   const { data: profile, isLoading: profileLoading } = useUserProfile();
   const { data: purchases, isLoading: purchasesLoading } = useUserPurchases();
 
-  // If the user lands on /profile with provider params (e.g. from a /~oauth flow),
-  // re-initiate the OAuth redirect so the session can be established.
+  // Audit/debug: capture when we land here with OAuth-related params.
   useEffect(() => {
-    if (user) return;
-
-    const params = new URLSearchParams(window.location.search);
+    const params = new URLSearchParams(location.search);
     const provider = params.get("provider");
-    const redirectUri = params.get("redirect_uri") || undefined;
+    const redirectUri = params.get("redirect_uri");
+    const hasCode = params.has("code");
+    const hasAccessToken = params.has("access_token") || location.hash.includes("access_token=");
 
-    if (provider !== "google" && provider !== "apple") return;
+    if (provider || hasCode || hasAccessToken) {
+      void logAuthDebugEvent({
+        stage: "profile_provider_params_detected",
+        provider: provider === "google" || provider === "apple" ? provider : undefined,
+        metadata: {
+          search: location.search,
+          hasCode,
+          hasAccessToken,
+          redirect_uri: redirectUri,
+        },
+      });
+    }
 
-    sessionStorage.setItem(OAUTH_SKIP_ENTRY_FLOW_KEY, "1");
-
-    void lovable.auth.signInWithOAuth(provider, {
-      redirect_uri: redirectUri,
-    });
-  }, [user]);
+    // Root-cause fix: once the session exists, do NOT keep the user on /profile.
+    // Only do this when /profile is being used as an OAuth return landing.
+    if (user && (provider || hasCode || hasAccessToken)) {
+      navigate("/", { replace: true });
+    }
+  }, [location.hash, location.search, navigate, user]);
   
   const [authTab, setAuthTab] = useState<"login" | "signup">("login");
   const [email, setEmail] = useState("");

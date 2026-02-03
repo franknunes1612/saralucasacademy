@@ -1,5 +1,6 @@
 import { useEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
+import { logAuthDebugEvent } from "@/lib/authDebug";
 
 /**
  * OAuth intermediary handler.
@@ -13,6 +14,11 @@ export default function OAuthReturn() {
   const location = useLocation();
 
   useEffect(() => {
+    void logAuthDebugEvent({
+      stage: "oauth_return_page_loaded",
+      metadata: { search: location.search, hash: location.hash?.slice(0, 80) },
+    });
+
     // Keep any query/hash in case downstream logic wants to read it.
     // Also add direct=1 so entry flow (splash/onboarding) is skipped.
     const search = location.search || "";
@@ -22,6 +28,11 @@ export default function OAuthReturn() {
     // Put direct=1 first to avoid being dropped by some redirects.
     const params = new URLSearchParams(search);
     params.set("direct", "1");
+
+    void logAuthDebugEvent({
+      stage: "oauth_return_redirect_profile",
+      metadata: { to: "/profile", search: params.toString() },
+    });
 
     navigate(`/profile?${params.toString()}${hash}`, { replace: true });
   }, [location.hash, location.search, navigate]);

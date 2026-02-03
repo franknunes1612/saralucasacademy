@@ -45,8 +45,10 @@ import AdminTestimonials from "./pages/AdminTestimonials";
 import NotFound from "./pages/NotFound";
 import OAuthReturn from "./pages/OAuthReturn";
 import OAuthInitiate from "./pages/OAuthInitiate";
+import AdminAuthLogs from "./pages/AdminAuthLogs";
 import { NutritionistFAB } from "./components/NutritionistFAB";
 import { Footer } from "./components/Footer";
+import { logAuthDebugEvent } from "@/lib/authDebug";
 
 const queryClient = new QueryClient();
 
@@ -123,6 +125,19 @@ function AppEntryFlow({ children }: { children: React.ReactNode }) {
         hasAccessToken: location.hash.includes("access_token=") || location.search.includes("access_token="),
         hasOAuthSkipFlag,
         isOAuthIntermediaryRoute,
+      });
+
+      void logAuthDebugEvent({
+        stage: "app_oauth_detected",
+        metadata: {
+          pathname: location.pathname,
+          search: location.search,
+          hasCode: location.search.includes("code="),
+          hasAccessToken:
+            location.hash.includes("access_token=") ||
+            location.search.includes("access_token="),
+          isOAuthIntermediaryRoute,
+        },
       });
     }
 
@@ -313,6 +328,11 @@ const App = () => (
               <Route path="/admin/support" element={
                 <AdminAuthGuard>
                   <AdminSupport />
+                </AdminAuthGuard>
+              } />
+              <Route path="/admin/auth-logs" element={
+                <AdminAuthGuard>
+                  <AdminAuthLogs />
                 </AdminAuthGuard>
               } />
               <Route path="/admin/onboarding" element={<AdminOnboarding />} />

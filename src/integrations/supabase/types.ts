@@ -128,6 +128,42 @@ export type Database = {
         }
         Relationships: []
       }
+      auth_debug_events: {
+        Row: {
+          created_at: string
+          error_message: string | null
+          id: string
+          metadata: Json
+          provider: string | null
+          stage: string
+          url: string | null
+          user_agent: string | null
+          user_id: string | null
+        }
+        Insert: {
+          created_at?: string
+          error_message?: string | null
+          id?: string
+          metadata?: Json
+          provider?: string | null
+          stage: string
+          url?: string | null
+          user_agent?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          created_at?: string
+          error_message?: string | null
+          id?: string
+          metadata?: Json
+          provider?: string | null
+          stage?: string
+          url?: string | null
+          user_agent?: string | null
+          user_id?: string | null
+        }
+        Relationships: []
+      }
       cms_content: {
         Row: {
           category: string
