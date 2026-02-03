@@ -169,7 +169,7 @@ export default function Profile() {
     {
       id: "contact",
       icon: MessageCircle,
-      title: { pt: "Falar com Nutricionista", en: "Talk to Nutritionist" },
+      title: { pt: "Marcar com nutricionista", en: "Book with nutritionist" },
       action: handleWhatsApp,
     },
     {
