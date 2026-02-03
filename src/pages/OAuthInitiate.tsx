@@ -1,6 +1,7 @@
 import { useEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { lovable } from "@/integrations/lovable/index";
+import { logAuthDebugEvent } from "@/lib/authDebug";
 
 function isProvider(v: string | null): v is "google" | "apple" {
   return v === "google" || v === "apple";
@@ -17,6 +18,11 @@ export default function OAuthInitiate() {
   const navigate = useNavigate();
 
   useEffect(() => {
+    void logAuthDebugEvent({
+      stage: "oauth_initiate_page_loaded",
+      metadata: { search: location.search },
+    });
+
     const params = new URLSearchParams(location.search);
     const provider = params.get("provider");
     const redirectUri = params.get("redirect_uri") || undefined;
@@ -30,10 +36,24 @@ export default function OAuthInitiate() {
     // Ensure entry flow is skipped after return.
     sessionStorage.setItem("sara-lucas-oauth-skip-entry-flow", "1");
 
-    // Fire-and-forget: this should redirect away to provider.
-    void lovable.auth.signInWithOAuth(provider, {
-      redirect_uri: redirectUri,
+    void logAuthDebugEvent({
+      stage: "oauth_initiate_start",
+      provider,
+      metadata: { redirect_uri: redirectUri },
     });
+
+    // Fire-and-forget: this should redirect away to provider.
+    void lovable.auth
+      .signInWithOAuth(provider, {
+        redirect_uri: redirectUri,
+      })
+      .catch((error) => {
+        void logAuthDebugEvent({
+          stage: "oauth_initiate_error",
+          provider,
+          error,
+        });
+      });
   }, [location.search, navigate]);
 
   return (
