@@ -194,7 +194,7 @@ serve(async (req) => {
       customer_creation: guestCheckout ? "always" : undefined,
       line_items: lineItems,
       mode: "payment",
-      payment_method_types: ["card", "mb_way"],
+      payment_method_types: ["card", "mb_way", "klarna"],
       success_url: `${origin}${successPath}`,
       cancel_url: `${origin}/learn?type=store&payment=canceled`,
       metadata,
