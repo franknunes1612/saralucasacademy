@@ -124,6 +124,7 @@ serve(async (req) => {
         },
       ],
       mode: "payment",
+      payment_method_types: ["card", "mb_way"],
       success_url: `${origin}/learn/course/${courseId}?payment=success&session_id={CHECKOUT_SESSION_ID}`,
       cancel_url: `${origin}/learn/course/${courseId}?payment=canceled`,
       metadata,
