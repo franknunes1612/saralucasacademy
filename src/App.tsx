@@ -320,6 +320,9 @@ const App = () => (
                 </AdminAuthGuard>
               } />
               
+              {/* OAuth callback route - must be above catch-all */}
+              <Route path="/~oauth" element={<Home />} />
+              
               {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
               <Route path="*" element={<NotFound />} />
             </Routes>
