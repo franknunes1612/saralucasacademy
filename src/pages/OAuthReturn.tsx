@@ -7,7 +7,7 @@ import { logAuthDebugEvent } from "@/lib/authDebug";
  *
  * Some providers return to an internal /~oauth/* route first.
  * If we render Home here, users perceive a "bounce" back to the main screen.
- * Instead, redirect to the Profile screen (auth entry point).
+ * Instead, redirect back to the main menu.
  */
 export default function OAuthReturn() {
   const navigate = useNavigate();
@@ -23,18 +23,15 @@ export default function OAuthReturn() {
     // Also add direct=1 so entry flow (splash/onboarding) is skipped.
     const search = location.search || "";
     const hash = location.hash || "";
-
-    // If the provider already sent us back with code/token params, keep them.
-    // Put direct=1 first to avoid being dropped by some redirects.
     const params = new URLSearchParams(search);
     params.set("direct", "1");
 
     void logAuthDebugEvent({
       stage: "oauth_return_redirect_profile",
-      metadata: { to: "/profile", search: params.toString() },
+      metadata: { to: "/", search: params.toString() },
     });
 
-    navigate(`/profile?${params.toString()}${hash}`, { replace: true });
+    navigate(`/?${params.toString()}${hash}`, { replace: true });
   }, [location.hash, location.search, navigate]);
 
   return (
