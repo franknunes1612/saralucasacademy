@@ -262,7 +262,8 @@ export function AuthModal({ open, onOpenChange }: AuthModalProps) {
         ) : (
           /* Login/Signup Forms */
           <div className="space-y-3 pt-2">
-            {/* Google Sign In */}
+            {/* Google & Apple Sign In temporarily disabled – PROJECT_NOT_FOUND on oauth broker */}
+            {/*
             <Button
               onClick={handleGoogleSignIn}
               disabled={loading}
@@ -281,7 +282,6 @@ export function AuthModal({ open, onOpenChange }: AuthModalProps) {
               {t({ pt: "Continuar com Google", en: "Continue with Google" })}
             </Button>
 
-            {/* Apple Sign In */}
             <Button
               onClick={handleAppleSignIn}
               disabled={loading}
@@ -305,6 +305,7 @@ export function AuthModal({ open, onOpenChange }: AuthModalProps) {
                 </span>
               </div>
             </div>
+            */}
 
             {/* Email/Password Form */}
             <form onSubmit={handleEmailAuth} className="space-y-3">
