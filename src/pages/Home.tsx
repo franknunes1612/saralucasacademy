@@ -3,15 +3,17 @@ import { useNavigate } from "react-router-dom";
 import { useLanguage } from "@/hooks/useLanguage";
 import { useAuth } from "@/hooks/useAuth";
 import { useUserProfile } from "@/hooks/useUserProfile";
+import { useLeadMagnet } from "@/hooks/useLeadMagnet";
+import { useCheckout } from "@/hooks/useCheckout";
+import { useStoreItems } from "@/hooks/useStoreItems";
 import { SaraLucasLogo } from "@/components/brand/SaraLucasLogo";
 import { AuthModal } from "@/components/auth/AuthModal";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { TestimonialsSection } from "@/components/testimonials/TestimonialsSection";
 import { LanguageToggle } from "@/components/LanguageToggle";
 import saraPortrait from "@/assets/sara-lucas-portrait.png";
-import { Sparkles, ChevronRight, Instagram } from "lucide-react";
-
-const INSTAGRAM_URL = "https://www.instagram.com/saralucas_pt_nutricionista/";
+import { Sparkles, ChevronRight, Instagram, Loader2, CheckCircle2 } from "lucide-react";
+import { openWhatsApp, WHATSAPP_MESSAGES, INSTAGRAM_URL } from "@/lib/constants";
 
 export default function Home() {
   const navigate = useNavigate();
@@ -21,15 +23,16 @@ export default function Home() {
   const [showAuthModal, setShowAuthModal] = useState(false);
   const isPt = language === "pt";
 
+  const leadMagnet = useLeadMagnet("homepage_guide");
+  const { checkout, isLoading: checkoutLoading } = useCheckout({ onError: () => setShowAuthModal(true) });
+  const { data: storeItems } = useStoreItems();
+
   const getInitials = () => {
     if (profile?.display_name) return profile.display_name.split(" ").map(n => n[0]).join("").toUpperCase().slice(0, 2);
     if (user?.email) return user.email[0].toUpperCase();
     return "U";
   };
 
-  const openWhatsApp = (msg: string) => {
-    window.open(`https://wa.me/351939535077?text=${encodeURIComponent(msg)}`, "_blank", "noopener,noreferrer");
-  };
 
   return (
     <div className="min-h-screen bg-warm-white text-espresso">
@@ -101,7 +104,7 @@ export default function Home() {
 
           <div className="animate-fade-up-4 flex flex-wrap gap-4 items-center">
             <button
-              onClick={() => openWhatsApp(isPt ? "Olá, gostaria de agendar uma consulta." : "Hi, I'd like to book a consultation.")}
+              onClick={() => openWhatsApp(WHATSAPP_MESSAGES.consultation, language)}
               className="btn-primary px-8 py-4"
             >
               {isPt ? "Começar Agora" : "Start Now"}
@@ -155,19 +158,40 @@ export default function Home() {
           </p>
         </div>
         <div>
-          <div className="flex flex-wrap gap-2">
-            <input
-              type="email"
-              placeholder={isPt ? "O teu melhor email" : "Your best email"}
-              className="bg-white/[0.08] border border-white/15 text-white px-5 py-3 text-sm w-60 outline-none focus:border-primary placeholder:text-white/35 font-sans"
-            />
-            <button className="bg-primary text-white border-none px-6 py-3 cursor-pointer text-xs tracking-widest uppercase font-medium hover:bg-terracotta-dark transition-colors">
-              {isPt ? "Receber Grátis" : "Get Free"}
-            </button>
-          </div>
-          <p className="text-[0.65rem] tracking-widest uppercase text-sage-light mt-2">
-            ✓ {isPt ? "Sem spam. Cancelar a qualquer momento." : "No spam. Cancel anytime."}
-          </p>
+          {leadMagnet.isSubmitted ? (
+            <div className="flex items-center gap-3">
+              <CheckCircle2 className="h-5 w-5 text-sage-light flex-shrink-0" />
+              <div>
+                <p className="text-sm text-cream font-medium">
+                  {isPt ? "Enviado! Verifica o teu email." : "Sent! Check your email."}
+                </p>
+                <p className="text-xs text-cream/50">
+                  {isPt ? "Obrigado por te juntares à comunidade." : "Thanks for joining the community."}
+                </p>
+              </div>
+            </div>
+          ) : (
+            <div>
+              <div className="flex flex-wrap gap-2">
+                <input
+                  type="email"
+                  value={leadMagnet.email}
+                  onChange={(e) => leadMagnet.setEmail(e.target.value)}
+                  onKeyDown={(e) => e.key === "Enter" && leadMagnet.submit()}
+                  placeholder={isPt ? "O teu melhor email" : "Your best email"}
+                  className="bg-white/[0.08] border border-white/15 text-white px-5 py-3 text-sm w-60 outline-none focus:border-primary placeholder:text-white/35 font-sans"
+                />
+                <button onClick={() => leadMagnet.submit()} disabled={leadMagnet.isSubmitting} className="bg-primary text-white border-none px-6 py-3 cursor-pointer text-xs tracking-widest uppercase font-medium hover:bg-terracotta-dark transition-colors disabled:opacity-50">
+                  {leadMagnet.isSubmitting && <Loader2 className="h-3 w-3 animate-spin inline mr-1" />}
+                  {isPt ? "Receber Grátis" : "Get Free"}
+                </button>
+              </div>
+              {leadMagnet.error && <p className="text-xs text-red-400 mt-1">{leadMagnet.error}</p>}
+              <p className="text-[0.65rem] tracking-widest uppercase text-sage-light mt-2">
+                ✓ {isPt ? "Sem spam. Cancelar a qualquer momento." : "No spam. Cancel anytime."}
+              </p>
+            </div>
+          )}
         </div>
       </section>
 
@@ -242,7 +266,7 @@ export default function Home() {
                 <li key={i} className="text-sm flex items-start gap-2"><span className="text-secondary font-medium flex-shrink-0 mt-px">✓</span> {f}</li>
               ))}
             </ul>
-            <button onClick={() => openWhatsApp(isPt ? "Olá, quero saber mais sobre o Plano Essencial." : "Hi, I want to know more about the Essential Plan.")} className="block w-full text-center py-3 border border-sand text-espresso text-xs tracking-widest uppercase font-medium hover:border-primary hover:text-primary transition-all">
+            <button onClick={() => openWhatsApp(WHATSAPP_MESSAGES.essentialPlan, language)} className="block w-full text-center py-3 border border-sand text-espresso text-xs tracking-widest uppercase font-medium hover:border-primary hover:text-primary transition-all">
               {isPt ? "Começar" : "Start"}
             </button>
           </div>
@@ -262,7 +286,7 @@ export default function Home() {
                 <li key={i} className="text-sm flex items-start gap-2 text-cream/80"><span className="text-sage-light font-medium flex-shrink-0 mt-px">✓</span> {f}</li>
               ))}
             </ul>
-            <button onClick={() => openWhatsApp(isPt ? "Olá, quero saber mais sobre o Plano Completo." : "Hi, I want to know more about the Complete Plan.")} className="block w-full text-center py-3 bg-primary text-white border border-primary text-xs tracking-widest uppercase font-medium hover:bg-terracotta-dark hover:shadow-lg transition-all">
+            <button onClick={() => openWhatsApp(WHATSAPP_MESSAGES.completePlan, language)} className="block w-full text-center py-3 bg-primary text-white border border-primary text-xs tracking-widest uppercase font-medium hover:bg-terracotta-dark hover:shadow-lg transition-all">
               {isPt ? "Começar Agora" : "Start Now"}
             </button>
           </div>
@@ -281,7 +305,7 @@ export default function Home() {
                 <li key={i} className="text-sm flex items-start gap-2"><span className="text-secondary font-medium flex-shrink-0 mt-px">✓</span> {f}</li>
               ))}
             </ul>
-            <button onClick={() => openWhatsApp(isPt ? "Olá, quero saber mais sobre o Plano VIP." : "Hi, I want to know more about the VIP Plan.")} className="block w-full text-center py-3 border border-sand text-espresso text-xs tracking-widest uppercase font-medium hover:border-primary hover:text-primary transition-all">
+            <button onClick={() => openWhatsApp(WHATSAPP_MESSAGES.vipPlan, language)} className="block w-full text-center py-3 border border-sand text-espresso text-xs tracking-widest uppercase font-medium hover:border-primary hover:text-primary transition-all">
               {isPt ? "Começar" : "Start"}
             </button>
           </div>
@@ -305,7 +329,7 @@ export default function Home() {
             </h2>
           </div>
         </div>
-        <TestimonialsSection />
+        <TestimonialsSection location="homepage" />
       </section>
 
       {/* ── ABOUT ── */}
@@ -342,7 +366,7 @@ export default function Home() {
                 <span key={i} className="text-xs tracking-widest uppercase px-3 py-1 border border-sand rounded-full text-espresso-mid">{tag}</span>
               ))}
             </div>
-            <button onClick={() => openWhatsApp(isPt ? "Olá, gostaria de trabalhar contigo!" : "Hi, I'd like to work with you!")} className="btn-primary px-8 py-3">
+            <button onClick={() => openWhatsApp(WHATSAPP_MESSAGES.workWithMe, language)} className="btn-primary px-8 py-3">
               {isPt ? "Trabalhar Comigo" : "Work With Me"}
             </button>
           </div>
@@ -379,7 +403,16 @@ export default function Home() {
                 <p className="text-sm text-text-light leading-relaxed mb-4">{product.desc}</p>
                 <div className="flex items-center justify-between">
                   <span className="font-serif text-2xl font-semibold">{product.price}</span>
-                  <button onClick={() => navigate("/learn")} className="text-xs tracking-widest uppercase text-primary font-medium flex items-center gap-1 hover:gap-2 transition-all">
+                  <button onClick={() => {
+                      const match = storeItems?.find(item =>
+                        item.name_pt?.toLowerCase().includes(product.title.toLowerCase().split("—")[0].trim().toLowerCase()) ||
+                        item.name_en?.toLowerCase().includes(product.title.toLowerCase().split("—")[0].trim().toLowerCase())
+                      );
+                      if (match) { checkout(match.id, "store_item"); } else { navigate("/learn?type=store"); }
+                    }}
+                    disabled={checkoutLoading}
+                    className="text-xs tracking-widest uppercase text-primary font-medium flex items-center gap-1 hover:gap-2 transition-all disabled:opacity-50"
+                  >
                     {isPt ? "Comprar" : "Buy"} →
                   </button>
                 </div>
@@ -406,7 +439,7 @@ export default function Home() {
           {isPt ? "Marca uma consulta gratuita de 20 minutos. Sem compromisso — só para perceber se somos um bom match." : "Book a free 20-minute consultation. No commitment — just to see if we're a good match."}
         </p>
         <div className="flex justify-center gap-4 flex-wrap">
-          <button onClick={() => openWhatsApp(isPt ? "Olá, gostaria de agendar uma consulta gratuita." : "Hi, I'd like to book a free consultation.")} className="bg-cream text-espresso px-8 py-4 text-xs tracking-widest uppercase font-medium hover:bg-white hover:-translate-y-1 hover:shadow-xl transition-all">
+          <button onClick={() => openWhatsApp(WHATSAPP_MESSAGES.freeConsultation, language)} className="bg-cream text-espresso px-8 py-4 text-xs tracking-widest uppercase font-medium hover:bg-white hover:-translate-y-1 hover:shadow-xl transition-all">
             {isPt ? "Marcar Consulta Gratuita" : "Book Free Consultation"}
           </button>
           <a href={INSTAGRAM_URL} target="_blank" rel="noopener noreferrer" className="border border-cream/25 text-cream px-8 py-4 text-xs tracking-widest uppercase font-medium hover:bg-cream/[0.08] hover:border-cream/40 transition-all no-underline flex items-center gap-2">
