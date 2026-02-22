@@ -203,13 +203,13 @@ export function AuthModal({ open, onOpenChange }: AuthModalProps) {
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="bg-card border-white/10 text-white max-w-sm mx-auto">
+      <DialogContent className="bg-card border-border text-foreground max-w-sm mx-auto">
         <DialogHeader>
           <DialogTitle className="text-xl font-bold text-center">
             {getTitle()}
           </DialogTitle>
           {mode === "forgot" && (
-            <DialogDescription className="text-center text-white/60">
+            <DialogDescription className="text-center text-muted-foreground">
               {t({
                 pt: "Insere o teu email e enviaremos um link para redefinir a tua palavra-passe.",
                 en: "Enter your email and we'll send you a link to reset your password.",
@@ -223,7 +223,7 @@ export function AuthModal({ open, onOpenChange }: AuthModalProps) {
           <div className="space-y-4 pt-2">
             <form onSubmit={handlePasswordReset} className="space-y-4">
               <div className="space-y-1.5">
-                <Label htmlFor="reset-email" className="text-white/80 text-sm">
+                <Label htmlFor="reset-email" className="text-foreground text-sm">
                   Email
                 </Label>
                 <Input
@@ -232,7 +232,7 @@ export function AuthModal({ open, onOpenChange }: AuthModalProps) {
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   placeholder="email@exemplo.com"
-                  className="bg-white/5 border-white/20 text-white placeholder:text-white/40"
+                   className="bg-input border-border text-foreground placeholder:text-muted-foreground"
                   required
                 />
               </div>
@@ -253,7 +253,7 @@ export function AuthModal({ open, onOpenChange }: AuthModalProps) {
             <button
               type="button"
               onClick={() => switchMode("login")}
-              className="flex items-center justify-center gap-2 w-full text-sm text-white/60 hover:text-white transition-colors"
+              className="flex items-center justify-center gap-2 w-full text-sm text-muted-foreground hover:text-foreground transition-colors"
             >
               <ArrowLeft className="h-4 w-4" />
               {t({ pt: "Voltar ao login", en: "Back to login" })}
@@ -311,7 +311,7 @@ export function AuthModal({ open, onOpenChange }: AuthModalProps) {
             <form onSubmit={handleEmailAuth} className="space-y-3">
               {mode === "signup" && (
                 <div className="space-y-1.5">
-                  <Label htmlFor="name" className="text-white/80 text-sm">
+                  <Label htmlFor="name" className="text-foreground text-sm">
                     {t({ pt: "Nome", en: "Name" })}
                   </Label>
                   <Input
@@ -320,14 +320,14 @@ export function AuthModal({ open, onOpenChange }: AuthModalProps) {
                     value={name}
                     onChange={(e) => setName(e.target.value)}
                     placeholder={t({ pt: "O teu nome", en: "Your name" })}
-                    className="bg-white/5 border-white/20 text-white placeholder:text-white/40"
+                     className="bg-input border-border text-foreground placeholder:text-muted-foreground"
                     required
                   />
                 </div>
               )}
 
               <div className="space-y-1.5">
-                <Label htmlFor="email" className="text-white/80 text-sm">
+                <Label htmlFor="email" className="text-foreground text-sm">
                   Email
                 </Label>
                 <Input
@@ -336,14 +336,14 @@ export function AuthModal({ open, onOpenChange }: AuthModalProps) {
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   placeholder="email@exemplo.com"
-                  className="bg-white/5 border-white/20 text-white placeholder:text-white/40"
+                   className="bg-input border-border text-foreground placeholder:text-muted-foreground"
                   required
                 />
               </div>
 
               <div className="space-y-1.5">
                 <div className="flex items-center justify-between">
-                  <Label htmlFor="password" className="text-white/80 text-sm">
+                  <Label htmlFor="password" className="text-foreground text-sm">
                     {t({ pt: "Palavra-passe", en: "Password" })}
                   </Label>
                   {mode === "login" && (
@@ -362,7 +362,7 @@ export function AuthModal({ open, onOpenChange }: AuthModalProps) {
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   placeholder="••••••••"
-                  className="bg-white/5 border-white/20 text-white placeholder:text-white/40"
+                  className="bg-input border-border text-foreground placeholder:text-muted-foreground"
                   minLength={6}
                   required
                 />
@@ -387,7 +387,7 @@ export function AuthModal({ open, onOpenChange }: AuthModalProps) {
             </form>
 
             {/* Toggle Mode */}
-            <p className="text-center text-sm text-white/60">
+            <p className="text-center text-sm text-muted-foreground">
               {mode === "login" ? (
                 <>
                   {t({ pt: "Não tens conta?", en: "Don't have an account?" })}{" "}

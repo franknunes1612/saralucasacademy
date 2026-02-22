@@ -55,8 +55,8 @@ export const TestimonialsSection = React.forwardRef<HTMLElement, TestimonialsSec
         transition={{ duration: 0.4 }}
         className="flex items-center gap-2 mb-4 px-1"
       >
-        <MessageSquareQuote className="h-5 w-5 text-[hsl(340_50%_70%)]" />
-        <h2 className="text-lg font-semibold text-white">
+        <MessageSquareQuote className="h-5 w-5 text-primary" />
+        <h2 className="text-lg font-semibold text-foreground">
           {sectionTitle}
         </h2>
       </motion.div>
@@ -97,7 +97,7 @@ export const TestimonialsSection = React.forwardRef<HTMLElement, TestimonialsSec
               {displayedTestimonials.map((_, index) => (
                 <div
                   key={index}
-                  className="w-1.5 h-1.5 rounded-full bg-white/20"
+                  className="w-1.5 h-1.5 rounded-full bg-primary/30"
                 />
               ))}
             </div>

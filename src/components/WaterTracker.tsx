@@ -76,8 +76,8 @@ const WaterGlass = React.forwardRef<HTMLDivElement, WaterGlassProps>(
       className={`
         relative w-8 h-10 rounded-b-lg border-2 transition-all duration-300
         ${filled 
-          ? "border-secondary bg-secondary/20" 
-          : "border-white/40 bg-white/10"
+           ? "border-secondary bg-secondary/20" 
+           : "border-border bg-muted/50"
         }
         ${justFilled ? "animate-bounce" : ""}
       `}
@@ -91,7 +91,7 @@ const WaterGlass = React.forwardRef<HTMLDivElement, WaterGlassProps>(
         className={`
           absolute -right-1.5 top-1/2 -translate-y-1/2 w-1.5 h-4 
           rounded-r-full border-2 border-l-0
-          ${filled ? "border-secondary" : "border-white/40"}
+          ${filled ? "border-secondary" : "border-border"}
         `}
       />
       
@@ -228,19 +228,19 @@ export function WaterTracker() {
           <Popover>
             <PopoverTrigger asChild>
               <button
-                className="p-2 rounded-lg hover:bg-white/10 transition-colors"
+          className="p-2 rounded-lg hover:bg-muted transition-colors"
                 aria-label={t({ pt: "Definições", en: "Settings" })}
               >
                 <Settings className="h-4 w-4 text-muted-foreground" />
               </button>
             </PopoverTrigger>
             <PopoverContent 
-              className="w-64 p-3 bg-card border-white/10" 
+              className="w-64 p-3 bg-card border-border" 
               align="end"
             >
               {/* Daily Goal */}
               <div className="mb-4">
-                <p className="text-xs text-white/60 mb-2 font-medium">
+                <p className="text-xs text-muted-foreground mb-2 font-medium">
                   {t({ pt: "Meta diária", en: "Daily goal" })}
                 </p>
                 <div className="grid grid-cols-3 gap-1">
@@ -248,10 +248,10 @@ export function WaterTracker() {
                     <button
                       key={option.ml}
                       onClick={() => setGoal(option.ml)}
-                      className={`px-2 py-1.5 rounded-lg text-xs transition-colors ${
+                     className={`px-2 py-1.5 rounded-lg text-xs transition-colors ${
                         data.goal === option.ml
                           ? "bg-secondary text-secondary-foreground font-medium"
-                          : "bg-white/5 hover:bg-white/10 text-white/80"
+                          : "bg-muted hover:bg-accent text-foreground"
                       }`}
                     >
                       {option.label}
@@ -262,15 +262,15 @@ export function WaterTracker() {
 
               {/* Reminders */}
               {remindersSupported && (
-                <div className="pt-3 border-t border-white/10">
+                <div className="pt-3 border-t border-border">
                   <div className="flex items-center justify-between mb-3">
                     <div className="flex items-center gap-2">
                       {reminderSettings.enabled ? (
                         <Bell className="h-4 w-4 text-secondary" />
                       ) : (
-                        <BellOff className="h-4 w-4 text-white/40" />
+                        <BellOff className="h-4 w-4 text-muted-foreground" />
                       )}
-                      <span className="text-xs text-white/80">
+                      <span className="text-xs text-foreground">
                         {t({ pt: "Lembretes", en: "Reminders" })}
                       </span>
                     </div>
@@ -290,7 +290,7 @@ export function WaterTracker() {
                     <div className="space-y-3 animate-fade-in">
                       {/* Interval */}
                       <div>
-                        <p className="text-xs text-white/50 mb-1.5">
+                        <p className="text-xs text-muted-foreground mb-1.5">
                           {t({ pt: "Intervalo", en: "Interval" })}
                         </p>
                         <div className="grid grid-cols-2 gap-1">
@@ -301,7 +301,7 @@ export function WaterTracker() {
                               className={`px-2 py-1.5 rounded-lg text-xs transition-colors ${
                                 reminderSettings.intervalMinutes === option.minutes
                                   ? "bg-secondary text-secondary-foreground font-medium"
-                                  : "bg-white/5 hover:bg-white/10 text-white/80"
+                                  : "bg-muted hover:bg-accent text-foreground"
                               }`}
                             >
                               {t(option.label)}
@@ -311,7 +311,7 @@ export function WaterTracker() {
                       </div>
 
                       {/* Quiet hours info */}
-                      <p className="text-xs text-white/70">
+                      <p className="text-xs text-muted-foreground">
                         {t({ 
                           pt: `Silenciado: ${reminderSettings.quietStart}h - ${reminderSettings.quietEnd}h`, 
                           en: `Quiet hours: ${reminderSettings.quietStart}:00 - ${reminderSettings.quietEnd}:00` 
@@ -334,7 +334,7 @@ export function WaterTracker() {
           </Popover>
           <button
             onClick={resetToday}
-            className="p-2 rounded-lg hover:bg-white/10 transition-colors"
+            className="p-2 rounded-lg hover:bg-muted transition-colors"
             aria-label={t({ pt: "Reiniciar", en: "Reset" })}
           >
             <RotateCcw className="h-4 w-4 text-muted-foreground" />

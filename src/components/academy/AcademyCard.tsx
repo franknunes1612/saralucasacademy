@@ -10,22 +10,22 @@ const TYPE_CONFIG: Record<
 > = {
   ebook: {
     icon: BookOpen,
-    color: "bg-blue-500/20 text-blue-300",
+    color: "bg-blue-500/15 text-blue-600",
     label: { pt: "Ebook", en: "Ebook" },
   },
   course: {
     icon: PlayCircle,
-    color: "bg-purple-500/20 text-purple-300",
+    color: "bg-purple-500/15 text-purple-600",
     label: { pt: "Curso", en: "Course" },
   },
   program: {
     icon: Calendar,
-    color: "bg-green-500/20 text-green-300",
+    color: "bg-green-500/15 text-green-600",
     label: { pt: "Programa", en: "Program" },
   },
   bundle: {
     icon: Package,
-    color: "bg-orange-500/20 text-orange-300",
+    color: "bg-orange-500/15 text-orange-600",
     label: { pt: "Bundle", en: "Bundle" },
   },
 };
@@ -57,8 +57,6 @@ export function AcademyCard({ item, compact = false }: AcademyCardProps) {
   };
 
   const handleClick = () => {
-    // Navigate to detail page for all item types (courses, programs, ebooks, bundles)
-    // This allows in-app purchase via Stripe
     if (item.item_type === "course" || item.item_type === "program") {
       const itemType = item.item_type === "program" ? "program" : "course";
       navigate(`/learn/${itemType}/${item.id}`);
@@ -67,7 +65,6 @@ export function AcademyCard({ item, compact = false }: AcademyCardProps) {
     } else if (item.item_type === "bundle") {
       navigate(`/learn/bundle/${item.id}`);
     } else if (item.purchase_link) {
-      // Fallback for external links
       window.open(item.purchase_link, "_blank", "noopener,noreferrer");
     }
   };
@@ -79,13 +76,9 @@ export function AcademyCard({ item, compact = false }: AcademyCardProps) {
         className="result-card p-4 w-40 flex-shrink-0 text-left hover:scale-[1.02] transition-transform"
       >
         {/* Cover */}
-        <div className="rounded-xl bg-white/10 flex items-center justify-center mb-3 overflow-hidden">
+        <div className="rounded-xl bg-muted flex items-center justify-center mb-3 overflow-hidden">
           {item.cover_image_url ? (
-            <img
-              src={item.cover_image_url}
-              alt={title}
-              className="w-full h-auto"
-            />
+            <img src={item.cover_image_url} alt={title} className="w-full h-auto" />
           ) : (
             <div className="aspect-[4/3] w-full flex items-center justify-center">
               <span className="text-4xl">{item.cover_emoji || "📚"}</span>
@@ -106,13 +99,13 @@ export function AcademyCard({ item, compact = false }: AcademyCardProps) {
         </div>
 
         {/* Title */}
-        <h3 className="font-semibold text-white text-sm line-clamp-2 mb-1">{title}</h3>
+        <h3 className="font-semibold text-foreground text-sm line-clamp-2 mb-1">{title}</h3>
 
         {/* Price */}
         <div className="flex items-center gap-1.5">
-          <span className="text-sm font-bold text-white">{formatPrice(item.price)}</span>
+          <span className="text-sm font-bold text-primary">{formatPrice(item.price)}</span>
           {hasDiscount && (
-            <span className="text-[10px] text-white/50 line-through">
+            <span className="text-[10px] text-muted-foreground line-through">
               {formatPrice(item.original_price!)}
             </span>
           )}
@@ -124,17 +117,13 @@ export function AcademyCard({ item, compact = false }: AcademyCardProps) {
   return (
     <button
       onClick={handleClick}
-      className="result-card p-4 w-full text-left hover:bg-white/5 transition-colors"
+      className="result-card p-4 w-full text-left hover:shadow-md transition-all"
     >
       <div className="flex gap-4">
         {/* Cover */}
-        <div className="w-24 rounded-xl bg-white/10 flex items-center justify-center flex-shrink-0 overflow-hidden">
+        <div className="w-24 rounded-xl bg-muted flex items-center justify-center flex-shrink-0 overflow-hidden">
           {item.cover_image_url ? (
-            <img
-              src={item.cover_image_url}
-              alt={title}
-              className="w-full h-auto"
-            />
+            <img src={item.cover_image_url} alt={title} className="w-full h-auto" />
           ) : (
             <div className="w-20 h-20 flex items-center justify-center">
               <span className="text-3xl">{item.cover_emoji || "📚"}</span>
@@ -161,24 +150,24 @@ export function AcademyCard({ item, compact = false }: AcademyCardProps) {
               )}
             </div>
             {item.purchase_link && (
-              <ExternalLink className="h-4 w-4 text-white/40 flex-shrink-0" />
+              <ExternalLink className="h-4 w-4 text-muted-foreground flex-shrink-0" />
             )}
           </div>
 
-          <h3 className="font-semibold text-white line-clamp-1 mb-0.5">{title}</h3>
+          <h3 className="font-semibold text-foreground line-clamp-1 mb-0.5">{title}</h3>
 
           {subtitle && (
-            <p className="text-xs text-white/60 line-clamp-1 mb-1">{subtitle}</p>
+            <p className="text-xs text-muted-foreground line-clamp-1 mb-1">{subtitle}</p>
           )}
 
           {item.duration_label && (
-            <p className="text-[10px] text-white/50 mb-2">{item.duration_label}</p>
+            <p className="text-[10px] text-muted-foreground mb-2">{item.duration_label}</p>
           )}
 
           <div className="flex items-center gap-2">
-            <span className="text-base font-bold text-white">{formatPrice(item.price)}</span>
+            <span className="text-base font-bold text-primary">{formatPrice(item.price)}</span>
             {hasDiscount && (
-              <span className="text-xs text-white/50 line-through">
+              <span className="text-xs text-muted-foreground line-through">
                 {formatPrice(item.original_price!)}
               </span>
             )}
