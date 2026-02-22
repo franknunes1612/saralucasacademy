@@ -14,7 +14,7 @@ export function Footer() {
           <li>
             <Link
               to="/terms"
-              className="text-xs tracking-widest uppercase text-cream/40 hover:text-cream transition-colors no-underline"
+              className="text-xs tracking-widest uppercase text-cream/60 hover:text-cream transition-colors no-underline"
             >
               {language === "pt" ? "Política de Privacidade" : "Privacy Policy"}
             </Link>
@@ -22,7 +22,7 @@ export function Footer() {
           <li>
             <Link
               to="/terms"
-              className="text-xs tracking-widest uppercase text-cream/40 hover:text-cream transition-colors no-underline"
+              className="text-xs tracking-widest uppercase text-cream/60 hover:text-cream transition-colors no-underline"
             >
               {language === "pt" ? "Termos de Serviço" : "Terms of Service"}
             </Link>
@@ -32,7 +32,7 @@ export function Footer() {
               href="https://www.instagram.com/saralucas_pt_nutricionista/"
               target="_blank"
               rel="noopener noreferrer"
-              className="text-xs tracking-widest uppercase text-cream/40 hover:text-cream transition-colors no-underline"
+              className="text-xs tracking-widest uppercase text-cream/60 hover:text-cream transition-colors no-underline"
             >
               Instagram
             </a>
@@ -40,14 +40,14 @@ export function Footer() {
           <li>
             <Link
               to="/support"
-              className="text-xs tracking-widest uppercase text-cream/40 hover:text-cream transition-colors no-underline"
+              className="text-xs tracking-widest uppercase text-cream/60 hover:text-cream transition-colors no-underline"
             >
               {language === "pt" ? "Contacto" : "Contact"}
             </Link>
           </li>
         </ul>
 
-        <p className="text-xs text-cream/20">
+        <p className="text-xs text-cream/40">
           © {new Date().getFullYear()} Sara Lucas. {language === "pt" ? "Todos os direitos reservados." : "All rights reserved."}
         </p>
       </div>
