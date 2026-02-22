@@ -49,6 +49,7 @@ import AdminAuthLogs from "./pages/AdminAuthLogs";
 import { NutritionistFAB } from "./components/NutritionistFAB";
 import { Footer } from "./components/Footer";
 import { logAuthDebugEvent } from "@/lib/authDebug";
+import { PostPurchaseModal } from "./components/PostPurchaseModal";
 
 const queryClient = new QueryClient();
 
@@ -353,6 +354,7 @@ const App = () => (
             <BottomNav />
             <FooterWrapper />
             <NutritionistFABWrapper />
+            <PostPurchaseModal />
           </AppEntryFlow>
         </BrowserRouter>
       </TooltipProvider>
