@@ -24,6 +24,9 @@ import { Onboarding } from "@/components/Onboarding";
 import { SaraLucasLogo } from "@/components/brand/SaraLucasLogo";
 
 import { RecipeSuggestions } from "@/components/RecipeSuggestions";
+import { SaveMealPrompt } from "@/components/SaveMealPrompt";
+import { CalorieGoalUpsellPrompt } from "@/components/CalorieGoalUpsellPrompt";
+import { useCalorieGoal } from "@/hooks/useCalorieGoal";
 import { History, Radio, Image, ScanBarcode, HelpCircle, Settings, Sparkles, X } from "lucide-react";
 import { preprocessImage, getBase64SizeKB } from "@/lib/imageProcessor";
 import { toast } from "sonner";
@@ -138,6 +141,8 @@ export default function Index() {
   const [errorMessage, setErrorMessage] = useState<string>("");
   const [cameraError, setCameraError] = useState<string | null>(null);
   const [saveError, setSaveError] = useState<string | null>(null);
+  const [mealSaved, setMealSaved] = useState(false);
+  const [scanCount, setScanCount] = useState(0);
   const [loadingText, setLoadingText] = useState<string>("Scanning…");
   const [barcodeProduct, setBarcodeProduct] = useState<BarcodeProduct | null>(null);
   const [scannedBarcode, setScannedBarcode] = useState<string>("");
@@ -150,6 +155,9 @@ export default function Index() {
   
   // Portion learning hook
   const { recordAdjustment } = usePortionLearning();
+
+  // Calorie goal — used for upsell prompt
+  const { goal: calorieGoal } = useCalorieGoal();
 
   const videoRef = useRef<HTMLVideoElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -558,6 +566,7 @@ export default function Index() {
       
       setResult(foodResult);
       setAppState("result");
+      setScanCount(prev => prev + 1);
       markFinalRender();
 
       // Non-blocking save with image
@@ -709,6 +718,7 @@ export default function Index() {
     setSaveError(null);
     setScanSource("camera");
     setSliderAdjustment(null);
+    setMealSaved(false);
     setAppState("camera");
     restartCamera();
   };
@@ -1343,6 +1353,31 @@ export default function Index() {
           )}
         </div>
 
+        {/* Save meal prompt */}
+        {result && hasFood && (
+          <SaveMealPrompt
+            mealName={mealSummary}
+            calories={getCalorieValue(getDisplayCalories())}
+            alreadySaved={mealSaved}
+            onSave={async () => {
+              if (result) {
+                const ok = await saveMeal({
+                  items: result.items,
+                  totalCalories: sliderAdjustment
+                    ? sliderAdjustment.calories
+                    : result.totalCalories,
+                  confidenceScore: result.confidenceScore,
+                  macros: getDisplayMacros(),
+                  source: scanSource === "barcode" ? "camera" : scanSource,
+                  imageData: capturedImage || undefined,
+                });
+                if (ok) setMealSaved(true);
+              }
+            }}
+            onDismiss={() => {}}
+          />
+        )}
+
         {/* Action buttons */}
         <div className="flex gap-3">
           <button
@@ -1359,6 +1394,9 @@ export default function Index() {
             Scan Again
           </button>
         </div>
+
+        {/* Calorie goal upsell — appears after 3rd scan */}
+        <CalorieGoalUpsellPrompt scanCount={scanCount} currentCalories={getCalorieValue(getDisplayCalories())} goal={calorieGoal} />
       </div>
     );
   }
