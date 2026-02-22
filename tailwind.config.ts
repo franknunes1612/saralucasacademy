@@ -70,7 +70,24 @@ export default {
 			success: {
 				DEFAULT: 'hsl(var(--success))',
 				foreground: 'hsl(var(--success-foreground))'
-			}
+			},
+			// Warm palette tokens
+			cream: 'hsl(30 30% 95%)',
+			'warm-white': 'hsl(30 55% 98%)',
+			sand: 'hsl(30 30% 86%)',
+			terracotta: {
+				DEFAULT: 'hsl(20 52% 53%)',
+				dark: 'hsl(20 52% 43%)',
+			},
+			sage: {
+				DEFAULT: 'hsl(115 12% 57%)',
+				light: 'hsl(115 15% 74%)',
+			},
+			espresso: {
+				DEFAULT: 'hsl(27 36% 13%)',
+				mid: 'hsl(27 30% 22%)',
+			},
+			'text-light': 'hsl(30 15% 41%)',
   		},
   		borderRadius: {
   			lg: 'var(--radius)',
@@ -79,20 +96,12 @@ export default {
   		},
   		keyframes: {
   			'accordion-down': {
-  				from: {
-  					height: '0'
-  				},
-  				to: {
-  					height: 'var(--radix-accordion-content-height)'
-  				}
+  				from: { height: '0' },
+  				to: { height: 'var(--radix-accordion-content-height)' }
   			},
   			'accordion-up': {
-  				from: {
-  					height: 'var(--radix-accordion-content-height)'
-  				},
-  				to: {
-  					height: '0'
-  				}
+  				from: { height: 'var(--radix-accordion-content-height)' },
+  				to: { height: '0' }
   			}
   		},
   		animation: {
@@ -110,7 +119,7 @@ export default {
   		},
   		fontFamily: {
   			sans: [
-  				'Roboto',
+  				'DM Sans',
   				'ui-sans-serif',
   				'system-ui',
   				'-apple-system',
@@ -118,11 +127,10 @@ export default {
   				'Segoe UI',
   				'Helvetica Neue',
   				'Arial',
-  				'Noto Sans',
   				'sans-serif'
   			],
   			serif: [
-  				'Libre Caslon Text',
+  				'Cormorant Garamond',
   				'ui-serif',
   				'Georgia',
   				'Cambria',
@@ -131,14 +139,11 @@ export default {
   				'serif'
   			],
   			mono: [
-  				'Roboto Mono',
   				'ui-monospace',
   				'SFMono-Regular',
   				'Menlo',
   				'Monaco',
   				'Consolas',
-  				'Liberation Mono',
-  				'Courier New',
   				'monospace'
   			],
   			signature: [

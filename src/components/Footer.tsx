@@ -1,55 +1,55 @@
 import { Link } from "react-router-dom";
-import { useCmsContent } from "@/hooks/useCmsContent";
 import { useLanguage } from "@/hooks/useLanguage";
+import { SaraLucasLogo } from "@/components/brand/SaraLucasLogo";
 
-/**
- * Minimal footer with copyright notice
- * All content controlled via CMS (footer.copyright.*)
- */
 export function Footer() {
-  const cms = useCmsContent();
   const { language } = useLanguage();
 
-  // Check if footer is enabled via CMS
-  const isEnabled = cms.get("footer.copyright.enabled", { pt: "true", en: "true" }) === "true";
-  const showLinks = cms.get("footer.copyright.showLinks", { pt: "true", en: "true" }) === "true";
-
-  if (!isEnabled) return null;
-
-  // Get copyright text and replace {year} with current year
-  const currentYear = new Date().getFullYear();
-  const copyrightTemplate = cms.get("footer.copyright.text", {
-    pt: "Sara Lucas © {year}",
-    en: "Sara Lucas © {year}",
-  });
-  const copyrightText = copyrightTemplate.replace("{year}", String(currentYear));
-
   return (
-    <footer className="w-full py-4 px-4 border-t border-white/5 bg-background/50 backdrop-blur-sm">
-      <div className="max-w-lg mx-auto flex flex-col items-center gap-2">
-        {/* Copyright text */}
-        <p className="text-sm text-white font-medium tracking-wide">
-          {copyrightText}
-        </p>
+    <footer className="bg-espresso border-t border-cream/[0.08] px-4 md:px-16 py-12">
+      <div className="max-w-6xl mx-auto flex flex-col md:flex-row justify-between items-center gap-6 flex-wrap">
+        <SaraLucasLogo variant="light" />
 
-        {/* Optional links */}
-        {showLinks && (
-          <div className="flex items-center gap-4">
+        <ul className="flex gap-8 list-none">
+          <li>
             <Link
               to="/terms"
-              className="text-xs text-white/90 hover:text-white transition-colors"
+              className="text-xs tracking-widest uppercase text-cream/40 hover:text-cream transition-colors no-underline"
             >
-              {language === "pt" ? "Termos de Uso" : "Terms of Use"}
+              {language === "pt" ? "Política de Privacidade" : "Privacy Policy"}
             </Link>
-            <span className="text-white/60">•</span>
+          </li>
+          <li>
+            <Link
+              to="/terms"
+              className="text-xs tracking-widest uppercase text-cream/40 hover:text-cream transition-colors no-underline"
+            >
+              {language === "pt" ? "Termos de Serviço" : "Terms of Service"}
+            </Link>
+          </li>
+          <li>
+            <a
+              href="https://www.instagram.com/saralucas_pt_nutricionista/"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-xs tracking-widest uppercase text-cream/40 hover:text-cream transition-colors no-underline"
+            >
+              Instagram
+            </a>
+          </li>
+          <li>
             <Link
               to="/support"
-              className="text-xs text-white/90 hover:text-white transition-colors"
+              className="text-xs tracking-widest uppercase text-cream/40 hover:text-cream transition-colors no-underline"
             >
-              {language === "pt" ? "Suporte" : "Support"}
+              {language === "pt" ? "Contacto" : "Contact"}
             </Link>
-          </div>
-        )}
+          </li>
+        </ul>
+
+        <p className="text-xs text-cream/20">
+          © {new Date().getFullYear()} Sara Lucas. {language === "pt" ? "Todos os direitos reservados." : "All rights reserved."}
+        </p>
       </div>
     </footer>
   );

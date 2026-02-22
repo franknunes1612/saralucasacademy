@@ -1,126 +1,55 @@
 import { useEffect, useState } from "react";
 import { useCmsContent } from "@/hooks/useCmsContent";
-import { useLanguage } from "@/hooks/useLanguage";
 
 interface SplashScreenProps {
   onComplete: () => void;
 }
 
-/**
- * Premium splash screen with gradient background and signature logo
- * All content and duration controlled via CMS
- */
 export function SplashScreen({ onComplete }: SplashScreenProps) {
   const [isExiting, setIsExiting] = useState(false);
   const [isEntered, setIsEntered] = useState(false);
   const cms = useCmsContent();
-  const { language } = useLanguage();
 
-  // Get CMS values
   const title = cms.get("app.splash.title", { pt: "Sara Lucas", en: "Sara Lucas" });
-  const subtitle = cms.get("app.splash.subtitle", { 
-    pt: "Nutrição & Training Academy", 
-    en: "Nutrition & Training Academy" 
-  });
+  const subtitle = cms.get("app.splash.subtitle", { pt: "Nutrição & Treino Personalizado", en: "Personalized Nutrition & Training" });
   const durationStr = cms.get("app.splash.duration", { pt: "2000", en: "2000" });
   const duration = parseInt(durationStr, 10) || 2000;
 
   useEffect(() => {
-    // Trigger entrance animation after mount
-    const enterTimer = setTimeout(() => {
-      setIsEntered(true);
-    }, 100);
-
-    // Start exit after duration
+    const enterTimer = setTimeout(() => setIsEntered(true), 100);
     const exitTimer = setTimeout(() => {
       setIsExiting(true);
-      setTimeout(onComplete, 500); // Fade out duration
+      setTimeout(onComplete, 500);
     }, duration);
-
-    return () => {
-      clearTimeout(enterTimer);
-      clearTimeout(exitTimer);
-    };
+    return () => { clearTimeout(enterTimer); clearTimeout(exitTimer); };
   }, [onComplete, duration]);
 
   return (
     <div
-      className={`fixed inset-0 z-50 flex flex-col items-center justify-center transition-opacity duration-500 ${
-        isExiting ? "opacity-0" : "opacity-100"
-      }`}
-      style={{
-        background: `linear-gradient(
-          165deg,
-          hsl(340 50% 78%) 0%,
-          hsl(340 45% 72%) 40%,
-          hsl(30 40% 75%) 100%
-        )`,
-      }}
+      className={`fixed inset-0 z-50 flex flex-col items-center justify-center transition-opacity duration-500 ${isExiting ? "opacity-0" : "opacity-100"}`}
+      style={{ background: "linear-gradient(165deg, hsl(30 30% 95%) 0%, hsl(30 55% 98%) 40%, hsl(20 52% 53% / 0.1) 100%)" }}
     >
-      {/* Subtle glow effect */}
-      <div 
-        className="absolute inset-0 pointer-events-none"
-        style={{
-          background: `radial-gradient(
-            ellipse 80% 60% at 50% 45%,
-            hsl(340 55% 85% / 0.4) 0%,
-            transparent 70%
-          )`,
-        }}
-      />
+      {/* Subtle glow */}
+      <div className="absolute inset-0 pointer-events-none" style={{ background: "radial-gradient(ellipse 80% 60% at 50% 45%, hsl(20 52% 53% / 0.08) 0%, transparent 70%)" }} />
 
-      {/* Subtle texture overlay */}
-      <div 
-        className="absolute inset-0 opacity-[0.03] pointer-events-none"
-        style={{
-          backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E")`,
-        }}
-      />
-
-      {/* Logo container with entrance animation */}
+      {/* Logo */}
       <div
         className="relative z-10 flex flex-col items-center transition-all ease-out"
-        style={{
-          transitionDuration: "800ms",
-          opacity: isEntered ? 1 : 0,
-          transform: isEntered ? "translateY(0) scale(1)" : "translateY(20px) scale(0.95)",
-        }}
+        style={{ transitionDuration: "800ms", opacity: isEntered ? 1 : 0, transform: isEntered ? "translateY(0) scale(1)" : "translateY(20px) scale(0.95)" }}
       >
-        {/* Signature logo - handwritten style */}
-        <h1
-          className="font-signature text-5xl sm:text-6xl text-white font-medium tracking-wide select-none"
-          style={{
-            textShadow: "0 4px 20px rgba(0,0,0,0.15), 0 2px 8px rgba(0,0,0,0.1)",
-          }}
-        >
-          {title}
+        <h1 className="font-serif text-5xl sm:text-6xl text-espresso font-semibold tracking-wide select-none">
+          {title.replace("Sara Lucas", "Sara").split("Sara")[0]}Sara<span className="text-primary">.</span>Lucas
         </h1>
-
-        {/* Subtitle */}
         <p
-          className="mt-3 text-sm sm:text-base text-white/70 font-light tracking-widest uppercase transition-all ease-out"
-          style={{
-            transitionDuration: "800ms",
-            transitionDelay: "200ms",
-            opacity: isEntered ? 1 : 0,
-            transform: isEntered ? "translateY(0)" : "translateY(10px)",
-          }}
+          className="mt-3 text-sm sm:text-base text-text-light font-light tracking-widest uppercase transition-all ease-out"
+          style={{ transitionDuration: "800ms", transitionDelay: "200ms", opacity: isEntered ? 1 : 0, transform: isEntered ? "translateY(0)" : "translateY(10px)" }}
         >
           {subtitle}
         </p>
       </div>
 
-      {/* Decorative bottom gradient */}
-      <div 
-        className="absolute bottom-0 left-0 right-0 h-32 pointer-events-none"
-        style={{
-          background: `linear-gradient(
-            to top,
-            hsl(340 40% 65% / 0.5) 0%,
-            transparent 100%
-          )`,
-        }}
-      />
+      {/* Bottom gradient */}
+      <div className="absolute bottom-0 left-0 right-0 h-32 pointer-events-none" style={{ background: "linear-gradient(to top, hsl(30 30% 86% / 0.3) 0%, transparent 100%)" }} />
     </div>
   );
 }
