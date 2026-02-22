@@ -216,10 +216,10 @@ export function WaterTracker() {
             <Droplets className="h-5 w-5" />
           </div>
           <div>
-            <h3 className="text-lg font-semibold text-white">
+            <h3 className="text-lg font-semibold text-foreground">
               {t({ pt: "Hidratação", en: "Hydration" })}
             </h3>
-            <p className="text-sm text-white/90">
+            <p className="text-sm text-muted-foreground">
               {t({ pt: `Meta: ${data.goal / 1000}L`, en: `Goal: ${data.goal / 1000}L` })}
             </p>
           </div>
@@ -231,7 +231,7 @@ export function WaterTracker() {
                 className="p-2 rounded-lg hover:bg-white/10 transition-colors"
                 aria-label={t({ pt: "Definições", en: "Settings" })}
               >
-                <Settings className="h-4 w-4 text-white/70" />
+                <Settings className="h-4 w-4 text-muted-foreground" />
               </button>
             </PopoverTrigger>
             <PopoverContent 
@@ -337,7 +337,7 @@ export function WaterTracker() {
             className="p-2 rounded-lg hover:bg-white/10 transition-colors"
             aria-label={t({ pt: "Reiniciar", en: "Reset" })}
           >
-            <RotateCcw className="h-4 w-4 text-white/70" />
+            <RotateCcw className="h-4 w-4 text-muted-foreground" />
           </button>
         </div>
       </div>
@@ -356,10 +356,10 @@ export function WaterTracker() {
 
       {/* Progress Text */}
       <div className="text-center mb-4">
-        <span className="text-3xl font-bold text-white">{cupsConsumed}</span>
-        <span className="text-lg text-white/60 mx-1">/</span>
-        <span className="text-lg text-white/80">{cupsGoal}</span>
-        <span className="text-sm text-white/70 ml-2">
+        <span className="text-3xl font-bold text-foreground">{cupsConsumed}</span>
+        <span className="text-lg text-muted-foreground mx-1">/</span>
+        <span className="text-lg text-foreground">{cupsGoal}</span>
+        <span className="text-sm text-muted-foreground ml-2">
           {t({ pt: "copos", en: "cups" })}
         </span>
       </div>
@@ -378,10 +378,10 @@ export function WaterTracker() {
         <button
           onClick={removeCup}
           disabled={data.consumed === 0}
-          className="p-3 rounded-xl bg-white/10 hover:bg-white/20 disabled:opacity-30 disabled:cursor-not-allowed transition-all active:scale-95"
+          className="p-3 rounded-xl bg-muted hover:bg-muted/80 disabled:opacity-30 disabled:cursor-not-allowed transition-all active:scale-95"
           aria-label={t({ pt: "Remover copo", en: "Remove cup" })}
         >
-          <Minus className="h-5 w-5 text-white" />
+          <Minus className="h-5 w-5 text-foreground" />
         </button>
         
         <button
@@ -399,7 +399,7 @@ export function WaterTracker() {
       </div>
 
       {/* Quick tip */}
-      <p className="text-sm text-white text-center mt-4">
+      <p className="text-sm text-muted-foreground text-center mt-4">
         {t({
           pt: "Toca no + cada vez que bebes um copo 💧",
           en: "Tap + each time you drink a glass 💧",

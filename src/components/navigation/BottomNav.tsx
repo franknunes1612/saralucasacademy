@@ -47,7 +47,7 @@ export function BottomNav() {
         )}
       >
         <item.icon className={cn("h-5 w-5", active && "scale-110")} />
-        <span className="text-[11px] font-medium">{t(item.label)}</span>
+        <span className="text-xs font-medium">{t(item.label)}</span>
       </button>
     );
   };
@@ -72,7 +72,7 @@ export function BottomNav() {
           >
             <ScanLine className="h-6 w-6 text-white" />
           </button>
-          <span className="text-[10px] font-medium text-primary mt-0.5">
+          <span className="text-[11px] font-medium text-primary mt-0.5">
             {t({ pt: "Scan", en: "Scan" })}
           </span>
         </div>
