@@ -17,11 +17,11 @@ const CATEGORY_LABELS: Record<string, { pt: string; en: string }> = {
 };
 
 const CATEGORY_COLORS: Record<string, string> = {
-  training: "bg-[hsl(340_50%_45%)]/30 text-[hsl(340_60%_85%)]",
-  nutrition: "bg-[hsl(30_60%_45%)]/30 text-[hsl(30_70%_80%)]",
-  course: "bg-[hsl(280_50%_50%)]/30 text-[hsl(280_60%_85%)]",
-  consultation: "bg-[hsl(200_50%_45%)]/30 text-[hsl(200_60%_85%)]",
-  general: "bg-white/15 text-white/90",
+  training: "bg-primary/15 text-primary",
+  nutrition: "bg-secondary/15 text-secondary",
+  course: "bg-[hsl(280_50%_50%)]/15 text-[hsl(280_50%_40%)]",
+  consultation: "bg-[hsl(200_50%_45%)]/15 text-[hsl(200_50%_35%)]",
+  general: "bg-muted text-muted-foreground",
 };
 
 export function TestimonialCard({ testimonial, className }: TestimonialCardProps) {
@@ -34,14 +34,14 @@ export function TestimonialCard({ testimonial, className }: TestimonialCardProps
     <div
       className={cn(
         "relative rounded-2xl p-5 transition-all duration-300",
-        "bg-gradient-to-br from-white/[0.08] to-white/[0.03]",
-        "border border-white/10 hover:border-white/20",
-        "shadow-lg hover:shadow-xl",
+        "bg-card",
+        "border border-border hover:border-primary/20",
+        "shadow-sm hover:shadow-md",
         className
       )}
     >
       {/* Decorative quote icon */}
-      <Quote className="absolute top-4 right-4 h-6 w-6 text-white/10" />
+      <Quote className="absolute top-4 right-4 h-6 w-6 text-muted-foreground/20" />
 
       {/* Rating stars */}
       {testimonial.rating && (
@@ -52,8 +52,8 @@ export function TestimonialCard({ testimonial, className }: TestimonialCardProps
               className={cn(
                 "h-4 w-4",
                 i < testimonial.rating!
-                  ? "fill-[hsl(45_90%_60%)] text-[hsl(45_90%_60%)]"
-                  : "text-white/20"
+                  ? "fill-[hsl(45_90%_50%)] text-[hsl(45_90%_50%)]"
+                  : "text-muted-foreground/30"
               )}
             />
           ))}
@@ -61,7 +61,7 @@ export function TestimonialCard({ testimonial, className }: TestimonialCardProps
       )}
 
       {/* Testimonial text */}
-      <p className="text-white/90 text-sm leading-relaxed mb-4 line-clamp-3">
+      <p className="text-foreground text-sm leading-relaxed mb-4 line-clamp-3">
         "{text}"
       </p>
 
@@ -71,10 +71,10 @@ export function TestimonialCard({ testimonial, className }: TestimonialCardProps
           <img
             src={testimonial.photo_url}
             alt={testimonial.name}
-            className="w-10 h-10 rounded-full object-cover ring-2 ring-white/10"
+            className="w-10 h-10 rounded-full object-cover ring-2 ring-border"
           />
         ) : (
-          <div className="w-10 h-10 rounded-full bg-gradient-to-br from-[hsl(340_50%_60%)] to-[hsl(30_50%_60%)] flex items-center justify-center ring-2 ring-white/10">
+          <div className="w-10 h-10 rounded-full bg-gradient-to-br from-primary/60 to-secondary/60 flex items-center justify-center ring-2 ring-border">
             <span className="text-white font-semibold text-sm">
               {testimonial.name.charAt(0).toUpperCase()}
             </span>
@@ -82,7 +82,7 @@ export function TestimonialCard({ testimonial, className }: TestimonialCardProps
         )}
 
         <div className="flex-1 min-w-0">
-          <p className="text-white font-medium text-sm truncate">
+          <p className="text-foreground font-medium text-sm truncate">
             {testimonial.name}
           </p>
           <span

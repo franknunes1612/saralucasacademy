@@ -33,7 +33,7 @@ export const CourseCategoryFilter = React.forwardRef<HTMLDivElement, CourseCateg
 
   return (
     <div ref={ref} className="mb-6">
-      <h2 className="text-sm font-medium text-white/70 mb-3 px-1">
+      <h2 className="text-sm font-medium text-muted-foreground mb-3 px-1">
         {cms.get("academy.categories.title")}
       </h2>
       
@@ -52,11 +52,11 @@ export const CourseCategoryFilter = React.forwardRef<HTMLDivElement, CourseCateg
               className={cn(
                 "flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-medium whitespace-nowrap transition-all",
                 isActive
-                  ? "bg-white text-[hsl(340_45%_45%)] shadow-md"
-                  : "bg-white/10 text-white/80 hover:bg-white/15 border border-white/5"
+                  ? "bg-primary text-primary-foreground shadow-md"
+                  : "bg-card text-foreground hover:bg-muted border border-border"
               )}
             >
-              <Icon className={cn("h-4 w-4", isActive ? "text-[hsl(340_45%_50%)]" : "text-white/60")} />
+              <Icon className={cn("h-4 w-4", isActive ? "text-primary-foreground" : "text-muted-foreground")} />
               <span>{cms.get(category.cmsKey)}</span>
             </motion.button>
           );
