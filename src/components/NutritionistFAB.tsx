@@ -2,14 +2,7 @@ import { useState, useEffect } from "react";
 import { MessageCircle } from "lucide-react";
 import { useLanguage } from "@/hooks/useLanguage";
 import { cn } from "@/lib/utils";
-
-const WHATSAPP_NUMBER = "351939535077";
-const TOOLTIP_SHOWN_KEY = "saralucas_nutritionist_tooltip_shown";
-
-const MESSAGES = {
-  pt: "Olá! Sou utilizador da app Sara Lucas e tenho interesse em agendar uma consulta.",
-  en: "Hi! I'm a Sara Lucas app user and I'd like to book a nutrition consultation.",
-};
+import { WHATSAPP_MESSAGES, STORAGE_KEYS, openWhatsApp } from "@/lib/constants";
 
 const TOOLTIPS = {
   pt: "Falar com nutricionista",
@@ -24,7 +17,7 @@ export function NutritionistFAB({ className }: NutritionistFABProps) {
   const { language, t } = useLanguage();
   const [showTooltip, setShowTooltip] = useState(false);
   const [hasShownTooltip, setHasShownTooltip] = useState(() => {
-    return localStorage.getItem(TOOLTIP_SHOWN_KEY) === "true";
+    return localStorage.getItem(STORAGE_KEYS.nutritionistTooltipShown) === "true";
   });
 
   // Show tooltip on first visit only
@@ -35,7 +28,7 @@ export function NutritionistFAB({ className }: NutritionistFABProps) {
         // Auto-hide after 3 seconds
         setTimeout(() => {
           setShowTooltip(false);
-          localStorage.setItem(TOOLTIP_SHOWN_KEY, "true");
+          localStorage.setItem(STORAGE_KEYS.nutritionistTooltipShown, "true");
           setHasShownTooltip(true);
         }, 3000);
       }, 2000); // Show after 2 seconds
@@ -45,9 +38,7 @@ export function NutritionistFAB({ className }: NutritionistFABProps) {
   }, [hasShownTooltip]);
 
   const handleClick = () => {
-    const message = encodeURIComponent(MESSAGES[language]);
-    const whatsappUrl = `https://wa.me/${WHATSAPP_NUMBER}?text=${message}`;
-    window.open(whatsappUrl, "_blank", "noopener,noreferrer");
+    openWhatsApp(WHATSAPP_MESSAGES.appUser, language);
   };
 
   const tooltipText = t(TOOLTIPS);
