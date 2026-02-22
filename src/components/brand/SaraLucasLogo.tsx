@@ -3,44 +3,40 @@ import { cn } from "@/lib/utils";
 interface SaraLucasLogoProps {
   className?: string;
   size?: "sm" | "md" | "lg" | "xl";
-  variant?: "light" | "blush";
+  variant?: "dark" | "light" | "terracotta";
 }
 
 /**
- * Sara Lucas signature-style text logo
- * Handwritten, elegant, feminine aesthetic
+ * Sara Lucas editorial text logo
+ * Serif, elegant, warm aesthetic
  */
 export function SaraLucasLogo({ 
   className, 
   size = "md",
-  variant = "light"
+  variant = "dark"
 }: SaraLucasLogoProps) {
   const sizeClasses = {
-    sm: "text-xl",
-    md: "text-2xl",
-    lg: "text-3xl",
-    xl: "text-4xl",
+    sm: "text-lg",
+    md: "text-xl",
+    lg: "text-2xl",
+    xl: "text-3xl",
   };
 
   const colorClasses = {
-    light: "text-white",
-    blush: "text-[hsl(340,55%,90%)]", // Soft blush that works on pink
+    dark: "text-foreground",
+    light: "text-cream",
+    terracotta: "text-primary",
   };
 
   return (
-    <span
-      className={cn(
-        "font-signature font-medium tracking-wide select-none",
-        sizeClasses[size],
-        colorClasses[variant],
-        className
-      )}
-      style={{
-        textShadow: "0 2px 8px rgba(0,0,0,0.15)",
-      }}
-    >
-      Sara Lucas
-    </span>
+    <a href="/" className={cn(
+      "font-serif font-semibold tracking-wide select-none no-underline",
+      sizeClasses[size],
+      colorClasses[variant],
+      className
+    )}>
+      Sara<span className="text-primary">.</span>Lucas
+    </a>
   );
 }
 
@@ -62,7 +58,7 @@ export function SaraLucasBrand({
     <div className={cn("flex flex-col", className)}>
       <SaraLucasLogo size={size} />
       {showTagline && tagline && (
-        <span className="text-xs text-white/60 tracking-wide mt-0.5">
+        <span className="text-xs text-muted-foreground tracking-wide mt-0.5">
           {tagline.en}
         </span>
       )}

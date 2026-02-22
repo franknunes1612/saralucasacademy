@@ -42,12 +42,12 @@ function SlideIllustration({ iconName, index }: { iconName: string; index: numbe
   
   // Color variations for visual interest
   const colors = [
-    "from-white/25 to-white/10",
-    "from-[hsl(30_50%_75%)]/30 to-white/10",
-    "from-white/20 to-[hsl(340_50%_80%)]/20",
-    "from-[hsl(30_45%_70%)]/25 to-white/15",
-    "from-white/25 to-[hsl(30_50%_75%)]/20",
-    "from-[hsl(340_45%_75%)]/25 to-white/15",
+    "from-primary/25 to-primary/10",
+    "from-secondary/20 to-primary/10",
+    "from-primary/15 to-secondary/15",
+    "from-secondary/25 to-primary/15",
+    "from-primary/20 to-secondary/20",
+    "from-secondary/15 to-primary/20",
   ];
 
   return (
@@ -58,11 +58,11 @@ function SlideIllustration({ iconName, index }: { iconName: string; index: numbe
         animate={{ scale: 1, opacity: 1 }}
         transition={{ duration: 0.5, delay: 0.2 }}
         className={cn(
-          "relative w-28 h-28 rounded-full border-2 border-white/30 shadow-xl flex items-center justify-center",
+          "relative w-28 h-28 rounded-full border-2 border-primary/30 shadow-xl flex items-center justify-center",
           `bg-gradient-to-br ${colors[index % colors.length]}`
         )}
       >
-        <IconComponent className="h-12 w-12 text-white drop-shadow-lg" />
+        <IconComponent className="h-12 w-12 text-primary drop-shadow-lg" />
       </motion.div>
       
       {/* Decorative elements */}
@@ -70,13 +70,13 @@ function SlideIllustration({ iconName, index }: { iconName: string; index: numbe
         initial={{ scale: 0, opacity: 0 }}
         animate={{ scale: 1, opacity: 1 }}
         transition={{ duration: 0.4, delay: 0.4 }}
-        className="absolute top-2 right-4 w-8 h-8 rounded-full bg-white/15 backdrop-blur-sm"
+        className="absolute top-2 right-4 w-8 h-8 rounded-full bg-primary/10 backdrop-blur-sm"
       />
       <motion.div
         initial={{ scale: 0, opacity: 0 }}
         animate={{ scale: 1, opacity: 1 }}
         transition={{ duration: 0.4, delay: 0.5 }}
-        className="absolute bottom-6 left-2 w-6 h-6 rounded-full bg-white/10"
+        className="absolute bottom-6 left-2 w-6 h-6 rounded-full bg-secondary/10"
       />
       <motion.div
         initial={{ opacity: 0 }}
@@ -84,12 +84,12 @@ function SlideIllustration({ iconName, index }: { iconName: string; index: numbe
         transition={{ duration: 0.6, delay: 0.6 }}
         className="absolute top-6 left-8"
       >
-        <Sparkles className="h-5 w-5 text-white/50 animate-pulse" />
+        <Sparkles className="h-5 w-5 text-primary/50 animate-pulse" />
       </motion.div>
       
       {/* Glow ring */}
       <div 
-        className="absolute inset-0 w-28 h-28 m-auto rounded-full border border-white/10"
+        className="absolute inset-0 w-28 h-28 m-auto rounded-full border border-primary/10"
         style={{ animation: "ping 3s ease-in-out infinite" }}
       />
     </div>
@@ -145,12 +145,7 @@ export function Onboarding({ onComplete }: OnboardingProps) {
       <div 
         className="fixed inset-0 z-50 flex items-center justify-center"
         style={{
-          background: `linear-gradient(
-            165deg,
-            hsl(340 50% 78%) 0%,
-            hsl(340 45% 72%) 40%,
-            hsl(30 40% 75%) 100%
-          )`,
+          background: `linear-gradient(165deg, hsl(30 30% 95%) 0%, hsl(30 55% 98%) 40%, hsl(20 52% 53% / 0.1) 100%)`,
         }}
       />
     );
@@ -166,12 +161,7 @@ export function Onboarding({ onComplete }: OnboardingProps) {
     <div 
       className="fixed inset-0 z-50 flex flex-col overflow-hidden"
       style={{
-        background: `linear-gradient(
-          165deg,
-          hsl(340 50% 78%) 0%,
-          hsl(340 45% 72%) 40%,
-          hsl(30 40% 75%) 100%
-        )`,
+        background: `linear-gradient(165deg, hsl(30 30% 95%) 0%, hsl(30 55% 98%) 40%, hsl(20 52% 53% / 0.1) 100%)`,
       }}
     >
       {/* Subtle texture */}
@@ -186,7 +176,7 @@ export function Onboarding({ onComplete }: OnboardingProps) {
       <div className="flex justify-end p-4 safe-top relative z-10">
         <button
           onClick={handleSkip}
-          className="text-sm text-white/60 hover:text-white transition-colors px-3 py-1 rounded-lg hover:bg-white/10"
+          className="text-sm text-espresso-mid/60 hover:text-espresso transition-colors px-3 py-1 rounded-lg hover:bg-primary/10"
         >
           {skipLabel}
         </button>
@@ -217,7 +207,7 @@ export function Onboarding({ onComplete }: OnboardingProps) {
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.2, duration: 0.4 }}
-                className="text-2xl font-bold text-white mb-4 tracking-tight drop-shadow-sm"
+                className="text-2xl font-bold text-espresso mb-4 tracking-tight drop-shadow-sm"
               >
                 {currentSlideData?.title || ""}
               </motion.h1>
@@ -225,7 +215,7 @@ export function Onboarding({ onComplete }: OnboardingProps) {
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.3, duration: 0.4 }}
-                className="text-white/80 text-base leading-relaxed"
+                className="text-text-light text-base leading-relaxed"
               >
                 {currentSlideData?.text || ""}
               </motion.p>
@@ -244,11 +234,11 @@ export function Onboarding({ onComplete }: OnboardingProps) {
               onClick={() => handleDotClick(index)}
               className={cn(
                 "h-2 rounded-full transition-all duration-500",
-                index === currentSlide
-                  ? "bg-white w-8"
-                  : index < currentSlide
-                    ? "bg-white/60 w-2"
-                    : "bg-white/30 w-2"
+                  index === currentSlide
+                    ? "bg-primary w-8"
+                    : index < currentSlide
+                      ? "bg-primary/60 w-2"
+                      : "bg-primary/30 w-2"
               )}
               aria-label={`Go to slide ${index + 1}`}
             />
@@ -257,13 +247,13 @@ export function Onboarding({ onComplete }: OnboardingProps) {
 
         {/* Progress bar (shows time remaining on current slide) */}
         {autoPlay && (
-          <div className="w-full max-w-xs mx-auto h-1 bg-white/20 rounded-full overflow-hidden">
+          <div className="w-full max-w-xs mx-auto h-1 bg-primary/20 rounded-full overflow-hidden">
             <motion.div
               key={currentSlide}
               initial={{ width: "0%" }}
               animate={{ width: "100%" }}
               transition={{ duration: slideDuration / 1000, ease: "linear" }}
-              className="h-full bg-white/60 rounded-full"
+              className="h-full bg-primary/60 rounded-full"
             />
           </div>
         )}

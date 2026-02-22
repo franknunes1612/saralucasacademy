@@ -226,7 +226,7 @@ function AppEntryFlow({ children }: { children: React.ReactNode }) {
       <div 
         className="fixed inset-0 z-50 flex items-center justify-center"
         style={{
-          background: `linear-gradient(165deg, hsl(340 50% 78%) 0%, hsl(340 45% 72%) 40%, hsl(30 40% 75%) 100%)`,
+          background: `linear-gradient(165deg, hsl(30 30% 95%) 0%, hsl(30 55% 98%) 40%, hsl(20 52% 53% / 0.1) 100%)`,
         }}
       />
     );
