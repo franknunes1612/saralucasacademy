@@ -65,25 +65,25 @@ function PremiumOfferCard({
     >
       <div className="flex items-start gap-4">
         <div className={cn("p-3 rounded-xl", offer.accent_color || "bg-primary")}>
-          <Dumbbell className="h-6 w-6 text-white" />
+          <Dumbbell className="h-6 w-6 text-primary-foreground" />
         </div>
         <div className="flex-1">
           <div className="flex items-center gap-2 mb-1">
-            <h3 className="font-semibold text-white">{title}</h3>
+            <h3 className="font-semibold text-foreground">{title}</h3>
             {badge && (
-              <span className="text-[10px] px-2 py-0.5 rounded-full bg-success/20 text-success font-medium">
+              <span className="text-[10px] px-2 py-0.5 rounded-full bg-secondary/20 text-secondary font-medium">
                 {badge}
               </span>
             )}
           </div>
           {subtitle && (
-            <p className="text-sm text-white/70 leading-relaxed">{subtitle}</p>
+            <p className="text-sm text-muted-foreground leading-relaxed">{subtitle}</p>
           )}
           {features && features.length > 0 && (
             <ul className="mt-2 space-y-1">
               {features.slice(0, 3).map((feature, i) => (
-                <li key={i} className="text-xs text-white/60 flex items-center gap-1">
-                  <span className="text-success">✓</span> {feature}
+                <li key={i} className="text-xs text-muted-foreground flex items-center gap-1">
+                  <span className="text-secondary">✓</span> {feature}
                 </li>
               ))}
             </ul>
@@ -91,18 +91,18 @@ function PremiumOfferCard({
         </div>
       </div>
       
-      <div className="flex items-center justify-between pt-2 border-t border-white/10">
+      <div className="flex items-center justify-between pt-2 border-t border-border">
         <div>
-          <span className="text-lg font-bold text-white">{priceDisplay}</span>
+          <span className="text-lg font-bold text-foreground">{priceDisplay}</span>
           {!billingLabel.startsWith("/") && billingLabel && (
-            <span className="text-xs text-white/50 ml-1">({billingLabel})</span>
+            <span className="text-xs text-muted-foreground ml-1">({billingLabel})</span>
           )}
         </div>
         {canPurchase && (
           <button 
             onClick={() => onPurchase(offer.id)}
             disabled={isLoading}
-            className="btn-primary px-5 py-2.5 rounded-xl text-sm font-medium flex items-center gap-1.5 disabled:opacity-50"
+            className="btn-primary px-5 py-2.5 rounded-sm text-sm font-medium flex items-center gap-1.5 disabled:opacity-50"
           >
             {isLoading ? (
               <Loader2 className="h-3.5 w-3.5 animate-spin" />
@@ -135,7 +135,6 @@ function StoreItemCard({
     ? (item.button_text_pt || "Comprar") 
     : (item.button_text_en || "Buy");
 
-  // Determine if we should use Stripe or external link
   const hasStripePrice = !!item.stripe_price_id;
   const hasExternalLink = !!item.purchase_link;
 
@@ -154,25 +153,25 @@ function StoreItemCard({
       className="result-card p-4"
     >
       <div className="flex gap-4">
-        <div className="w-16 h-16 rounded-xl bg-white/10 flex items-center justify-center text-2xl flex-shrink-0">
+        <div className="w-16 h-16 rounded-xl bg-muted flex items-center justify-center text-2xl flex-shrink-0">
           {item.image_emoji || "📦"}
         </div>
         
         <div className="flex-1 min-w-0">
-          <h3 className="font-semibold text-white truncate">{name}</h3>
-          {item.brand && <p className="text-xs text-white/50">{item.brand}</p>}
+          <h3 className="font-semibold text-foreground truncate">{name}</h3>
+          {item.brand && <p className="text-xs text-muted-foreground">{item.brand}</p>}
           {description && (
-            <p className="text-xs text-white/70 line-clamp-2 my-1">{description}</p>
+            <p className="text-xs text-muted-foreground line-clamp-2 my-1">{description}</p>
           )}
           <div className="flex items-center justify-between mt-2">
-            <span className="text-sm font-semibold text-white">
+            <span className="text-sm font-semibold text-foreground">
               {currencySymbol}{Number(item.price).toFixed(2)}
             </span>
             {(hasStripePrice || hasExternalLink) && (
               <button
                 onClick={handleClick}
                 disabled={isLoading && hasStripePrice}
-                className="flex items-center gap-1 px-3 py-1.5 rounded-lg bg-primary text-primary-foreground text-xs font-medium hover:bg-primary/90 transition-colors disabled:opacity-50"
+                className="flex items-center gap-1 px-3 py-1.5 rounded-sm bg-primary text-primary-foreground text-xs font-medium hover:bg-primary/90 transition-colors disabled:opacity-50"
               >
                 {isLoading && hasStripePrice ? (
                   <Loader2 className="h-3 w-3 animate-spin" />
@@ -218,34 +217,34 @@ function RecommendedProductCard({
       className="result-card p-4"
     >
       <div className="flex gap-4">
-        <div className="w-16 h-16 rounded-xl bg-white/10 flex items-center justify-center text-2xl flex-shrink-0">
+        <div className="w-16 h-16 rounded-xl bg-muted flex items-center justify-center text-2xl flex-shrink-0">
           {item.image_emoji || "📦"}
         </div>
         
         <div className="flex-1 min-w-0">
           <div className="flex items-start justify-between gap-2">
             <div className="min-w-0">
-              <h3 className="font-semibold text-white truncate">{name}</h3>
-              {item.brand && <p className="text-xs text-white/50">{item.brand}</p>}
+              <h3 className="font-semibold text-foreground truncate">{name}</h3>
+              {item.brand && <p className="text-xs text-muted-foreground">{item.brand}</p>}
             </div>
             <button
               onClick={() => onToggleFavorite(item.id)}
-              className="p-1.5 rounded-lg hover:bg-white/10 transition-colors"
+              className="p-1.5 rounded-sm hover:bg-muted transition-colors"
             >
-              <Heart className={cn("h-4 w-4", isFavorite ? "fill-destructive text-destructive" : "text-white/40")} />
+              <Heart className={cn("h-4 w-4", isFavorite ? "fill-destructive text-destructive" : "text-muted-foreground")} />
             </button>
           </div>
           {description && (
-            <p className="text-xs text-white/70 line-clamp-2 my-1">{description}</p>
+            <p className="text-xs text-muted-foreground line-clamp-2 my-1">{description}</p>
           )}
           <div className="flex items-center justify-between mt-2">
-            <span className="text-[10px] text-white/40 bg-white/5 px-2 py-0.5 rounded-full">
+            <span className="text-[10px] text-muted-foreground bg-muted px-2 py-0.5 rounded-full">
               {language === "pt" ? "Recomendado" : "Recommended"}
             </span>
             {item.external_link && (
               <button
                 onClick={handleView}
-                className="flex items-center gap-1 px-3 py-1.5 rounded-lg bg-white/10 text-white text-xs font-medium hover:bg-white/20 transition-colors"
+                className="flex items-center gap-1 px-3 py-1.5 rounded-sm bg-accent text-accent-foreground text-xs font-medium hover:bg-accent/80 transition-colors"
               >
                 {language === "pt" ? "Ver" : "View"}
                 <ExternalLink className="h-3 w-3" />
@@ -275,12 +274,10 @@ export default function Learn() {
     activeType === "all" || activeType === "store" ? undefined : activeType
   );
 
-  // Store data
   const { data: premiumOffers, isLoading: offersLoading } = usePremiumOffers();
   const { data: storeItems, isLoading: storeLoading } = useStoreItems();
   const { data: recommendedProducts, isLoading: productsLoading } = useRecommendedProducts();
 
-  // Checkout hook
   const { checkout, isLoading: isCheckingOut } = useCheckout({
     onSuccess: () => setCheckoutProductId(null),
     onError: () => setCheckoutProductId(null),
@@ -296,7 +293,6 @@ export default function Learn() {
     checkout(itemId, "store_item", true);
   };
 
-  // Type filters with CMS labels - now includes Store
   const TYPE_FILTERS = useMemo(() => [
     { type: "all" as const, icon: Sparkles, labelKey: "academy.filter.all" },
     { type: "course" as const, icon: PlayCircle, labelKey: "academy.filter.courses" },
@@ -309,60 +305,38 @@ export default function Learn() {
   const toggleFavorite = (id: string) => {
     setFavorites(prev => {
       const next = new Set(prev);
-      if (next.has(id)) {
-        next.delete(id);
-      } else {
-        next.add(id);
-      }
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
       return next;
     });
   };
 
-  // Filter items
   const filteredItems = useMemo(() => {
     if (!items || isStoreTab) return [];
-    
     let filtered = items as ExtendedAcademyItem[];
-
-    // Search filter
     if (searchQuery.trim()) {
       const query = searchQuery.toLowerCase();
       filtered = filtered.filter((item) => {
         const title = language === "pt" ? item.title_pt : item.title_en;
         const subtitle = language === "pt" ? item.subtitle_pt : item.subtitle_en;
         const description = language === "pt" ? item.description_pt : item.description_en;
-
-        return (
-          title.toLowerCase().includes(query) ||
-          subtitle?.toLowerCase().includes(query) ||
-          description?.toLowerCase().includes(query)
-        );
+        return title.toLowerCase().includes(query) || subtitle?.toLowerCase().includes(query) || description?.toLowerCase().includes(query);
       });
     }
-
-    // Category filter (for courses)
     if (categoryFilter !== "all" && activeType === "course") {
       filtered = filtered.filter((item) => {
-        if (categoryFilter === "beginner") {
-          return item.difficulty_level === "beginner";
-        }
-        if (categoryFilter === "advanced") {
-          return item.difficulty_level === "advanced" || item.difficulty_level === "intermediate";
-        }
+        if (categoryFilter === "beginner") return item.difficulty_level === "beginner";
+        if (categoryFilter === "advanced") return item.difficulty_level === "advanced" || item.difficulty_level === "intermediate";
         return item.category === categoryFilter;
       });
     }
-
     return filtered;
   }, [items, searchQuery, language, categoryFilter, activeType, isStoreTab]);
 
-  // Separate featured items (courses or programs)
   const featuredItems = useMemo(() => {
     if (isStoreTab) return [];
     if (activeType !== "all" && activeType !== "course" && activeType !== "program") return [];
-    return filteredItems.filter((item) => 
-      item.is_featured && (item.item_type === "course" || item.item_type === "program")
-    ).slice(0, 1);
+    return filteredItems.filter((item) => item.is_featured && (item.item_type === "course" || item.item_type === "program")).slice(0, 1);
   }, [filteredItems, activeType, isStoreTab]);
 
   const regularItems = useMemo(() => {
@@ -371,11 +345,8 @@ export default function Learn() {
   }, [filteredItems, featuredItems]);
 
   const handleTypeChange = (type: TabType) => {
-    if (type === "all") {
-      setSearchParams({});
-    } else {
-      setSearchParams({ type });
-    }
+    if (type === "all") setSearchParams({});
+    else setSearchParams({ type });
     setCategoryFilter("all");
   };
 
@@ -387,40 +358,39 @@ export default function Learn() {
       <div className="flex items-center gap-3 mb-4">
         <button
           onClick={() => navigate("/")}
-          className="p-2 -ml-2 rounded-xl hover:bg-white/10 transition-colors"
+          className="p-2 -ml-2 rounded-sm hover:bg-accent transition-colors"
           aria-label="Go back"
         >
-          <ArrowLeft className="h-5 w-5 text-white" />
+          <ArrowLeft className="h-5 w-5 text-foreground" />
         </button>
         <div>
-          <h1 className="text-xl font-bold text-white tracking-tight">
+          <h1 className="text-xl font-bold text-foreground tracking-tight">
             {cms.get("academy.hero.title")}
           </h1>
-          <p className="text-xs text-white/60">
+          <p className="text-xs text-muted-foreground">
             {cms.get("academy.hero.subtitle")}
           </p>
         </div>
       </div>
 
-      {/* Hero Section (only on main view) */}
+      {/* Hero Section */}
       {activeType === "all" && !searchQuery && (
         <>
           <AcademyHero />
-          {/* Testimonials Section - below hero */}
           <TestimonialsSection location="academy" className="mb-4" />
         </>
       )}
 
-      {/* Search (not for store) */}
+      {/* Search */}
       {!isStoreTab && (
         <div className="relative mb-4">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-white/40" />
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
           <input
             type="text"
             placeholder={cms.get("academy.search.placeholder")}
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full pl-10 pr-4 py-3 rounded-xl bg-white/10 border border-white/10 text-white placeholder:text-white/40 focus:outline-none focus:ring-2 focus:ring-white/20 text-sm"
+            className="w-full pl-10 pr-4 py-3 rounded-sm bg-card border border-border text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/30 text-sm"
           />
         </div>
       )}
@@ -432,15 +402,15 @@ export default function Learn() {
             key={filter.type}
             onClick={() => handleTypeChange(filter.type)}
             className={cn(
-              "flex items-center gap-1.5 px-4 py-2.5 rounded-xl text-sm font-medium whitespace-nowrap transition-all",
+              "flex items-center gap-1.5 px-4 py-2.5 rounded-sm text-sm font-medium whitespace-nowrap transition-all",
               activeType === filter.type
-                ? "bg-white text-[hsl(340_45%_45%)] shadow-md"
-                : "bg-white/10 text-white/80 hover:bg-white/15 border border-white/5"
+                ? "bg-primary text-primary-foreground shadow-md"
+                : "bg-card text-muted-foreground hover:text-foreground border border-border"
             )}
           >
             <filter.icon className={cn(
               "h-4 w-4",
-              activeType === filter.type ? "text-[hsl(340_45%_50%)]" : "text-white/60"
+              activeType === filter.type ? "text-primary-foreground" : "text-muted-foreground"
             )} />
             {filter.type === "store" 
               ? (language === "pt" ? "Loja" : "Store")
@@ -450,7 +420,7 @@ export default function Learn() {
         ))}
       </div>
 
-      {/* Category Filter (for courses) */}
+      {/* Category Filter */}
       {showCourseUI && !searchQuery && (
         <CourseCategoryFilter
           activeCategory={categoryFilter}
@@ -460,15 +430,14 @@ export default function Learn() {
 
       {/* Content */}
       {isStoreTab ? (
-        // Store Tab Content
         <div className="space-y-4">
           {/* Store Hero */}
-          <div className="result-card p-5 text-center bg-gradient-to-br from-primary/20 to-secondary/20 mb-4">
-            <ShoppingBag className="h-8 w-8 text-white/80 mx-auto mb-2" />
-            <h2 className="text-lg font-bold text-white mb-1">
+          <div className="result-card p-5 text-center bg-gradient-to-br from-primary/10 to-secondary/10 mb-4">
+            <ShoppingBag className="h-8 w-8 text-primary mx-auto mb-2" />
+            <h2 className="text-lg font-bold text-foreground mb-1">
               {language === "pt" ? "Recursos Premium" : "Premium Resources"}
             </h2>
-            <p className="text-sm text-white/70">
+            <p className="text-sm text-muted-foreground">
               {language === "pt" 
                 ? "Planos, produtos e recomendações para a tua jornada." 
                 : "Plans, products and recommendations for your journey."}
@@ -477,16 +446,15 @@ export default function Learn() {
 
           {offersLoading || storeLoading || productsLoading ? (
             <>
-              <Skeleton className="h-32 rounded-2xl" />
-              <Skeleton className="h-24 rounded-2xl" />
-              <Skeleton className="h-24 rounded-2xl" />
+              <Skeleton className="h-32 rounded-sm" />
+              <Skeleton className="h-24 rounded-sm" />
+              <Skeleton className="h-24 rounded-sm" />
             </>
           ) : (
             <>
-              {/* Premium Offers / Plans */}
               {premiumOffers && premiumOffers.length > 0 && (
                 <div className="space-y-3">
-                  <h3 className="text-sm font-medium text-white/70 px-1">
+                  <h3 className="text-sm font-medium text-muted-foreground px-1">
                     {language === "pt" ? "Planos & Serviços" : "Plans & Services"}
                   </h3>
                   {premiumOffers.map((offer) => (
@@ -501,10 +469,9 @@ export default function Learn() {
                 </div>
               )}
 
-              {/* Store Items */}
               {storeItems && storeItems.length > 0 && (
                 <div className="space-y-3 mt-4">
-                  <h3 className="text-sm font-medium text-white/70 px-1">
+                  <h3 className="text-sm font-medium text-muted-foreground px-1">
                     {language === "pt" ? "Produtos Digitais" : "Digital Products"}
                   </h3>
                   {storeItems.map((item) => (
@@ -519,10 +486,9 @@ export default function Learn() {
                 </div>
               )}
 
-              {/* Recommended Products */}
               {recommendedProducts && recommendedProducts.length > 0 && (
                 <div className="space-y-3 mt-4">
-                  <h3 className="text-sm font-medium text-white/70 px-1">
+                  <h3 className="text-sm font-medium text-muted-foreground px-1">
                     {language === "pt" ? "Produtos Recomendados" : "Recommended Products"}
                   </h3>
                   {recommendedProducts.map((item) => (
@@ -537,21 +503,19 @@ export default function Learn() {
                 </div>
               )}
 
-              {/* Empty state */}
               {(!premiumOffers || premiumOffers.length === 0) && 
                (!storeItems || storeItems.length === 0) && 
                (!recommendedProducts || recommendedProducts.length === 0) && (
                 <div className="text-center py-12">
-                  <ShoppingBag className="h-12 w-12 text-white/20 mx-auto mb-3" />
-                  <p className="text-white/60">
+                  <ShoppingBag className="h-12 w-12 text-muted-foreground/30 mx-auto mb-3" />
+                  <p className="text-muted-foreground">
                     {language === "pt" ? "Brevemente novos produtos" : "New products coming soon"}
                   </p>
                 </div>
               )}
 
-              {/* Affiliate disclaimer */}
-              <div className="p-3 rounded-xl bg-white/5 mt-4">
-                <p className="text-[10px] text-white/40 text-center">
+              <div className="p-3 rounded-sm bg-muted/50 mt-4">
+                <p className="text-[10px] text-muted-foreground text-center">
                   {language === "pt"
                     ? "Alguns links são links de afiliados. Podemos ganhar uma pequena comissão sem custo extra para si."
                     : "Some links are affiliate links. We may earn a small commission at no extra cost to you."}
@@ -561,41 +525,38 @@ export default function Learn() {
           )}
         </div>
       ) : (
-        // Academy Content List
         <div className="space-y-4">
           {isLoading ? (
             <>
-              <Skeleton className="h-64 rounded-3xl" />
-              <Skeleton className="h-24 rounded-2xl" />
-              <Skeleton className="h-24 rounded-2xl" />
+              <Skeleton className="h-64 rounded-sm" />
+              <Skeleton className="h-24 rounded-sm" />
+              <Skeleton className="h-24 rounded-sm" />
             </>
           ) : error ? (
             <div className="text-center py-12">
-              <p className="text-white/60">
+              <p className="text-muted-foreground">
                 {cms.get("academy.empty.title")}
               </p>
             </div>
           ) : (
             <>
-              {/* Featured Item */}
               {featuredItems.length > 0 && !searchQuery && (
                 <motion.div
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
                   className="mb-6"
                 >
-                  <h2 className="text-sm font-medium text-white/70 mb-3 px-1">
+                  <h2 className="text-sm font-medium text-muted-foreground mb-3 px-1">
                     {cms.get("academy.featured.title")}
                   </h2>
                   <CourseCard course={featuredItems[0]} featured index={0} />
                 </motion.div>
               )}
 
-              {/* Regular Items */}
               {regularItems.length > 0 ? (
                 <div className="space-y-3">
                   {!searchQuery && featuredItems.length > 0 && (
-                    <h2 className="text-sm font-medium text-white/70 mb-3 px-1">
+                    <h2 className="text-sm font-medium text-muted-foreground mb-3 px-1">
                       {activeType === "course"
                         ? cms.get("academy.allCourses.title")
                         : activeType === "program"
@@ -614,8 +575,8 @@ export default function Learn() {
                 </div>
               ) : (
                 <div className="text-center py-12">
-                  <BookOpen className="h-12 w-12 text-white/20 mx-auto mb-3" />
-                  <p className="text-white/60">
+                  <BookOpen className="h-12 w-12 text-muted-foreground/30 mx-auto mb-3" />
+                  <p className="text-muted-foreground">
                     {searchQuery
                       ? cms.get("academy.empty.noResults")
                       : cms.get("academy.empty.title")}
@@ -629,8 +590,8 @@ export default function Learn() {
 
       {/* Info Banner */}
       {!isStoreTab && (
-        <div className="mt-6 p-4 rounded-xl bg-white/5 border border-white/10">
-          <p className="text-sm text-white text-center">
+        <div className="mt-6 p-4 rounded-sm bg-card border border-border">
+          <p className="text-sm text-muted-foreground text-center">
             {cms.get("academy.footer.disclaimer")}
           </p>
         </div>

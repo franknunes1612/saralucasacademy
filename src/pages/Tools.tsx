@@ -24,7 +24,7 @@ export default function Tools() {
       icon: Camera,
       title: { pt: "Scanner de Alimentos", en: "Food Scanner" },
       description: { pt: "Analisa calorias e macros com a câmara", en: "Analyze calories and macros with camera" },
-      color: "bg-success/20 text-success",
+      color: "bg-secondary/20 text-secondary",
       action: () => navigate("/scan?direct=1"),
     },
     {
@@ -32,7 +32,7 @@ export default function Tools() {
       icon: ScanBarcode,
       title: { pt: "Leitor de Código de Barras", en: "Barcode Scanner" },
       description: { pt: "Lê produtos embalados automaticamente", en: "Read packaged products automatically" },
-      color: "bg-secondary/20 text-secondary",
+      color: "bg-primary/20 text-primary",
       action: () => navigate("/scan?mode=barcode"),
     },
     {
@@ -40,7 +40,7 @@ export default function Tools() {
       icon: History,
       title: { pt: "Histórico de Refeições", en: "Meal History" },
       description: { pt: "Ver refeições guardadas", en: "View saved meals" },
-      color: "bg-primary/30 text-white",
+      color: "bg-accent text-accent-foreground",
       action: () => navigate("/meals"),
     },
     {
@@ -56,7 +56,7 @@ export default function Tools() {
       icon: HelpCircle,
       title: { pt: "Ajuda & Suporte", en: "Help & Support" },
       description: { pt: "Questões técnicas e apoio", en: "Technical questions and support" },
-      color: "bg-muted/40 text-white/70",
+      color: "bg-muted text-muted-foreground",
       action: () => navigate("/support"),
     },
   ];
@@ -65,10 +65,10 @@ export default function Tools() {
     <div className="min-h-screen bg-background px-4 pt-5 pb-24 safe-top">
       {/* Header */}
       <div className="mb-6">
-        <h1 className="text-xl font-bold text-white tracking-tight">
+        <h1 className="text-xl font-bold text-foreground tracking-tight">
           {t({ pt: "Ferramentas", en: "Tools" })}
         </h1>
-        <p className="text-sm text-white">
+        <p className="text-sm text-muted-foreground">
           {t({ pt: "Apoio à tua jornada nutricional", en: "Support your nutrition journey" })}
         </p>
       </div>
@@ -84,16 +84,16 @@ export default function Tools() {
           <button
             key={tool.id}
             onClick={tool.action}
-            className="result-card p-5 w-full flex items-center gap-4 hover:bg-white/5 transition-colors text-left"
+            className="result-card p-5 w-full flex items-center gap-4 hover:border-primary/30 transition-colors text-left"
           >
             <div className={`p-3 rounded-xl ${tool.color}`}>
               <tool.icon className="h-6 w-6" />
             </div>
             <div className="flex-1">
-              <h3 className="font-semibold text-white">{t(tool.title)}</h3>
-              <p className="text-sm text-white">{t(tool.description)}</p>
+              <h3 className="font-semibold text-foreground">{t(tool.title)}</h3>
+              <p className="text-sm text-muted-foreground">{t(tool.description)}</p>
             </div>
-            <ChevronRight className="h-5 w-5 text-white/60" />
+            <ChevronRight className="h-5 w-5 text-muted-foreground/60" />
           </button>
         ))}
       </div>
@@ -101,12 +101,12 @@ export default function Tools() {
       {/* Info Card */}
       <div className="mt-6 result-card p-5">
         <div className="flex items-start gap-3">
-          <Apple className="h-5 w-5 text-success flex-shrink-0 mt-0.5" />
+          <Apple className="h-5 w-5 text-secondary flex-shrink-0 mt-0.5" />
           <div>
-            <h3 className="font-semibold text-white mb-1">
+            <h3 className="font-semibold text-foreground mb-1">
               {t({ pt: "Ferramentas de apoio", en: "Support tools" })}
             </h3>
-            <p className="text-sm text-white">
+            <p className="text-sm text-muted-foreground">
               {t({
                 pt: "Estas ferramentas complementam a tua aprendizagem na Academia. Usa o scanner para entender melhor os alimentos do dia a dia.",
                 en: "These tools complement your learning in the Academy. Use the scanner to better understand everyday foods.",
