@@ -447,7 +447,7 @@ export default function Home() {
             {isPt ? "Seguir no Instagram" : "Follow on Instagram"}
           </a>
         </div>
-        <p className="mt-8 text-xs tracking-widest text-cream/50 uppercase">
+        <p className="mt-8 text-xs tracking-widest text-cream/65 uppercase">
           ✓ {isPt ? "Consulta gratuita" : "Free consultation"}  ·  ✓ {isPt ? "Sem compromisso" : "No commitment"}  ·  ✓ {isPt ? "Resposta em 24h" : "Response in 24h"}
         </p>
       </section>

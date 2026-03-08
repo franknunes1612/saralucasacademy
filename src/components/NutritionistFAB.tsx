@@ -44,7 +44,7 @@ export function NutritionistFAB({ className }: NutritionistFABProps) {
   const tooltipText = t(TOOLTIPS);
 
   return (
-    <div className={cn("fixed bottom-24 right-4 z-40 safe-bottom", className)}>
+    <div className={cn("fixed bottom-28 right-4 z-40 safe-bottom", className)}>
       {/* Tooltip */}
       {showTooltip && (
         <div className="absolute right-12 top-1/2 -translate-y-1/2 animate-fade-in">

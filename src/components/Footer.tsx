@@ -6,7 +6,7 @@ export function Footer() {
   const { language } = useLanguage();
 
   return (
-    <footer className="bg-espresso border-t border-cream/[0.08] px-4 md:px-16 py-12">
+    <footer className="bg-espresso border-t border-cream/[0.08] px-4 md:px-16 py-12 pb-28 md:pb-12">
       <div className="max-w-6xl mx-auto flex flex-col md:flex-row justify-between items-center gap-6 flex-wrap">
         <SaraLucasLogo variant="light" />
 
