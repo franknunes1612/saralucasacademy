@@ -435,7 +435,7 @@ export default function Home() {
             <>Ready for your <em className="italic text-primary">transformation</em>?</>
           )}
         </h2>
-        <p className="text-cream/70 max-w-lg mx-auto mb-8">
+        <p className="text-cream/80 max-w-lg mx-auto mb-8">
           {isPt ? "Marca uma consulta gratuita de 20 minutos. Sem compromisso — só para perceber se somos um bom match." : "Book a free 20-minute consultation. No commitment — just to see if we're a good match."}
         </p>
         <div className="flex justify-center gap-4 flex-wrap">
