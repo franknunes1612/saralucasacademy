@@ -276,14 +276,14 @@ export default function Home() {
             <span className="absolute -top-3 left-1/2 -translate-x-1/2 bg-primary text-white text-[0.65rem] tracking-widest uppercase px-4 py-1 rounded-full whitespace-nowrap">{isPt ? "Mais Popular" : "Most Popular"}</span>
             <div className="text-xs tracking-widest uppercase text-sage-light mb-3">{isPt ? "Completo" : "Complete"}</div>
             <h3 className="font-serif text-2xl font-semibold mb-1 text-cream">{isPt ? "Nutrição + Treino" : "Nutrition + Training"}</h3>
-            <p className="text-sm text-cream/70 mb-6 leading-relaxed">{isPt ? "O programa mais completo para transformação física e mudança de hábitos." : "The most complete program for physical transformation and habit change."}</p>
+            <p className="text-sm text-cream/80 mb-6 leading-relaxed">{isPt ? "O programa mais completo para transformação física e mudança de hábitos." : "The most complete program for physical transformation and habit change."}</p>
             <div className="flex items-baseline gap-1 mb-6">
               <span className="font-serif text-5xl font-semibold text-cream">€149</span>
-              <span className="text-sm text-cream/65">/{isPt ? "mês" : "mo"}</span>
+              <span className="text-sm text-cream/75">/{isPt ? "mês" : "mo"}</span>
             </div>
             <ul className="flex flex-col gap-2 mb-8 list-none">
               {(isPt ? ["Plano alimentar personalizado", "Plano de treino (ginásio ou casa)", "Check-in semanal por videochamada", "Suporte diário por WhatsApp", "Ajustes ilimitados ao plano", "Acesso a receitas e guias"] : ["Personalized meal plan", "Training plan (gym or home)", "Weekly video check-in", "Daily WhatsApp support", "Unlimited plan adjustments", "Access to recipes and guides"]).map((f, i) => (
-                <li key={i} className="text-sm flex items-start gap-2 text-cream/80"><span className="text-sage-light font-medium flex-shrink-0 mt-px">✓</span> {f}</li>
+                <li key={i} className="text-sm flex items-start gap-2 text-cream/90"><span className="text-sage-light font-medium flex-shrink-0 mt-px">✓</span> {f}</li>
               ))}
             </ul>
             <button onClick={() => openWhatsApp(WHATSAPP_MESSAGES.completePlan, language)} className="block w-full text-center py-3 bg-primary text-white border border-primary text-xs tracking-widest uppercase font-medium hover:bg-terracotta-dark hover:shadow-lg transition-all">
@@ -435,7 +435,7 @@ export default function Home() {
             <>Ready for your <em className="italic text-primary">transformation</em>?</>
           )}
         </h2>
-        <p className="text-cream/70 max-w-lg mx-auto mb-8">
+        <p className="text-cream/80 max-w-lg mx-auto mb-8">
           {isPt ? "Marca uma consulta gratuita de 20 minutos. Sem compromisso — só para perceber se somos um bom match." : "Book a free 20-minute consultation. No commitment — just to see if we're a good match."}
         </p>
         <div className="flex justify-center gap-4 flex-wrap">
@@ -447,7 +447,7 @@ export default function Home() {
             {isPt ? "Seguir no Instagram" : "Follow on Instagram"}
           </a>
         </div>
-        <p className="mt-8 text-xs tracking-widest text-cream/50 uppercase">
+        <p className="mt-8 text-xs tracking-widest text-cream/65 uppercase">
           ✓ {isPt ? "Consulta gratuita" : "Free consultation"}  ·  ✓ {isPt ? "Sem compromisso" : "No commitment"}  ·  ✓ {isPt ? "Resposta em 24h" : "Response in 24h"}
         </p>
       </section>
