@@ -43,7 +43,8 @@ app.post("/api/chat", async (req, res) => {
       return res.status(response.status).json({ error: data.error?.message || "Erro na API Groq" });
     }
 
-    res.json(data);
+    const reply = data.choices?.[0]?.message?.content || "Sem resposta.";
+    res.json({ reply });
   } catch (err) {
     res.status(500).json({ error: "Erro ao contactar a API Groq" });
   }
