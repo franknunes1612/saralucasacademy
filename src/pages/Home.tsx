@@ -58,7 +58,12 @@ export default function Home() {
         <div className="flex items-center gap-2">
           <LanguageToggle />
           {user ? (
-            <button onClick={() => navigate("/profile")} className="rounded-full hover:ring-2 hover:ring-primary/30 transition-all">
+            <button onClick={() => navigate("/profile")} className="flex items-center gap-2 rounded-full hover:ring-2 hover:ring-primary/30 transition-all">
+              {profile?.display_name && (
+                <span className="hidden md:block text-xs text-espresso-mid">
+                  {isPt ? "Olá" : "Hello"}, {profile.display_name.split(" ")[0]}!
+                </span>
+              )}
               <Avatar className="h-8 w-8 border border-sand">
                 <AvatarImage src={profile?.avatar_url || undefined} alt={profile?.display_name || "User"} />
                 <AvatarFallback className="bg-primary/10 text-primary text-xs font-medium">{getInitials()}</AvatarFallback>
