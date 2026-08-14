@@ -65,15 +65,15 @@ export default function AdminLogin() {
       <div className="flex items-center gap-3 mb-8">
         <button
           onClick={() => navigate("/")}
-          className="p-2 -ml-2 rounded-xl hover:bg-white/10 transition-colors"
+          className="p-2 -ml-2 rounded-xl hover:bg-muted transition-colors"
         >
-          <ArrowLeft className="h-5 w-5 text-white" />
+          <ArrowLeft className="h-5 w-5 text-foreground" />
         </button>
         <div>
-          <h1 className="text-xl font-bold text-white tracking-tight">
+          <h1 className="text-xl font-bold text-foreground tracking-tight">
             {t({ pt: "Admin Login", en: "Admin Login" })}
           </h1>
-          <p className="text-xs text-white/60">
+          <p className="text-xs text-muted-foreground">
             {t({ pt: "Acesso restrito", en: "Restricted access" })}
           </p>
         </div>
@@ -84,12 +84,12 @@ export default function AdminLogin() {
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="result-card p-4 space-y-4">
             <div>
-              <label className="text-sm text-white/80 mb-1 block">Email</label>
+              <label className="text-sm text-foreground mb-1 block">Email</label>
               <input
                 type="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                className="w-full px-4 py-3 rounded-xl bg-white/10 border border-white/20 text-white placeholder:text-white/40 focus:outline-none focus:ring-2 focus:ring-primary"
+                className="w-full px-4 py-3 rounded-xl bg-background border border-border text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary"
                 placeholder="admin@example.com"
                 required
                 maxLength={255}
@@ -97,14 +97,14 @@ export default function AdminLogin() {
             </div>
 
             <div>
-              <label className="text-sm text-white/80 mb-1 block">
+              <label className="text-sm text-foreground mb-1 block">
                 {t({ pt: "Senha", en: "Password" })}
               </label>
               <input
                 type="password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                className="w-full px-4 py-3 rounded-xl bg-white/10 border border-white/20 text-white placeholder:text-white/40 focus:outline-none focus:ring-2 focus:ring-primary"
+                className="w-full px-4 py-3 rounded-xl bg-background border border-border text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary"
                 placeholder="••••••••"
                 required
                 minLength={6}
@@ -132,7 +132,7 @@ export default function AdminLogin() {
           </button>
 
           {authLoading && (
-            <p className="text-xs text-white/60 text-center">
+            <p className="text-xs text-muted-foreground text-center">
               {t({ pt: "A preparar sessão...", en: "Preparing session..." })}
             </p>
           )}
@@ -140,14 +140,14 @@ export default function AdminLogin() {
 
         <button
           onClick={() => setIsSignUp(!isSignUp)}
-          className="w-full mt-4 py-3 text-sm text-white/60 hover:text-white transition-colors"
+          className="w-full mt-4 py-3 text-sm text-muted-foreground hover:text-foreground transition-colors"
         >
           {isSignUp
             ? t({ pt: "Já tem conta? Faça login", en: "Have an account? Sign in" })
             : t({ pt: "Não tem conta? Crie uma", en: "No account? Create one" })}
         </button>
 
-        <p className="mt-6 text-xs text-white/40 text-center">
+        <p className="mt-6 text-xs text-muted-foreground text-center">
           {t({
             pt: "Apenas administradores podem gerir receitas.",
             en: "Only admins can manage recipes.",
